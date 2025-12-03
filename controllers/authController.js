@@ -92,12 +92,8 @@ exports.login = async (req, res) => {
 
         req.flash('success', 'Welcome back, ' + user.username + '!');
         
-        // Redirect based on role
-        if (user.role === 'admin') {
-            res.redirect('/admin/dashboard');
-        } else {
-            res.redirect('/');
-        }
+        // Regular users go to home page
+        res.redirect('/');
     } catch (error) {
         console.error('Login error:', error);
         req.flash('error', 'Login failed. Please try again.');
@@ -105,14 +101,11 @@ exports.login = async (req, res) => {
     }
 };
 
-// Handle logout
+// Handle logout (only destroys user session, keeps admin session)
 exports.logout = (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Logout error:', err);
-        }
-        res.redirect('/');
-    });
+    delete req.session.user;
+    req.flash('success', 'You have been logged out');
+    res.redirect('/');
 };
 
 // Get user profile

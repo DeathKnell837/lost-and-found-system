@@ -4,7 +4,7 @@ const path = require('path');
 
 // Admin login page
 exports.getLoginPage = (req, res) => {
-    if (req.session.user && req.session.user.role === 'admin') {
+    if (req.session.admin) {
         return res.redirect('/admin/dashboard');
     }
     res.render('admin/login', {
@@ -34,7 +34,8 @@ exports.login = async (req, res) => {
             return res.redirect('/admin/login');
         }
 
-        req.session.user = {
+        // Use separate admin session (doesn't affect user session)
+        req.session.admin = {
             id: user._id,
             username: user.username,
             email: user.email,
@@ -50,9 +51,10 @@ exports.login = async (req, res) => {
     }
 };
 
-// Admin logout
+// Admin logout (only destroys admin session, keeps user session)
 exports.logout = (req, res) => {
-    req.session.destroy();
+    delete req.session.admin;
+    req.flash('success', 'Logged out from admin panel');
     res.redirect('/admin/login');
 };
 
@@ -465,7 +467,7 @@ exports.toggleUserStatus = async (req, res) => {
         }
 
         // Prevent deactivating yourself
-        if (user._id.toString() === req.session.user.id) {
+        if (user._id.toString() === req.session.admin.id) {
             req.flash('error', 'Cannot deactivate your own account');
             return res.redirect('/admin/users');
         }

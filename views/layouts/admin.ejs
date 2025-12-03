@@ -9,12 +9,12 @@
     <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body class="admin-body">
-    <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+    <% if (typeof admin !== 'undefined' && admin) { %>
         <%- include('../partials/admin-sidebar') %>
     <% } %>
     
-    <div class="admin-content <%= (typeof user !== 'undefined' && user && user.role === 'admin') ? 'with-sidebar' : '' %>">
-        <% if (typeof user !== 'undefined' && user && user.role === 'admin') { %>
+    <div class="admin-content <%= (typeof admin !== 'undefined' && admin) ? 'with-sidebar' : '' %>">
+        <% if (typeof admin !== 'undefined' && admin) { %>
             <%- include('../partials/admin-header') %>
         <% } %>
         
