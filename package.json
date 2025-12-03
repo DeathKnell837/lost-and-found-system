@@ -8,11 +8,17 @@
     "dev": "nodemon server.js",
     "seed": "node seeds/seed.js"
   },
-  "keywords": ["lost", "found", "management", "campus"],
+  "keywords": [
+    "lost",
+    "found",
+    "management",
+    "campus"
+  ],
   "author": "Software Engineering Project",
   "license": "MIT",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^1.41.3",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^5.1.0",
     "dotenv": "^16.3.1",
@@ -24,6 +30,7 @@
     "method-override": "^3.0.0",
     "mongoose": "^8.0.3",
     "multer": "^2.0.0",
+    "multer-storage-cloudinary": "^4.0.0",
     "sharp": "^0.33.1"
   },
   "devDependencies": {

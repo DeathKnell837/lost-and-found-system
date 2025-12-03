@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/itemController');
-const upload = require('../config/multer');
+const { upload } = require('../config/cloudinary');
 
 // Report lost item form
 router.get('/lost', itemController.getReportLostForm);

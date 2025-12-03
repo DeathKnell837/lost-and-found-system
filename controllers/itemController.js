@@ -1,6 +1,5 @@
 const { Item, Category } = require('../models');
-const fs = require('fs');
-const path = require('path');
+const { cloudinary } = require('../config/cloudinary');
 
 // Get lost items listing page
 exports.getLostItems = async (req, res) => {
@@ -237,7 +236,7 @@ exports.reportLostItem = async (req, res) => {
             type: 'lost',
             status: 'pending',
             reportedBy: req.session.user ? req.session.user.id : null,
-            imagePath: req.file ? '/uploads/' + req.file.filename : null
+            imagePath: req.file ? req.file.path : null
         });
 
         await item.save();
@@ -246,9 +245,9 @@ exports.reportLostItem = async (req, res) => {
         res.redirect('/items/lost');
     } catch (error) {
         console.error('Error reporting lost item:', error);
-        // Clean up uploaded file if exists
-        if (req.file) {
-            fs.unlink(path.join(__dirname, '../public/uploads/', req.file.filename), () => {});
+        // Clean up uploaded file from Cloudinary if exists
+        if (req.file && req.file.filename) {
+            cloudinary.uploader.destroy(req.file.filename).catch(() => {});
         }
         req.flash('error', 'Error submitting report. Please try again.');
         res.redirect('/report/lost');
@@ -281,7 +280,7 @@ exports.reportFoundItem = async (req, res) => {
             type: 'found',
             status: 'pending',
             reportedBy: req.session.user ? req.session.user.id : null,
-            imagePath: req.file ? '/uploads/' + req.file.filename : null
+            imagePath: req.file ? req.file.path : null
         });
 
         await item.save();
@@ -290,9 +289,9 @@ exports.reportFoundItem = async (req, res) => {
         res.redirect('/items/found');
     } catch (error) {
         console.error('Error reporting found item:', error);
-        // Clean up uploaded file if exists
-        if (req.file) {
-            fs.unlink(path.join(__dirname, '../public/uploads/', req.file.filename), () => {});
+        // Clean up uploaded file from Cloudinary if exists
+        if (req.file && req.file.filename) {
+            cloudinary.uploader.destroy(req.file.filename).catch(() => {});
         }
         req.flash('error', 'Error submitting report. Please try again.');
         res.redirect('/report/found');

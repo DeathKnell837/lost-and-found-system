@@ -1,6 +1,5 @@
 const { User, Item, Category } = require('../models');
-const fs = require('fs');
-const path = require('path');
+const { cloudinary } = require('../config/cloudinary');
 
 // Admin login page
 exports.getLoginPage = (req, res) => {
@@ -240,14 +239,15 @@ exports.updateItem = async (req, res) => {
 
         // Handle new image upload
         if (req.file) {
-            // Delete old image if exists
+            // Delete old image from Cloudinary if exists
             if (item.imagePath) {
-                const oldPath = path.join(__dirname, '../public', item.imagePath);
-                fs.unlink(oldPath, (err) => {
-                    if (err) console.log('Error deleting old image:', err);
-                });
+                // Extract public_id from Cloudinary URL
+                const urlParts = item.imagePath.split('/');
+                const publicIdWithExt = urlParts.slice(-2).join('/'); // folder/filename
+                const publicId = publicIdWithExt.replace(/\.[^/.]+$/, ''); // remove extension
+                cloudinary.uploader.destroy(publicId).catch(err => console.log('Error deleting old image:', err));
             }
-            item.imagePath = '/uploads/' + req.file.filename;
+            item.imagePath = req.file.path;
         }
 
         await item.save();
@@ -323,12 +323,12 @@ exports.deleteItem = async (req, res) => {
             return res.redirect('/admin/items');
         }
 
-        // Delete image if exists
+        // Delete image from Cloudinary if exists
         if (item.imagePath) {
-            const imagePath = path.join(__dirname, '../public', item.imagePath);
-            fs.unlink(imagePath, (err) => {
-                if (err) console.log('Error deleting image:', err);
-            });
+            const urlParts = item.imagePath.split('/');
+            const publicIdWithExt = urlParts.slice(-2).join('/');
+            const publicId = publicIdWithExt.replace(/\.[^/.]+$/, '');
+            cloudinary.uploader.destroy(publicId).catch(err => console.log('Error deleting image:', err));
         }
 
         await Item.findByIdAndDelete(req.params.id);
