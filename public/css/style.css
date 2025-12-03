@@ -1569,6 +1569,33 @@ body.dark-mode .breadcrumb-item + .breadcrumb-item::before {
     color: var(--text-muted);
 }
 
+/* Dark Mode - Fix text-dark class */
+body.dark-mode .text-dark {
+    color: var(--text-primary) !important;
+}
+
+/* Dark Mode - Item Details Page */
+body.dark-mode .item-value,
+body.dark-mode .contact-value {
+    color: var(--text-primary);
+}
+
+body.dark-mode .lead {
+    color: var(--text-secondary);
+}
+
+body.dark-mode p {
+    color: var(--text-secondary);
+}
+
+body.dark-mode strong {
+    color: var(--text-primary);
+}
+
+body.dark-mode .fw-bold {
+    color: var(--text-primary);
+}
+
 /* Dark Mode Transition */
 body,
 .navbar,

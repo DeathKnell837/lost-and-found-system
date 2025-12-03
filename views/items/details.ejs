@@ -53,7 +53,7 @@
                                 <i class="fas fa-map-marker-alt fa-fw me-2 text-danger"></i>
                                 <div>
                                     <small class="d-block text-uppercase">Location</small>
-                                    <strong class="text-dark"><%= item.location %></strong>
+                                    <strong class="item-value"><%= item.location %></strong>
                                 </div>
                             </div>
                         </div>
@@ -62,7 +62,7 @@
                                 <i class="fas fa-calendar fa-fw me-2 text-primary"></i>
                                 <div>
                                     <small class="d-block text-uppercase">Date <%= item.type === 'lost' ? 'Lost' : 'Found' %></small>
-                                    <strong class="text-dark">
+                                    <strong class="item-value">
                                         <%= new Date(item.dateLostFound).toLocaleDateString('en-US', { 
                                             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
                                         }) %>
@@ -75,7 +75,7 @@
                                 <i class="fas fa-clock fa-fw me-2 text-info"></i>
                                 <div>
                                     <small class="d-block text-uppercase">Date Reported</small>
-                                    <strong class="text-dark">
+                                    <strong class="item-value">
                                         <%= new Date(item.dateReported).toLocaleDateString('en-US', { 
                                             year: 'numeric', month: 'long', day: 'numeric' 
                                         }) %>
@@ -89,7 +89,7 @@
                                     <i class="fas fa-handshake fa-fw me-2 text-success"></i>
                                     <div>
                                         <small class="d-block text-uppercase">Claimed On</small>
-                                        <strong class="text-dark">
+                                        <strong class="item-value">
                                             <%= new Date(item.claimedBy.date).toLocaleDateString('en-US', { 
                                                 year: 'numeric', month: 'long', day: 'numeric' 
                                             }) %>
@@ -118,7 +118,7 @@
                     <% if (item.status !== 'claimed') { %>
                         <div class="mb-3">
                             <label class="text-muted small">Reported By</label>
-                            <p class="mb-0 fw-bold"><%= item.reporterName %></p>
+                            <p class="mb-0 fw-bold contact-value"><%= item.reporterName %></p>
                         </div>
                         <div class="mb-3">
                             <label class="text-muted small">Email</label>
@@ -128,7 +128,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="text-muted small">Contact Info</label>
-                            <p class="mb-0"><%= item.contactInfo %></p>
+                            <p class="mb-0 contact-value"><%= item.contactInfo %></p>
                         </div>
                         <hr>
                         <a href="mailto:<%= item.reporterEmail %>?subject=Regarding: <%= item.itemName %>" 
