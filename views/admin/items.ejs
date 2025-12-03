@@ -1,34 +1,42 @@
 <div class="dashboard-content">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>Manage Items</h2>
-        <span class="badge bg-primary"><%= totalItems %> items</span>
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-1"><i class="fas fa-box text-primary me-2"></i> All Items</h2>
+            <p class="text-muted mb-0">Manage all lost and found items</p>
+        </div>
+        <span class="badge bg-primary fs-6"><%= totalItems %> items</span>
     </div>
     
-    <!-- Filters -->
-    <div class="card border-0 shadow-sm mb-3">
-        <div class="card-body py-2">
-            <form action="/admin/items" method="GET" class="row g-2 align-items-center">
+    <!-- Filters Card -->
+    <div class="card mb-3">
+        <div class="card-body py-3">
+            <form action="/admin/items" method="GET" class="row g-2 align-items-end">
                 <div class="col-md-3">
+                    <label class="form-label small text-muted mb-1">Search</label>
                     <input type="text" class="form-control form-control-sm" name="search" 
-                           value="<%= query.search || '' %>" placeholder="Search items...">
+                           value="<%= query.search || '' %>" placeholder="Item name, location...">
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label small text-muted mb-1">Status</label>
                     <select class="form-select form-select-sm" name="status">
                         <option value="">All Status</option>
-                        <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                        <option value="approved" <%= query.status === 'approved' ? 'selected' : '' %>>Approved</option>
-                        <option value="claimed" <%= query.status === 'claimed' ? 'selected' : '' %>>Claimed</option>
-                        <option value="rejected" <%= query.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                        <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>⏳ Pending</option>
+                        <option value="approved" <%= query.status === 'approved' ? 'selected' : '' %>>✓ Approved</option>
+                        <option value="claimed" <%= query.status === 'claimed' ? 'selected' : '' %>>🤝 Claimed</option>
+                        <option value="rejected" <%= query.status === 'rejected' ? 'selected' : '' %>>✗ Rejected</option>
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <label class="form-label small text-muted mb-1">Type</label>
                     <select class="form-select form-select-sm" name="type">
                         <option value="">All Types</option>
-                        <option value="lost" <%= query.type === 'lost' ? 'selected' : '' %>>Lost</option>
-                        <option value="found" <%= query.type === 'found' ? 'selected' : '' %>>Found</option>
+                        <option value="lost" <%= query.type === 'lost' ? 'selected' : '' %>>🔴 Lost</option>
+                        <option value="found" <%= query.type === 'found' ? 'selected' : '' %>>🟢 Found</option>
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <label class="form-label small text-muted mb-1">Category</label>
                     <select class="form-select form-select-sm" name="category">
                         <option value="">All Categories</option>
                         <% categories.forEach(function(cat) { %>
@@ -40,7 +48,7 @@
                 </div>
                 <div class="col-md-2">
                     <button type="submit" class="btn btn-primary btn-sm w-100">
-                        <i class="fas fa-filter me-1"></i> Filter
+                        <i class="fas fa-search me-1"></i> Search
                     </button>
                 </div>
             </form>
@@ -48,21 +56,21 @@
     </div>
     
     <!-- Items Table -->
-    <div class="card border-0 shadow-sm">
+    <div class="card">
         <div class="card-body p-0">
             <% if (items.length > 0) { %>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                        <thead>
                             <tr>
-                                <th style="width: 50px"></th>
-                                <th>Item</th>
+                                <th style="width: 50px">Image</th>
+                                <th>Item Details</th>
                                 <th>Category</th>
                                 <th>Type</th>
                                 <th>Status</th>
                                 <th>Reporter</th>
                                 <th>Date</th>
-                                <th style="width: 140px">Actions</th>
+                                <th style="width: 160px" class="text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -78,27 +86,28 @@
                                         <% } %>
                                     </td>
                                     <td>
-                                        <strong class="d-block text-truncate" style="max-width: 180px;"><%= item.itemName %></strong>
+                                        <strong class="d-block"><%= item.itemName %></strong>
                                         <small class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-1"></i><%= item.location.substring(0, 25) %><%= item.location.length > 25 ? '...' : '' %>
+                                            <i class="fas fa-map-marker-alt me-1"></i><%= item.location.substring(0, 30) %><%= item.location.length > 30 ? '...' : '' %>
                                         </small>
                                     </td>
                                     <td>
                                         <% if (item.category) { %>
-                                            <%= item.category.name %>
+                                            <span class="badge bg-light text-dark"><%= item.category.name %></span>
                                         <% } else { %>
-                                            <span class="text-muted">N/A</span>
+                                            <span class="text-muted">—</span>
                                         <% } %>
                                     </td>
                                     <td>
                                         <span class="badge bg-<%= item.type === 'lost' ? 'danger' : 'success' %>">
+                                            <i class="fas fa-<%= item.type === 'lost' ? 'search' : 'hand-holding' %> me-1"></i>
                                             <%= item.type %>
                                         </span>
                                     </td>
                                     <td>
                                         <span class="badge bg-<%= 
                                             item.status === 'approved' ? 'primary' : 
-                                            item.status === 'pending' ? 'warning text-dark' : 
+                                            item.status === 'pending' ? 'warning' : 
                                             item.status === 'claimed' ? 'info' : 'secondary' 
                                         %>">
                                             <%= item.status %>
@@ -112,29 +121,32 @@
                                         <small><%= new Date(item.dateReported).toLocaleDateString() %></small>
                                     </td>
                                     <td>
-                                        <div class="btn-group btn-group-sm">
+                                        <div class="d-flex gap-1 justify-content-center">
                                             <% if (item.status === 'pending') { %>
                                                 <form action="/admin/items/<%= item._id %>/approve" method="POST" class="d-inline">
-                                                    <button type="submit" class="btn btn-success" title="Approve">
+                                                    <button type="submit" class="btn btn-sm btn-success" title="Approve">
                                                         <i class="fas fa-check"></i>
                                                     </button>
                                                 </form>
-                                                <button type="button" class="btn btn-danger" title="Reject"
+                                                <button type="button" class="btn btn-sm btn-danger" title="Reject"
                                                         data-bs-toggle="modal" data-bs-target="#rejectModal<%= item._id %>">
                                                     <i class="fas fa-times"></i>
                                                 </button>
                                             <% } %>
                                             <% if (item.status === 'approved') { %>
-                                                <button type="button" class="btn btn-info" title="Mark as Claimed"
+                                                <button type="button" class="btn btn-sm btn-info" title="Mark as Claimed"
                                                         data-bs-toggle="modal" data-bs-target="#claimModal<%= item._id %>">
                                                     <i class="fas fa-handshake"></i>
                                                 </button>
                                             <% } %>
-                                            <a href="/admin/items/<%= item._id %>/edit" class="btn btn-outline-primary" title="Edit">
+                                            <a href="/admin/items/<%= item._id %>/edit" class="btn btn-sm btn-secondary" title="Edit">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                            <button type="button" class="btn btn-outline-danger" title="Delete"
+                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
                                                     data-bs-toggle="modal" data-bs-target="#deleteModal<%= item._id %>">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>

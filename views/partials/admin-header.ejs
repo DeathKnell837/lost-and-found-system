@@ -1,26 +1,36 @@
 <header class="admin-header">
     <div class="header-left">
-        <button class="btn btn-link sidebar-toggle d-lg-none" id="sidebarToggle">
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
             <i class="fas fa-bars"></i>
         </button>
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
-                <li class="breadcrumb-item"><a href="/admin/dashboard">Admin</a></li>
+                <li class="breadcrumb-item"><a href="/admin/dashboard"><i class="fas fa-home"></i></a></li>
                 <li class="breadcrumb-item active"><%= typeof title !== 'undefined' ? title.replace(' - Admin', '').replace(' - Lost & Found', '') : 'Dashboard' %></li>
             </ol>
         </nav>
     </div>
     <div class="header-right">
+        <a href="/" target="_blank" class="btn btn-sm btn-secondary">
+            <i class="fas fa-globe"></i> View Site
+        </a>
         <div class="dropdown">
-            <button class="btn btn-link dropdown-toggle user-dropdown" type="button" data-bs-toggle="dropdown">
-                <i class="fas fa-user-circle me-2"></i>
+            <button class="user-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle"></i>
                 <span><%= admin.username %></span>
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="/"><i class="fas fa-home me-2"></i> View Site</a></li>
+                <li><span class="dropdown-item"><i class="fas fa-shield-alt"></i> Administrator</span></li>
                 <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="/admin/logout"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                <li><a class="dropdown-item text-danger" href="/admin/logout"><i class="fas fa-sign-out-alt"></i> Sign Out</a></li>
             </ul>
         </div>
     </div>
 </header>
+
+<script>
+function toggleSidebar() {
+    document.getElementById('adminSidebar').classList.toggle('show');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+</script>

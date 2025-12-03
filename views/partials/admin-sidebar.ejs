@@ -1,38 +1,44 @@
-<aside class="admin-sidebar">
+<aside class="admin-sidebar" id="adminSidebar">
     <div class="sidebar-header">
         <a href="/admin/dashboard" class="sidebar-brand">
             <i class="fas fa-search-location"></i>
-            <span>L&F Admin</span>
+            <span>Lost & Found</span>
         </a>
     </div>
     
     <nav class="sidebar-nav">
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link" href="/admin/dashboard">
-                    <i class="fas fa-tachometer-alt"></i>
+                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'active' : '' %>" href="/admin/dashboard">
+                    <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             
-            <li class="nav-section">Items Management</li>
+            <li class="nav-section">Manage Items</li>
             
             <li class="nav-item">
-                <a class="nav-link" href="/admin/items/pending">
+                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'pending' ? 'active' : '' %>" href="/admin/items/pending">
                     <i class="fas fa-clock"></i>
-                    <span>Pending Items</span>
+                    <span>Pending Review</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/items">
-                    <i class="fas fa-boxes"></i>
+                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'items' ? 'active' : '' %>" href="/admin/items">
+                    <i class="fas fa-box"></i>
                     <span>All Items</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/items?status=approved">
+                <a class="nav-link" href="/admin/items?type=lost&status=approved">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Lost Items</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/items?type=found&status=approved">
                     <i class="fas fa-check-circle"></i>
-                    <span>Approved Items</span>
+                    <span>Found Items</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -45,32 +51,33 @@
             <li class="nav-section">Settings</li>
             
             <li class="nav-item">
-                <a class="nav-link" href="/admin/categories">
-                    <i class="fas fa-tags"></i>
+                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'categories' ? 'active' : '' %>" href="/admin/categories">
+                    <i class="fas fa-folder"></i>
                     <span>Categories</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="/admin/users">
+                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'users' ? 'active' : '' %>" href="/admin/users">
                     <i class="fas fa-users"></i>
                     <span>Users</span>
                 </a>
             </li>
             
-            <li class="nav-section">Navigation</li>
+            <li class="nav-section">Quick Links</li>
             
             <li class="nav-item">
                 <a class="nav-link" href="/" target="_blank">
-                    <i class="fas fa-external-link-alt"></i>
-                    <span>View Site</span>
+                    <i class="fas fa-globe"></i>
+                    <span>View Website</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link text-danger" href="/admin/logout">
                     <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
+                    <span>Sign Out</span>
                 </a>
             </li>
         </ul>
     </nav>
 </aside>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
