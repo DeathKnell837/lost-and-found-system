@@ -1,0 +1,178 @@
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Lost Something? Found Something?</h1>
+                <p class="lead mb-4">
+                    Our campus lost and found system helps you report lost items or 
+                    help reunite found items with their owners. Simple, fast, and effective.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/report/lost" class="btn btn-danger btn-lg">
+                        <i class="fas fa-exclamation-triangle me-2"></i> Report Lost Item
+                    </a>
+                    <a href="/report/found" class="btn btn-success btn-lg">
+                        <i class="fas fa-hand-holding-heart me-2"></i> Report Found Item
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+                <div class="hero-illustration">
+                    <i class="fas fa-search-location"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="stat-card text-center p-4 bg-white rounded shadow-sm">
+                    <div class="stat-icon text-danger mb-3">
+                        <i class="fas fa-exclamation-circle fa-3x"></i>
+                    </div>
+                    <h2 class="stat-number"><%= stats.totalLost %></h2>
+                    <p class="stat-label text-muted mb-0">Lost Items Reported</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card text-center p-4 bg-white rounded shadow-sm">
+                    <div class="stat-icon text-success mb-3">
+                        <i class="fas fa-check-circle fa-3x"></i>
+                    </div>
+                    <h2 class="stat-number"><%= stats.totalFound %></h2>
+                    <p class="stat-label text-muted mb-0">Found Items Reported</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card text-center p-4 bg-white rounded shadow-sm">
+                    <div class="stat-icon text-primary mb-3">
+                        <i class="fas fa-handshake fa-3x"></i>
+                    </div>
+                    <h2 class="stat-number"><%= stats.totalClaimed %></h2>
+                    <p class="stat-label text-muted mb-0">Items Successfully Claimed</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Search Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="search-box p-4 bg-white rounded shadow">
+                    <h4 class="text-center mb-4">
+                        <i class="fas fa-search me-2"></i> Search for Items
+                    </h4>
+                    <form action="/search" method="GET">
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <input type="text" class="form-control form-control-lg" 
+                                       name="q" placeholder="Search by item name, description, or location...">
+                            </div>
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-primary btn-lg w-100">
+                                    <i class="fas fa-search me-2"></i> Search
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Lost Items -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="section-title">
+                <i class="fas fa-exclamation-circle text-danger me-2"></i> Recent Lost Items
+            </h3>
+            <a href="/items/lost" class="btn btn-outline-danger">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        
+        <% if (recentLost.length > 0) { %>
+            <div class="row g-4">
+                <% recentLost.forEach(function(item) { %>
+                    <div class="col-md-6 col-lg-4">
+                        <%- include('partials/item-card', { item: item }) %>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                <p class="text-muted">No lost items reported yet.</p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- Recent Found Items -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="section-title">
+                <i class="fas fa-check-circle text-success me-2"></i> Recent Found Items
+            </h3>
+            <a href="/items/found" class="btn btn-outline-success">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        
+        <% if (recentFound.length > 0) { %>
+            <div class="row g-4">
+                <% recentFound.forEach(function(item) { %>
+                    <div class="col-md-6 col-lg-4">
+                        <%- include('partials/item-card', { item: item }) %>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                <p class="text-muted">No found items reported yet.</p>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <h3 class="text-center mb-5">How It Works</h3>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number mb-3">1</div>
+                    <h5>Report</h5>
+                    <p class="mb-0">Submit a detailed report of your lost or found item with photos and description.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number mb-3">2</div>
+                    <h5>Review</h5>
+                    <p class="mb-0">Our admin team reviews and approves your report for public listing.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center">
+                    <div class="step-number mb-3">3</div>
+                    <h5>Connect</h5>
+                    <p class="mb-0">Get connected with the finder/owner and claim your item.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

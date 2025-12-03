@@ -1,0 +1,83 @@
+<div class="container py-4">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="page-header">
+            <h2 class="mb-0">
+                <i class="fas fa-check-circle text-success me-2"></i>Found Items
+            </h2>
+            <p class="text-muted mb-0 mt-1">Browse items found and reported on campus</p>
+        </div>
+        <a href="/report/found" class="btn btn-success btn-sm">
+            <i class="fas fa-plus me-1"></i> Report Found
+        </a>
+    </div>
+    
+    <!-- Filters -->
+    <div class="filter-card shadow-sm mb-3">
+        <form action="/items/found" method="GET" class="row g-2 align-items-end">
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label">Category</label>
+                <select class="form-select form-select-sm" name="category">
+                    <option value="">All Categories</option>
+                    <% categories.forEach(function(cat) { %>
+                        <option value="<%= cat._id %>" <%= query.category === cat._id.toString() ? 'selected' : '' %>>
+                            <%= cat.name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label">From</label>
+                <input type="date" class="form-control form-control-sm" name="dateFrom" value="<%= query.dateFrom || '' %>">
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label">To</label>
+                <input type="date" class="form-control form-control-sm" name="dateTo" value="<%= query.dateTo || '' %>">
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label">Search</label>
+                <input type="text" class="form-control form-control-sm" name="q" placeholder="Search..." value="<%= query.q || '' %>">
+            </div>
+            <div class="col-md-2 col-sm-12">
+                <button type="submit" class="btn btn-primary btn-sm w-100">
+                    <i class="fas fa-filter me-1"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Results Count -->
+    <% if (items.length > 0) { %>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="text-muted mb-0 text-sm">Showing <strong><%= items.length %></strong> of <strong><%= totalItems %></strong> items</p>
+        </div>
+    <% } %>
+    
+    <!-- Items Grid -->
+    <% if (items.length > 0) { %>
+        <div class="row g-3">
+            <% items.forEach(function(item) { %>
+                <div class="col-6 col-md-4 col-lg-3 col-xl-2">
+                    <%- include('../partials/item-card', { item: item }) %>
+                </div>
+            <% }); %>
+        </div>
+        
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+            <%- include('../partials/pagination', { currentPage, totalPages, totalItems, query }) %>
+        <% } %>
+    <% } else { %>
+        <div class="empty-state text-center">
+            <i class="fas fa-inbox mb-3"></i>
+            <h4>No found items</h4>
+            <p class="text-muted text-sm">
+                <% if (Object.keys(query).length > 0) { %>
+                    Try adjusting your filters or <a href="/items/found">clear all filters</a>
+                <% } else { %>
+                    No found items have been reported yet.
+                <% } %>
+            </p>
+        </div>
+    <% } %>
+</div>

@@ -1,0 +1,91 @@
+<div class="container py-5">
+    <!-- Search Header -->
+    <div class="mb-4">
+        <h2 class="mb-1">
+            <i class="fas fa-search me-2"></i> Search Results
+        </h2>
+        <% if (searchTerm) { %>
+            <p class="text-muted mb-0">
+                Showing results for "<strong><%= searchTerm %></strong>" - <%= totalItems %> item(s) found
+            </p>
+        <% } %>
+    </div>
+    
+    <!-- Search Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form action="/search" method="GET">
+                <div class="row g-3">
+                    <div class="col-lg-4">
+                        <label class="form-label">Search</label>
+                        <input type="text" class="form-control" name="q" 
+                               value="<%= query.q || '' %>" placeholder="Search by name, description, location...">
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" name="type">
+                            <option value="">All Types</option>
+                            <option value="lost" <%= query.type === 'lost' ? 'selected' : '' %>>Lost</option>
+                            <option value="found" <%= query.type === 'found' ? 'selected' : '' %>>Found</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" name="category">
+                            <option value="">All Categories</option>
+                            <% categories.forEach(function(cat) { %>
+                                <option value="<%= cat._id %>" <%= query.category === cat._id.toString() ? 'selected' : '' %>>
+                                    <%= cat.name %>
+                                </option>
+                            <% }); %>
+                        </select>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label">Date From</label>
+                        <input type="date" class="form-control" name="dateFrom" value="<%= query.dateFrom || '' %>">
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <label class="form-label">Date To</label>
+                        <input type="date" class="form-control" name="dateTo" value="<%= query.dateTo || '' %>">
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Search
+                        </button>
+                        <a href="/search" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-times me-1"></i> Clear Filters
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Results -->
+    <% if (items.length > 0) { %>
+        <div class="row g-4">
+            <% items.forEach(function(item) { %>
+                <div class="col-md-6 col-lg-4 col-xl-3">
+                    <%- include('../partials/item-card', { item: item }) %>
+                </div>
+            <% }); %>
+        </div>
+        
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+            <%- include('../partials/pagination', { currentPage, totalPages, totalItems, query }) %>
+        <% } %>
+    <% } else { %>
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-4x text-muted mb-3"></i>
+            <h4 class="text-muted">No items found</h4>
+            <p class="text-muted">
+                <% if (searchTerm || Object.keys(query).length > 0) { %>
+                    Try different keywords or <a href="/search">clear all filters</a>
+                <% } else { %>
+                    Enter a search term to find items
+                <% } %>
+            </p>
+        </div>
+    <% } %>
+</div>

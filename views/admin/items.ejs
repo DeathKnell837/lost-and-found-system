@@ -1,0 +1,245 @@
+<div class="dashboard-content">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>Manage Items</h2>
+        <span class="badge bg-primary"><%= totalItems %> items</span>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body py-2">
+            <form action="/admin/items" method="GET" class="row g-2 align-items-center">
+                <div class="col-md-3">
+                    <input type="text" class="form-control form-control-sm" name="search" 
+                           value="<%= query.search || '' %>" placeholder="Search items...">
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" name="status">
+                        <option value="">All Status</option>
+                        <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                        <option value="approved" <%= query.status === 'approved' ? 'selected' : '' %>>Approved</option>
+                        <option value="claimed" <%= query.status === 'claimed' ? 'selected' : '' %>>Claimed</option>
+                        <option value="rejected" <%= query.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-select form-select-sm" name="type">
+                        <option value="">All Types</option>
+                        <option value="lost" <%= query.type === 'lost' ? 'selected' : '' %>>Lost</option>
+                        <option value="found" <%= query.type === 'found' ? 'selected' : '' %>>Found</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-sm" name="category">
+                        <option value="">All Categories</option>
+                        <% categories.forEach(function(cat) { %>
+                            <option value="<%= cat._id %>" <%= query.category === cat._id.toString() ? 'selected' : '' %>>
+                                <%= cat.name %>
+                            </option>
+                        <% }); %>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary btn-sm w-100">
+                        <i class="fas fa-filter me-1"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Items Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <% if (items.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 50px"></th>
+                                <th>Item</th>
+                                <th>Category</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Reporter</th>
+                                <th>Date</th>
+                                <th style="width: 140px">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% items.forEach(function(item) { %>
+                                <tr>
+                                    <td>
+                                        <% if (item.imagePath) { %>
+                                            <img src="<%= item.imagePath %>" class="item-thumb" alt="<%= item.itemName %>">
+                                        <% } else { %>
+                                            <div class="item-thumb-placeholder">
+                                                <i class="fas fa-image"></i>
+                                            </div>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <strong class="d-block text-truncate" style="max-width: 180px;"><%= item.itemName %></strong>
+                                        <small class="text-muted">
+                                            <i class="fas fa-map-marker-alt me-1"></i><%= item.location.substring(0, 25) %><%= item.location.length > 25 ? '...' : '' %>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <% if (item.category) { %>
+                                            <%= item.category.name %>
+                                        <% } else { %>
+                                            <span class="text-muted">N/A</span>
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<%= item.type === 'lost' ? 'danger' : 'success' %>">
+                                            <%= item.type %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<%= 
+                                            item.status === 'approved' ? 'primary' : 
+                                            item.status === 'pending' ? 'warning text-dark' : 
+                                            item.status === 'claimed' ? 'info' : 'secondary' 
+                                        %>">
+                                            <%= item.status %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <small class="d-block"><%= item.reporterName %></small>
+                                        <small class="text-muted"><%= item.reporterEmail %></small>
+                                    </td>
+                                    <td>
+                                        <small><%= new Date(item.dateReported).toLocaleDateString() %></small>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm">
+                                            <% if (item.status === 'pending') { %>
+                                                <form action="/admin/items/<%= item._id %>/approve" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-success" title="Approve">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                </form>
+                                                <button type="button" class="btn btn-danger" title="Reject"
+                                                        data-bs-toggle="modal" data-bs-target="#rejectModal<%= item._id %>">
+                                                    <i class="fas fa-times"></i>
+                                                </button>
+                                            <% } %>
+                                            <% if (item.status === 'approved') { %>
+                                                <button type="button" class="btn btn-info" title="Mark as Claimed"
+                                                        data-bs-toggle="modal" data-bs-target="#claimModal<%= item._id %>">
+                                                    <i class="fas fa-handshake"></i>
+                                                </button>
+                                            <% } %>
+                                            <a href="/admin/items/<%= item._id %>/edit" class="btn btn-outline-primary" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger" title="Delete"
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal<%= item._id %>">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Reject Modal -->
+                                        <div class="modal fade" id="rejectModal<%= item._id %>" tabindex="-1">
+                                            <div class="modal-dialog modal-sm">
+                                                <div class="modal-content">
+                                                    <form action="/admin/items/<%= item._id %>/reject" method="POST">
+                                                        <div class="modal-header py-2">
+                                                            <h6 class="modal-title">Reject Item</h6>
+                                                            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body py-2">
+                                                            <p class="small mb-2">Rejecting: <strong><%= item.itemName %></strong></p>
+                                                            <textarea class="form-control form-control-sm" name="reason" rows="2" 
+                                                                      placeholder="Reason..."></textarea>
+                                                        </div>
+                                                        <div class="modal-footer py-2">
+                                                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Claim Modal -->
+                                        <div class="modal fade" id="claimModal<%= item._id %>" tabindex="-1">
+                                            <div class="modal-dialog modal-sm">
+                                                <div class="modal-content">
+                                                    <form action="/admin/items/<%= item._id %>/claim" method="POST">
+                                                        <div class="modal-header py-2">
+                                                            <h6 class="modal-title">Mark as Claimed</h6>
+                                                            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal"></button>
+                                                        </div>
+                                                        <div class="modal-body py-2">
+                                                            <p class="small mb-2"><strong><%= item.itemName %></strong></p>
+                                                            <div class="mb-2">
+                                                                <input type="text" class="form-control form-control-sm" name="claimerName" placeholder="Claimer Name" required>
+                                                            </div>
+                                                            <div class="mb-2">
+                                                                <input type="email" class="form-control form-control-sm" name="claimerEmail" placeholder="Email" required>
+                                                            </div>
+                                                            <div>
+                                                                <input type="text" class="form-control form-control-sm" name="claimerPhone" placeholder="Phone (optional)">
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer py-2">
+                                                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-sm btn-info">Confirm</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Delete Modal -->
+                                        <div class="modal fade" id="deleteModal<%= item._id %>" tabindex="-1">
+                                            <div class="modal-dialog modal-sm">
+                                                <div class="modal-content">
+                                                    <div class="modal-header py-2">
+                                                        <h6 class="modal-title">Delete Item</h6>
+                                                        <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body py-2">
+                                                        <p class="small">Delete <strong><%= item.itemName %></strong>?</p>
+                                                        <p class="text-danger small mb-0">This cannot be undone.</p>
+                                                    </div>
+                                                    <div class="modal-footer py-2">
+                                                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form action="/admin/items/<%= item._id %>/delete" method="POST" class="d-inline">
+                                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <% if (totalPages > 1) { %>
+                    <div class="card-footer bg-white py-2">
+                        <nav>
+                            <ul class="pagination pagination-sm justify-content-center mb-0">
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %><%= Object.keys(query).filter(k => k !== 'page').map(k => '&' + k + '=' + query[k]).join('') %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <div class="text-center py-4">
+                    <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                    <p class="text-muted small mb-0">No items found</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>

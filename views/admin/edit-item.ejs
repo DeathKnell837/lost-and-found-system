@@ -1,0 +1,223 @@
+<div class="dashboard-content">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="/admin/items">Items</a></li>
+            <li class="breadcrumb-item active">Edit Item</li>
+        </ol>
+    </nav>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i> Edit Item</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/admin/items/<%= item._id %>" method="POST" enctype="multipart/form-data">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Item Name</label>
+                                <input type="text" class="form-control" name="itemName" 
+                                       value="<%= item.itemName %>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Category</label>
+                                <select class="form-select" name="category" required>
+                                    <% categories.forEach(function(cat) { %>
+                                        <option value="<%= cat._id %>" 
+                                            <%= item.category && item.category._id.toString() === cat._id.toString() ? 'selected' : '' %>>
+                                            <%= cat.name %>
+                                        </option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="description" rows="4" required><%= item.description %></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Location</label>
+                                <input type="text" class="form-control" name="location" 
+                                       value="<%= item.location %>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date Lost/Found</label>
+                                <input type="date" class="form-control" name="dateLostFound" 
+                                       value="<%= item.dateLostFound.toISOString().split('T')[0] %>" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Type</label>
+                                <select class="form-select" name="type" required>
+                                    <option value="lost" <%= item.type === 'lost' ? 'selected' : '' %>>Lost</option>
+                                    <option value="found" <%= item.type === 'found' ? 'selected' : '' %>>Found</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" name="status" required>
+                                    <option value="pending" <%= item.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                    <option value="approved" <%= item.status === 'approved' ? 'selected' : '' %>>Approved</option>
+                                    <option value="claimed" <%= item.status === 'claimed' ? 'selected' : '' %>>Claimed</option>
+                                    <option value="rejected" <%= item.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Contact Info</label>
+                                <input type="text" class="form-control" name="contactInfo" 
+                                       value="<%= item.contactInfo %>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Reporter Name</label>
+                                <input type="text" class="form-control" name="reporterName" 
+                                       value="<%= item.reporterName %>" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Reporter Email</label>
+                                <input type="email" class="form-control" name="reporterEmail" 
+                                       value="<%= item.reporterEmail %>" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Admin Notes</label>
+                                <textarea class="form-control" name="adminNotes" rows="2" 
+                                          placeholder="Internal notes..."><%= item.adminNotes || '' %></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Update Image</label>
+                                <input type="file" class="form-control" name="image" accept="image/*">
+                                <small class="text-muted">Leave empty to keep current image</small>
+                            </div>
+                            <div class="col-12">
+                                <hr>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save me-2"></i> Save Changes
+                                </button>
+                                <a href="/admin/items" class="btn btn-outline-secondary">Cancel</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Current Image -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Current Image</h6>
+                </div>
+                <div class="card-body text-center">
+                    <% if (item.imagePath) { %>
+                        <img src="<%= item.imagePath %>" class="img-fluid rounded" alt="<%= item.itemName %>">
+                    <% } else { %>
+                        <div class="py-5 bg-light rounded">
+                            <i class="fas fa-image fa-4x text-muted"></i>
+                            <p class="text-muted mt-2 mb-0">No image uploaded</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Quick Actions</h6>
+                </div>
+                <div class="card-body">
+                    <% if (item.status === 'pending') { %>
+                        <form action="/admin/items/<%= item._id %>/approve" method="POST" class="mb-2">
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="fas fa-check me-2"></i> Approve Item
+                            </button>
+                        </form>
+                    <% } %>
+                    <% if (item.status === 'approved') { %>
+                        <button type="button" class="btn btn-info w-100 mb-2" 
+                                data-bs-toggle="modal" data-bs-target="#claimModal">
+                            <i class="fas fa-handshake me-2"></i> Mark as Claimed
+                        </button>
+                    <% } %>
+                    <a href="/items/<%= item._id %>" target="_blank" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-external-link-alt me-2"></i> View Public Page
+                    </a>
+                    <button type="button" class="btn btn-outline-danger w-100" 
+                            data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <i class="fas fa-trash me-2"></i> Delete Item
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Item Info -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Item Information</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2"><small class="text-muted">Created:</small><br>
+                        <%= new Date(item.createdAt).toLocaleString() %>
+                    </p>
+                    <p class="mb-2"><small class="text-muted">Last Updated:</small><br>
+                        <%= new Date(item.updatedAt).toLocaleString() %>
+                    </p>
+                    <p class="mb-0"><small class="text-muted">ID:</small><br>
+                        <code><%= item._id %></code>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Claim Modal -->
+<div class="modal fade" id="claimModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/admin/items/<%= item._id %>/claim" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Mark as Claimed</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Claimer Name</label>
+                        <input type="text" class="form-control" name="claimerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Claimer Email</label>
+                        <input type="email" class="form-control" name="claimerEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Claimer Phone</label>
+                        <input type="text" class="form-control" name="claimerPhone">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-info">Mark as Claimed</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Delete Item</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete <strong><%= item.itemName %></strong>?</p>
+                <p class="text-danger"><small>This action cannot be undone.</small></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="/admin/items/<%= item._id %>/delete" method="POST" class="d-inline">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

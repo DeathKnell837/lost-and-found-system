@@ -1,0 +1,477 @@
+/* ================================
+   Lost & Found Management System
+   Main Stylesheet
+   ================================ */
+
+/* Variables */
+:root {
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #0dcaf0;
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+}
+
+/* Base Styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f7fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+}
+
+.main-content {
+    flex: 1;
+}
+
+/* Navbar - Compact */
+.navbar {
+    padding: 0.5rem 1rem;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 0;
+}
+
+.navbar-brand i {
+    font-size: 1.2rem;
+}
+
+.navbar .nav-link {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem !important;
+}
+
+.navbar .dropdown-menu {
+    border: none;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+    font-size: 0.875rem;
+}
+
+.navbar .input-group {
+    width: 200px;
+}
+
+.navbar .form-control {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.navbar .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Hero Section */
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+}
+
+.hero-illustration {
+    font-size: 150px;
+    opacity: 0.3;
+}
+
+.min-vh-50 {
+    min-height: 50vh;
+}
+
+/* Statistics */
+.stat-card {
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Step Numbers */
+.step-number {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+/* Item Cards - Compact Grid View */
+.item-card {
+    transition: all 0.2s ease;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.item-image {
+    height: 140px;
+    object-fit: cover;
+}
+
+.item-image-placeholder {
+    height: 140px;
+}
+
+.item-card .card-body {
+    padding: 0.75rem;
+}
+
+.item-card .card-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-card .card-text {
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+
+.item-description {
+    font-size: 0.8rem;
+    color: #6c757d;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+.item-card .card-footer {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+}
+
+.item-card .badge {
+    font-size: 0.7rem;
+    padding: 0.25em 0.5em;
+}
+
+/* List View Styles */
+.item-list .item-row {
+    background: white;
+    border-radius: 8px;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #e9ecef;
+    transition: all 0.2s ease;
+}
+
+.item-list .item-row:hover {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+    border-color: var(--primary-color);
+}
+
+.item-list .item-thumb {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.item-list .item-thumb-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Item Details Page */
+.item-detail-image {
+    max-height: 400px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.item-detail-placeholder {
+    height: 250px;
+}
+
+.related-item-img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.related-item-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 6px;
+}
+
+/* Claimed Overlay */
+.claimed-overlay {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+/* Search Box */
+.search-box {
+    border: 2px solid var(--primary-color);
+}
+
+/* Cards */
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card-header {
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.75rem 1rem;
+}
+
+/* Forms */
+.form-control,
+.form-select {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+}
+
+.form-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+/* Buttons */
+.btn {
+    border-radius: 6px;
+    padding: 0.4rem 1rem;
+    font-size: 0.875rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+.btn-lg {
+    padding: 0.6rem 1.25rem;
+    font-size: 1rem;
+}
+
+/* Pagination */
+.pagination .page-link {
+    border-radius: 6px;
+    margin: 0 2px;
+    border: none;
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+}
+
+/* Alerts */
+.alert {
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Footer */
+.footer {
+    margin-top: auto;
+    padding: 1.5rem 0;
+    font-size: 0.875rem;
+}
+
+.footer a:hover {
+    color: var(--primary-color) !important;
+}
+
+/* Section Titles */
+.section-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.page-header h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.page-header p {
+    font-size: 0.875rem;
+}
+
+/* Badges */
+.badge {
+    font-weight: 500;
+    padding: 0.3em 0.6em;
+    font-size: 0.75rem;
+}
+
+/* View Toggle */
+.view-toggle .btn {
+    padding: 0.375rem 0.625rem;
+}
+
+.view-toggle .btn.active {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Filter Card */
+.filter-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-card .form-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 40px 0;
+        text-align: center;
+    }
+    
+    .hero-illustration {
+        font-size: 80px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+    }
+    
+    .item-image {
+        height: 120px;
+    }
+    
+    .navbar .input-group {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+}
+
+/* Auth Pages */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Image Preview */
+.image-preview {
+    max-height: 150px;
+    border-radius: 6px;
+    margin-top: 8px;
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    display: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Object fit cover for images */
+.object-fit-cover {
+    object-fit: cover;
+}
+
+/* Purple color class */
+.text-purple {
+    color: #6f42c1 !important;
+}
+
+.bg-purple {
+    background-color: #6f42c1 !important;
+}
+
+/* Utility classes */
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+/* Empty state */
+.empty-state {
+    padding: 3rem 1rem;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #dee2e6;
+}
+
+.empty-state h4 {
+    font-size: 1.1rem;
+    color: #6c757d;
+}

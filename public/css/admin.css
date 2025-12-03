@@ -1,0 +1,460 @@
+/* ================================
+   Admin Panel Stylesheet
+   ================================ */
+
+/* Variables */
+:root {
+    --sidebar-width: 220px;
+    --sidebar-collapsed-width: 60px;
+    --header-height: 50px;
+    --primary-color: #0d6efd;
+    --sidebar-bg: #1e293b;
+    --sidebar-text: #94a3b8;
+    --sidebar-hover: #334155;
+}
+
+/* Admin Body */
+.admin-body {
+    background-color: #f1f5f9;
+    min-height: 100vh;
+    font-size: 14px;
+}
+
+/* Admin Login */
+.admin-login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+}
+
+.admin-login-card {
+    background: white;
+    padding: 32px;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.25);
+    width: 100%;
+    max-width: 360px;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    z-index: 1000;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.sidebar-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #334155;
+}
+
+.sidebar-brand {
+    color: white;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.sidebar-brand i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.sidebar-brand:hover {
+    color: white;
+}
+
+.sidebar-nav {
+    padding: 12px 0;
+}
+
+.sidebar-nav .nav {
+    flex-direction: column;
+}
+
+.sidebar-nav .nav-section {
+    padding: 12px 16px 6px;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.sidebar-nav .nav-item {
+    margin: 1px 8px;
+}
+
+.sidebar-nav .nav-link {
+    color: var(--sidebar-text);
+    padding: 8px 12px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.sidebar-nav .nav-link:hover {
+    background: var(--sidebar-hover);
+    color: white;
+}
+
+.sidebar-nav .nav-link.active {
+    background: var(--primary-color);
+    color: white;
+}
+
+.sidebar-nav .nav-link i {
+    width: 18px;
+    text-align: center;
+    font-size: 0.9rem;
+}
+
+/* Admin Content */
+.admin-content {
+    transition: all 0.3s ease;
+}
+
+.admin-content.with-sidebar {
+    margin-left: var(--sidebar-width);
+}
+
+/* Admin Header */
+.admin-header {
+    background: white;
+    height: var(--header-height);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-toggle {
+    font-size: 1rem;
+    color: #64748b;
+    padding: 4px 8px;
+}
+
+.user-dropdown {
+    color: #1e293b;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+}
+
+/* Admin Main Content */
+.admin-main {
+    padding: 16px 20px;
+    min-height: calc(100vh - var(--header-height));
+}
+
+.dashboard-content h2 {
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Stat Cards */
+.stat-card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card-body {
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.stat-icon {
+    font-size: 1.75rem;
+    opacity: 0.8;
+}
+
+.stat-details h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0;
+}
+
+.stat-details p {
+    margin-bottom: 0;
+    opacity: 0.8;
+    font-size: 0.8rem;
+}
+
+.stat-card-footer {
+    display: block;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+    font-size: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-card-footer:hover {
+    background: rgba(0, 0, 0, 0.15);
+    color: inherit;
+}
+
+/* Tables */
+.table {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+}
+
+.table th {
+    font-weight: 600;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #64748b;
+    border-bottom-width: 1px;
+    padding: 10px 8px;
+}
+
+.table td {
+    vertical-align: middle;
+    padding: 10px 8px;
+}
+
+/* Item Thumbnails */
+.item-thumb {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+
+.item-thumb-placeholder {
+    width: 40px;
+    height: 40px;
+    background: #e2e8f0;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    font-size: 0.875rem;
+}
+
+/* Cards in Admin */
+.card.border-0 {
+    border-radius: 10px;
+}
+
+.card-header.bg-white {
+    background: white !important;
+    border-bottom: 1px solid #e2e8f0;
+    font-weight: 600;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+}
+
+.card-body {
+    padding: 16px;
+}
+
+/* Category Icon */
+.category-icon {
+    width: 40px;
+    height: 40px;
+    background: #e0f2fe;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+}
+
+/* Buttons in Admin */
+.btn-group .btn {
+    border-radius: 5px !important;
+    margin: 0 1px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+}
+
+/* Admin Filter Form */
+.admin-main .form-control,
+.admin-main .form-select {
+    border-radius: 6px;
+    border-color: #e2e8f0;
+    font-size: 0.85rem;
+    padding: 6px 10px;
+}
+
+.admin-main .form-control-sm,
+.admin-main .form-select-sm {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+}
+
+.admin-main .form-control:focus,
+.admin-main .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.1);
+}
+
+.admin-main .form-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.admin-main .btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+}
+
+.admin-main .btn-sm {
+    font-size: 0.75rem;
+    padding: 4px 8px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .admin-sidebar {
+        transform: translateX(-100%);
+    }
+    
+    .admin-sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .admin-content.with-sidebar {
+        margin-left: 0;
+    }
+}
+
+/* Custom Colors */
+.bg-purple {
+    background-color: #7c3aed !important;
+}
+
+.text-purple {
+    color: #7c3aed !important;
+}
+
+.bg-opacity-10 {
+    opacity: 0.1;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0;
+    font-size: 0.85rem;
+}
+
+.breadcrumb-item a {
+    color: #64748b;
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    color: var(--primary-color);
+}
+
+.breadcrumb-item.active {
+    color: #1e293b;
+}
+
+/* Modal Styling */
+.modal-content {
+    border: none;
+    border-radius: 10px;
+}
+
+.modal-header {
+    border-bottom: 1px solid #e2e8f0;
+    padding: 12px 16px;
+}
+
+.modal-body {
+    padding: 16px;
+}
+
+.modal-footer {
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 16px;
+}
+
+/* User Avatar */
+.user-avatar {
+    color: #94a3b8;
+    font-size: 1.25rem;
+}
+
+/* Scrollbar for sidebar */
+.admin-sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+}
+
+/* Badge in admin */
+.admin-main .badge {
+    font-size: 0.7rem;
+    padding: 3px 6px;
+}
+
+/* Page Title */
+.admin-main h2 {
+    font-size: 1.25rem;
+    margin-bottom: 0;
+}
+
+.admin-main h2 + .badge {
+    font-size: 0.8rem;
+    padding: 4px 10px;
+}

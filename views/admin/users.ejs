@@ -1,0 +1,85 @@
+<div class="dashboard-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-users me-2"></i> Manage Users</h2>
+        <span class="badge bg-primary fs-6"><%= totalUsers %> users</span>
+    </div>
+    
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <% if (users.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% users.forEach(function(u) { %>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="user-avatar me-2">
+                                                <i class="fas fa-user-circle fa-2x text-secondary"></i>
+                                            </div>
+                                            <strong><%= u.username %></strong>
+                                        </div>
+                                    </td>
+                                    <td><%= u.email %></td>
+                                    <td>
+                                        <span class="badge bg-<%= u.role === 'admin' ? 'danger' : 'primary' %>">
+                                            <%= u.role %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-<%= u.isActive ? 'success' : 'secondary' %>">
+                                            <%= u.isActive ? 'Active' : 'Inactive' %>
+                                        </span>
+                                    </td>
+                                    <td><%= new Date(u.createdAt).toLocaleDateString() %></td>
+                                    <td>
+                                        <% if (u._id.toString() !== user.id) { %>
+                                            <form action="/admin/users/<%= u._id %>/toggle" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-sm btn-<%= u.isActive ? 'warning' : 'success' %>">
+                                                    <i class="fas fa-<%= u.isActive ? 'ban' : 'check' %>"></i>
+                                                    <%= u.isActive ? 'Deactivate' : 'Activate' %>
+                                                </button>
+                                            </form>
+                                        <% } else { %>
+                                            <span class="text-muted small">(You)</span>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <% if (totalPages > 1) { %>
+                    <div class="card-footer bg-white">
+                        <nav>
+                            <ul class="pagination justify-content-center mb-0">
+                                <% for (let i = 1; i <= totalPages; i++) { %>
+                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                        <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                                    </li>
+                                <% } %>
+                            </ul>
+                        </nav>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                    <p class="text-muted">No users found</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,226 @@
+<div class="container py-5">
+    <div class="row">
+        <!-- Item Details -->
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item">
+                        <a href="/items/<%= item.type %>"><%= item.type === 'lost' ? 'Lost Items' : 'Found Items' %></a>
+                    </li>
+                    <li class="breadcrumb-item active"><%= item.itemName %></li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow">
+                <!-- Image -->
+                <% if (item.imagePath) { %>
+                    <img src="<%= item.imagePath %>" class="card-img-top item-detail-image" alt="<%= item.itemName %>">
+                <% } else { %>
+                    <div class="item-detail-placeholder d-flex align-items-center justify-content-center bg-light">
+                        <i class="fas fa-image fa-5x text-muted"></i>
+                    </div>
+                <% } %>
+                
+                <div class="card-body">
+                    <!-- Status Badges -->
+                    <div class="d-flex gap-2 mb-3">
+                        <span class="badge bg-<%= item.type === 'lost' ? 'danger' : 'success' %> fs-6">
+                            <i class="fas fa-<%= item.type === 'lost' ? 'exclamation-triangle' : 'hand-holding-heart' %> me-1"></i>
+                            <%= item.type.charAt(0).toUpperCase() + item.type.slice(1) %>
+                        </span>
+                        <span class="badge bg-<%= 
+                            item.status === 'approved' ? 'primary' : 
+                            item.status === 'pending' ? 'warning' : 
+                            item.status === 'claimed' ? 'info' : 'secondary' 
+                        %> fs-6">
+                            <%= item.status.charAt(0).toUpperCase() + item.status.slice(1) %>
+                        </span>
+                        <% if (item.category) { %>
+                            <span class="badge bg-secondary fs-6">
+                                <i class="fas <%= item.category.icon || 'fa-box' %> me-1"></i>
+                                <%= item.category.name %>
+                            </span>
+                        <% } %>
+                    </div>
+                    
+                    <h2 class="card-title mb-3"><%= item.itemName %></h2>
+                    
+                    <!-- Info Grid -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="fas fa-map-marker-alt fa-fw me-2 text-danger"></i>
+                                <div>
+                                    <small class="d-block text-uppercase">Location</small>
+                                    <strong class="text-dark"><%= item.location %></strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="fas fa-calendar fa-fw me-2 text-primary"></i>
+                                <div>
+                                    <small class="d-block text-uppercase">Date <%= item.type === 'lost' ? 'Lost' : 'Found' %></small>
+                                    <strong class="text-dark">
+                                        <%= new Date(item.dateLostFound).toLocaleDateString('en-US', { 
+                                            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+                                        }) %>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="fas fa-clock fa-fw me-2 text-info"></i>
+                                <div>
+                                    <small class="d-block text-uppercase">Date Reported</small>
+                                    <strong class="text-dark">
+                                        <%= new Date(item.dateReported).toLocaleDateString('en-US', { 
+                                            year: 'numeric', month: 'long', day: 'numeric' 
+                                        }) %>
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                        <% if (item.status === 'claimed' && item.claimedBy) { %>
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center text-muted">
+                                    <i class="fas fa-handshake fa-fw me-2 text-success"></i>
+                                    <div>
+                                        <small class="d-block text-uppercase">Claimed On</small>
+                                        <strong class="text-dark">
+                                            <%= new Date(item.claimedBy.date).toLocaleDateString('en-US', { 
+                                                year: 'numeric', month: 'long', day: 'numeric' 
+                                            }) %>
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <!-- Description -->
+                    <h5><i class="fas fa-align-left me-2"></i> Description</h5>
+                    <p class="lead"><%= item.description %></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Contact Information -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-address-card me-2"></i> Contact Information</h5>
+                </div>
+                <div class="card-body">
+                    <% if (item.status !== 'claimed') { %>
+                        <div class="mb-3">
+                            <label class="text-muted small">Reported By</label>
+                            <p class="mb-0 fw-bold"><%= item.reporterName %></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Email</label>
+                            <p class="mb-0">
+                                <a href="mailto:<%= item.reporterEmail %>"><%= item.reporterEmail %></a>
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="text-muted small">Contact Info</label>
+                            <p class="mb-0"><%= item.contactInfo %></p>
+                        </div>
+                        <hr>
+                        <a href="mailto:<%= item.reporterEmail %>?subject=Regarding: <%= item.itemName %>" 
+                           class="btn btn-primary w-100">
+                            <i class="fas fa-envelope me-2"></i> Contact Reporter
+                        </a>
+                    <% } else { %>
+                        <div class="text-center text-muted">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <p>This item has been claimed and returned to its owner.</p>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            
+            <!-- Actions -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-share-alt me-2"></i> Share</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary flex-fill" onclick="shareOnFacebook()">
+                            <i class="fab fa-facebook-f"></i>
+                        </button>
+                        <button class="btn btn-outline-info flex-fill" onclick="shareOnTwitter()">
+                            <i class="fab fa-twitter"></i>
+                        </button>
+                        <button class="btn btn-outline-success flex-fill" onclick="shareOnWhatsApp()">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                        <button class="btn btn-outline-secondary flex-fill" onclick="copyLink()">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Related Items -->
+            <% if (relatedItems && relatedItems.length > 0) { %>
+                <div class="card shadow">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="fas fa-th-large me-2"></i> Similar Items</h5>
+                    </div>
+                    <div class="card-body">
+                        <% relatedItems.forEach(function(related) { %>
+                            <div class="d-flex mb-3 pb-3 border-bottom">
+                                <% if (related.imagePath) { %>
+                                    <img src="<%= related.imagePath %>" class="related-item-img me-3" alt="<%= related.itemName %>">
+                                <% } else { %>
+                                    <div class="related-item-placeholder me-3 d-flex align-items-center justify-content-center bg-light">
+                                        <i class="fas fa-image text-muted"></i>
+                                    </div>
+                                <% } %>
+                                <div>
+                                    <h6 class="mb-1">
+                                        <a href="/items/<%= related._id %>" class="text-decoration-none">
+                                            <%= related.itemName %>
+                                        </a>
+                                    </h6>
+                                    <small class="text-muted">
+                                        <span class="badge bg-<%= related.type === 'lost' ? 'danger' : 'success' %> me-1">
+                                            <%= related.type %>
+                                        </span>
+                                        <%= related.location %>
+                                    </small>
+                                </div>
+                            </div>
+                        <% }); %>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<script>
+function shareOnFacebook() {
+    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
+}
+
+function shareOnTwitter() {
+    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.type === "lost" ? "Lost" : "Found" %>: <%= item.itemName %>'), '_blank');
+}
+
+function shareOnWhatsApp() {
+    window.open('https://wa.me/?text=' + encodeURIComponent('<%= item.type === "lost" ? "Lost" : "Found" %>: <%= item.itemName %> - ' + window.location.href), '_blank');
+}
+
+function copyLink() {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+        alert('Link copied to clipboard!');
+    });
+}
+</script>
