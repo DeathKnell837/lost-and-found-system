@@ -11,6 +11,9 @@
         </nav>
     </div>
     <div class="header-right">
+        <button class="dark-mode-toggle" onclick="toggleAdminDarkMode()" title="Toggle Dark Mode">
+            <i class="fas fa-moon" id="adminDarkModeIcon"></i>
+        </button>
         <a href="/" target="_blank" class="btn btn-sm btn-secondary">
             <i class="fas fa-globe"></i> View Site
         </a>
@@ -33,4 +36,28 @@ function toggleSidebar() {
     document.getElementById('adminSidebar').classList.toggle('show');
     document.getElementById('sidebarOverlay').classList.toggle('show');
 }
+
+// Admin Dark Mode
+function toggleAdminDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('adminDarkMode', isDark);
+    updateAdminDarkModeIcon(isDark);
+}
+
+function updateAdminDarkModeIcon(isDark) {
+    const icon = document.getElementById('adminDarkModeIcon');
+    if (icon) {
+        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+    }
+}
+
+// Check for saved preference on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const savedDarkMode = localStorage.getItem('adminDarkMode') === 'true';
+    if (savedDarkMode) {
+        document.body.classList.add('dark-mode');
+        updateAdminDarkModeIcon(true);
+    }
+});
 </script>
