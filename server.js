@@ -17,6 +17,13 @@ const routes = require('./routes');
 const { setLocals } = require('./middleware/auth');
 const { errorHandler } = require('./middleware/errorHandler');
 const { checkBlocked, trackDevice } = require('./middleware/deviceTracker');
+const { 
+    securityHeaders, 
+    generalRateLimit, 
+    sanitizeInput,
+    preventNoSQLInjection,
+    slowRequestLogger
+} = require('./middleware/security');
 
 // Initialize Express app
 const app = express();
@@ -26,8 +33,11 @@ if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB with error handling
+connectDB().catch(err => {
+    console.error('Failed to connect to MongoDB:', err);
+    process.exit(1);
+});
 
 // View engine setup
 app.set('view engine', 'ejs');
@@ -39,13 +49,39 @@ app.set('layout', 'layouts/main');
 app.set('layout extractScripts', true);
 app.set('layout extractStyles', true);
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Security Middleware (apply early)
+app.use(securityHeaders);
+app.use(slowRequestLogger(5000)); // Log requests taking more than 5 seconds
+
+// Rate limiting (apply before other middleware)
+app.use(generalRateLimit);
+
+// Body parsing middleware with size limits
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 app.use(methodOverride('_method'));
 
-// Static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Input sanitization (after body parsing)
+app.use(sanitizeInput);
+app.use(preventNoSQLInjection);
+
+// Request timeout
+app.use((req, res, next) => {
+    req.setTimeout(30000); // 30 seconds timeout
+    res.setTimeout(30000);
+    next();
+});
+
+// Static files with cache control
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,
+    etag: true
+}));
+
+// Favicon handler (prevent 500 errors)
+app.get('/favicon.ico', (req, res) => {
+    res.status(204).end(); // No content - browser will use default
+});
 
 // Session configuration
 app.use(session({
