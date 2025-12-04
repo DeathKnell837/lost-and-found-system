@@ -2,45 +2,41 @@ const { Comment, Item } = require('../models');
 const mongoose = require('mongoose');
 
 /**
- * Get comments for an item
+ * Get comments for an item - Simplified and robust
  */
 exports.getItemComments = async (req, res) => {
-    // Set headers to prevent caching and ensure JSON response
+    // Always return JSON
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+    res.setHeader('Cache-Control', 'no-store');
     
-    try {
-        const { itemId } = req.params;
-        
-        // Validate ObjectId
-        if (!itemId || !mongoose.Types.ObjectId.isValid(itemId)) {
-            return res.json({ success: true, comments: [] });
-        }
+    const { itemId } = req.params;
+    
+    // Quick validation
+    if (!itemId || !mongoose.Types.ObjectId.isValid(itemId)) {
+        console.log('[Comments] Invalid itemId:', itemId);
+        return res.json({ success: true, comments: [] });
+    }
 
-        // Set a timeout for the database query
-        const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Database query timeout')), 8000)
-        );
+    try {
+        console.log('[Comments] Fetching comments for item:', itemId);
         
-        const queryPromise = Comment.find({ 
+        const comments = await Comment.find({ 
             item: itemId,
-            isHidden: false 
+            isHidden: { $ne: true }
         })
         .populate('author', 'username')
         .populate('replies.author', 'username')
         .sort({ isPinned: -1, createdAt: -1 })
+        .limit(50)
         .lean()
-        .exec();
+        .maxTimeMS(5000); // 5 second timeout on query
 
-        const comments = await Promise.race([queryPromise, timeoutPromise]);
-
+        console.log('[Comments] Found', comments?.length || 0, 'comments');
         return res.json({ success: true, comments: comments || [] });
+        
     } catch (error) {
-        console.error('Get comments error:', error.message);
-        // Return empty array instead of error for better UX
-        return res.json({ success: true, comments: [], error: error.message });
+        console.error('[Comments] Error:', error.message);
+        return res.json({ success: true, comments: [] });
     }
 };
 
