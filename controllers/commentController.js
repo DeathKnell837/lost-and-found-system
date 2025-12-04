@@ -265,7 +265,7 @@ exports.adminGetAllComments = async (req, res) => {
 
         const comments = await Comment.find(query)
             .populate('author', 'username')
-            .populate('item', 'title')
+            .populate('item', 'itemName')
             .sort({ createdAt: -1 })
             .limit(100);
 

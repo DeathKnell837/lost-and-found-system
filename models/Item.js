@@ -24,6 +24,14 @@ const itemSchema = new mongoose.Schema({
         trim: true,
         maxlength: [200, 'Location cannot exceed 200 characters']
     },
+    locationId: {
+        type: String,
+        default: null  // Stores ID from predefined locations
+    },
+    customLocation: {
+        type: String,
+        default: null  // For "Other" locations
+    },
     imagePath: {
         type: String,
         default: null
@@ -79,7 +87,14 @@ const itemSchema = new mongoose.Schema({
     adminNotes: {
         type: String,
         default: ''
-    }
+    },
+    // Item Matching
+    potentialMatches: [{
+        item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item' },
+        score: Number,
+        matchedAt: { type: Date, default: Date.now },
+        dismissed: { type: Boolean, default: false }
+    }]
 }, {
     timestamps: true
 });

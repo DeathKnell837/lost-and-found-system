@@ -12,6 +12,9 @@ router.get('/found', itemController.getFoundItems);
 // Claimed items listing
 router.get('/claimed', itemController.getClaimedItems);
 
+// Get item matches (API)
+router.get('/:id/matches', itemController.getItemMatches);
+
 // Item details
 router.get('/:id', itemController.getItemDetails);
 

@@ -198,6 +198,16 @@
                 </div>
             </div>
             
+            <!-- Potential Matches -->
+            <div class="card shadow mb-4" id="matchesCard" style="display: none;">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0"><i class="fas fa-magic me-2"></i> Potential Matches</h5>
+                </div>
+                <div class="card-body p-0" id="matchesContainer">
+                    <!-- Matches loaded via JS -->
+                </div>
+            </div>
+            
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header bg-white">
@@ -319,17 +329,29 @@ async function showQRCode() {
 
 // Comments Functionality
 async function loadComments() {
+    const container = document.getElementById('commentsContainer');
     try {
         const res = await fetch(`/comments/item/${itemId}`);
-        const data = await res.json();
-        const container = document.getElementById('commentsContainer');
         
-        if (data.comments.length === 0) {
+        if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
+        const data = await res.json();
+        
+        if (!data.success) {
+            container.innerHTML = '<p class="text-danger text-center py-3"><i class="fas fa-exclamation-circle me-2"></i>' + (data.message || 'Failed to load comments') + '</p>';
+            return;
+        }
+        
+        const comments = data.comments || [];
+        
+        if (comments.length === 0) {
             container.innerHTML = '<p class="text-muted text-center py-3"><i class="fas fa-comment-slash me-2"></i>No comments yet. Be the first to share!</p>';
             return;
         }
         
-        container.innerHTML = data.comments.map(c => `
+        container.innerHTML = comments.map(c => `
             <div class="card mb-2 ${c.isPinned ? 'border-primary' : ''}" id="comment-${c._id}">
                 <div class="card-body py-2 px-3">
                     <div class="d-flex justify-content-between align-items-start">
@@ -363,7 +385,8 @@ async function loadComments() {
             </div>
         `).join('');
     } catch (err) {
-        document.getElementById('commentsContainer').innerHTML = '<p class="text-muted">Failed to load comments</p>';
+        console.error('Load comments error:', err);
+        container.innerHTML = '<p class="text-danger text-center py-3"><i class="fas fa-exclamation-circle me-2"></i>Failed to load comments. Please refresh the page.</p>';
     }
 }
 
@@ -402,6 +425,45 @@ document.getElementById('commentForm')?.addEventListener('submit', async (e) => 
     }
 });
 
-// Load comments on page load
-document.addEventListener('DOMContentLoaded', loadComments);
+// Load potential matches
+async function loadMatches() {
+    try {
+        const res = await fetch(`/items/${itemId}/matches`);
+        const data = await res.json();
+        
+        if (data.success && data.matches.length > 0) {
+            const card = document.getElementById('matchesCard');
+            const container = document.getElementById('matchesContainer');
+            
+            container.innerHTML = `
+                <ul class="list-group list-group-flush">
+                    ${data.matches.slice(0, 5).map(m => `
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="/items/${m.item._id}" class="text-decoration-none">
+                                        <strong>${m.item.itemName}</strong>
+                                    </a>
+                                    <small class="text-muted d-block">${m.item.location}</small>
+                                </div>
+                                <span class="badge bg-${m.score >= 60 ? 'success' : m.score >= 40 ? 'warning' : 'secondary'}">
+                                    ${m.score}% match
+                                </span>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+            card.style.display = 'block';
+        }
+    } catch (err) {
+        console.error('Failed to load matches:', err);
+    }
+}
+
+// Load comments and matches on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadComments();
+    loadMatches();
+});
 </script>

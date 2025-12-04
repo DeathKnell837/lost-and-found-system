@@ -11,4 +11,11 @@ router.get('/about', homeController.getAboutPage);
 // Contact page
 router.get('/contact', homeController.getContactPage);
 
+// Offline page (for PWA)
+router.get('/offline', (req, res) => {
+    res.render('offline', {
+        title: 'Offline - Lost & Found'
+    });
+});
+
 module.exports = router;

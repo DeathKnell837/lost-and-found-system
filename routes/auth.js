@@ -18,6 +18,18 @@ router.post('/login', isGuest, authController.login);
 // Handle logout
 router.get('/logout', authController.logout);
 
+// Email verification
+router.get('/verify-email/:token', authController.verifyEmail);
+
+// Resend verification email
+router.get('/resend-verification', (req, res) => {
+    res.render('auth/resend-verification', {
+        title: 'Resend Verification - Lost & Found',
+        email: req.query.email || ''
+    });
+});
+router.post('/resend-verification', authController.resendVerification);
+
 // Profile page
 router.get('/profile', isAuthenticated, authController.getProfile);
 

@@ -64,4 +64,8 @@ router.post('/comments/:commentId/pin', commentController.adminPinComment);
 // Statistics
 router.get('/statistics', adminController.getStatistics);
 
+// Item Matching
+router.get('/matching', adminController.getMatchingPage);
+router.post('/matching/run', adminController.runMatching);
+
 module.exports = router;

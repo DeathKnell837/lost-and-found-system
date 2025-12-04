@@ -1,5 +1,7 @@
 const { Item, Category } = require('../models');
 const { cloudinary } = require('../config/cloudinary');
+const { CAMPUS_LOCATIONS, getLocationsByCategory, getLocationName } = require('../config/locations');
+const matchingService = require('../services/matchingService');
 
 // Get lost items listing page
 exports.getLostItems = async (req, res) => {
@@ -184,9 +186,12 @@ exports.getItemDetails = async (req, res) => {
 exports.getReportLostForm = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true });
+        const locationsByCategory = getLocationsByCategory();
         res.render('items/report-lost', {
             title: 'Report Lost Item - Lost & Found',
-            categories
+            categories,
+            locationsByCategory,
+            campusLocations: CAMPUS_LOCATIONS
         });
     } catch (error) {
         console.error('Error loading form:', error);
@@ -199,9 +204,12 @@ exports.getReportLostForm = async (req, res) => {
 exports.getReportFoundForm = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true });
+        const locationsByCategory = getLocationsByCategory();
         res.render('items/report-found', {
             title: 'Report Found Item - Lost & Found',
-            categories
+            categories,
+            locationsByCategory,
+            campusLocations: CAMPUS_LOCATIONS
         });
     } catch (error) {
         console.error('Error loading form:', error);
@@ -217,18 +225,27 @@ exports.reportLostItem = async (req, res) => {
             itemName,
             category,
             description,
-            location,
+            locationId,
+            customLocation,
             contactInfo,
             reporterName,
             reporterEmail,
             dateLostFound
         } = req.body;
 
+        // Determine location name
+        let location = customLocation;
+        if (locationId && locationId !== 'other') {
+            location = getLocationName(locationId);
+        }
+
         const item = new Item({
             itemName,
             category,
             description,
             location,
+            locationId: locationId !== 'other' ? locationId : null,
+            customLocation: locationId === 'other' ? customLocation : null,
             contactInfo,
             reporterName,
             reporterEmail,
@@ -261,18 +278,27 @@ exports.reportFoundItem = async (req, res) => {
             itemName,
             category,
             description,
-            location,
+            locationId,
+            customLocation,
             contactInfo,
             reporterName,
             reporterEmail,
             dateLostFound
         } = req.body;
 
+        // Determine location name
+        let location = customLocation;
+        if (locationId && locationId !== 'other') {
+            location = getLocationName(locationId);
+        }
+
         const item = new Item({
             itemName,
             category,
             description,
             location,
+            locationId: locationId !== 'other' ? locationId : null,
+            customLocation: locationId === 'other' ? customLocation : null,
             contactInfo,
             reporterName,
             reporterEmail,
@@ -362,5 +388,32 @@ exports.searchItems = async (req, res) => {
         console.error('Error searching items:', error);
         req.flash('error', 'Error searching items');
         res.redirect('/');
+    }
+};
+
+// Get potential matches for an item
+exports.getItemMatches = async (req, res) => {
+    try {
+        const itemId = req.params.id;
+        const matches = await matchingService.getItemMatches(itemId);
+        
+        res.json({ 
+            success: true, 
+            matches: matches.slice(0, 10).map(m => ({
+                item: {
+                    _id: m.item._id,
+                    itemName: m.item.itemName,
+                    description: m.item.description?.substring(0, 100) + '...',
+                    location: m.item.location,
+                    type: m.item.type,
+                    imagePath: m.item.imagePath,
+                    category: m.item.category?.name
+                },
+                score: m.score
+            }))
+        });
+    } catch (error) {
+        console.error('Get matches error:', error);
+        res.status(500).json({ success: false, message: 'Failed to get matches' });
     }
 };

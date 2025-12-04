@@ -205,11 +205,86 @@ const sendMatchFoundEmail = async (user, lostItem, foundItem, matchScore) => {
     return sendEmail(user.email, subject, content);
 };
 
+// Email: Email Verification
+const sendEmailVerificationEmail = async (user, verificationToken) => {
+    const verifyUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/auth/verify-email/${verificationToken}`;
+    const subject = `📧 Verify your email - Campus Lost & Found`;
+    const content = `
+        <h2>Verify Your Email Address</h2>
+        <p>Hi <strong>${user.username}</strong>,</p>
+        <p>Thank you for registering with Campus Lost & Found!</p>
+        <p>Please click the button below to verify your email address:</p>
+        
+        <a href="${verifyUrl}" class="btn">Verify Email</a>
+        
+        <p style="margin-top: 20px;">Or copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #666; font-size: 12px;">${verifyUrl}</p>
+        
+        <p><strong>This link will expire in 24 hours.</strong></p>
+        
+        <p style="margin-top: 30px; color: #999; font-size: 12px;">
+            If you didn't create an account, please ignore this email.
+        </p>
+    `;
+    return sendEmail(user.email, subject, content);
+};
+
+// Email: Email Verified Successfully
+const sendEmailVerifiedEmail = async (user) => {
+    const subject = `✅ Email verified - Welcome to Campus Lost & Found!`;
+    const content = `
+        <h2>Email Verified Successfully!</h2>
+        <p>Hi <strong>${user.username}</strong>,</p>
+        <p>Your email has been verified. You now have full access to all features!</p>
+        
+        <p>With your verified account, you can now:</p>
+        <ul>
+            <li>📝 Report lost or found items</li>
+            <li>🔍 Search for items across campus</li>
+            <li>💬 Leave comments and tips on items</li>
+            <li>📊 Track your reported items</li>
+            <li>🔔 Receive notifications about matches</li>
+        </ul>
+        
+        <a href="${process.env.BASE_URL || 'http://localhost:3000'}/user/dashboard" class="btn">Go to Dashboard</a>
+        
+        <p>Thank you for joining our community!</p>
+    `;
+    return sendEmail(user.email, subject, content);
+};
+
+// Email: Password Reset
+const sendPasswordResetEmail = async (user, resetToken) => {
+    const resetUrl = `${process.env.BASE_URL || 'http://localhost:3000'}/auth/reset-password/${resetToken}`;
+    const subject = `🔑 Password Reset Request - Campus Lost & Found`;
+    const content = `
+        <h2>Password Reset Request</h2>
+        <p>Hi <strong>${user.username}</strong>,</p>
+        <p>We received a request to reset your password.</p>
+        <p>Click the button below to set a new password:</p>
+        
+        <a href="${resetUrl}" class="btn">Reset Password</a>
+        
+        <p style="margin-top: 20px;">Or copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #666; font-size: 12px;">${resetUrl}</p>
+        
+        <p><strong>This link will expire in 1 hour.</strong></p>
+        
+        <p style="margin-top: 30px; color: #999; font-size: 12px;">
+            If you didn't request a password reset, please ignore this email. Your password will remain unchanged.
+        </p>
+    `;
+    return sendEmail(user.email, subject, content);
+};
+
 module.exports = {
     sendEmail,
     sendItemApprovedEmail,
     sendItemRejectedEmail,
     sendItemClaimedEmail,
     sendWelcomeEmail,
-    sendMatchFoundEmail
+    sendMatchFoundEmail,
+    sendEmailVerificationEmail,
+    sendEmailVerifiedEmail,
+    sendPasswordResetEmail
 };

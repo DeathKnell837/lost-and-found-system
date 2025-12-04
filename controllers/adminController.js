@@ -2,6 +2,7 @@ const { User, Item, Category, BlockedDevice, TrackedDevice } = require('../model
 const { cloudinary } = require('../config/cloudinary');
 const { generateFingerprint, getClientIP, parseUserAgent } = require('../middleware/deviceTracker');
 const emailService = require('../services/emailService');
+const matchingService = require('../services/matchingService');
 
 // Admin login page
 exports.getLoginPage = (req, res) => {
@@ -275,6 +276,11 @@ exports.approveItem = async (req, res) => {
                 emailService.sendItemApprovedEmail(user, item);
             }
         }
+        
+        // Run matching algorithm to find potential matches
+        matchingService.processMatchesAndNotify(item).catch(err => {
+            console.error('Matching error:', err);
+        });
         
         req.flash('success', 'Item approved successfully');
         res.redirect('back');
@@ -839,5 +845,59 @@ exports.getStatistics = async (req, res) => {
         console.error('Statistics error:', error);
         req.flash('error', 'Error loading statistics');
         res.redirect('/admin/dashboard');
+    }
+};
+
+// Item Matching Page
+exports.getMatchingPage = async (req, res) => {
+    try {
+        // Get items with matches
+        const itemsWithMatches = await Item.find({
+            status: 'approved',
+            'potentialMatches.0': { $exists: true }
+        })
+        .populate('category')
+        .populate({
+            path: 'potentialMatches.item',
+            populate: { path: 'category' }
+        })
+        .sort({ updatedAt: -1 })
+        .limit(50);
+
+        // Get counts
+        const totalLost = await Item.countDocuments({ type: 'lost', status: 'approved' });
+        const totalFound = await Item.countDocuments({ type: 'found', status: 'approved' });
+        const withMatches = await Item.countDocuments({ 
+            status: 'approved',
+            'potentialMatches.0': { $exists: true }
+        });
+
+        res.render('admin/matching', {
+            title: 'Item Matching - Admin',
+            layout: 'layouts/admin',
+            itemsWithMatches,
+            stats: {
+                totalLost,
+                totalFound,
+                withMatches
+            }
+        });
+    } catch (error) {
+        console.error('Matching page error:', error);
+        req.flash('error', 'Error loading matching page');
+        res.redirect('/admin/dashboard');
+    }
+};
+
+// Run matching algorithm
+exports.runMatching = async (req, res) => {
+    try {
+        const matchCount = await matchingService.runBatchMatching();
+        req.flash('success', `Matching complete! Found ${matchCount} potential matches.`);
+        res.redirect('/admin/matching');
+    } catch (error) {
+        console.error('Run matching error:', error);
+        req.flash('error', 'Error running matching algorithm');
+        res.redirect('/admin/matching');
     }
 };

@@ -1,4 +1,6 @@
 const { User } = require('../models');
+const crypto = require('crypto');
+const emailService = require('../services/emailService');
 
 // Show login page
 exports.getLoginPage = (req, res) => {
@@ -40,17 +42,87 @@ exports.register = async (req, res) => {
             username,
             email,
             password,
-            role: 'user'
+            role: 'user',
+            isEmailVerified: false
         });
 
+        // Generate verification token
+        const verificationToken = user.generateEmailVerificationToken();
         await user.save();
 
-        req.flash('success', 'Registration successful! Please log in.');
+        // Send verification email
+        await emailService.sendEmailVerificationEmail(user, verificationToken);
+
+        req.flash('success', 'Registration successful! Please check your email to verify your account.');
         res.redirect('/auth/login');
     } catch (error) {
         console.error('Registration error:', error);
         req.flash('error', 'Registration failed. Please try again.');
         res.redirect('/auth/register');
+    }
+};
+
+// Verify email
+exports.verifyEmail = async (req, res) => {
+    try {
+        const { token } = req.params;
+        
+        // Hash the token to compare with stored hash
+        const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+        
+        const user = await User.findOne({
+            emailVerificationToken: hashedToken,
+            emailVerificationExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            req.flash('error', 'Invalid or expired verification link. Please request a new one.');
+            return res.redirect('/auth/login');
+        }
+
+        // Verify the email
+        user.isEmailVerified = true;
+        user.emailVerificationToken = undefined;
+        user.emailVerificationExpires = undefined;
+        await user.save();
+
+        // Send confirmation email
+        await emailService.sendEmailVerifiedEmail(user);
+
+        req.flash('success', 'Email verified successfully! You can now log in.');
+        res.redirect('/auth/login');
+    } catch (error) {
+        console.error('Email verification error:', error);
+        req.flash('error', 'Verification failed. Please try again.');
+        res.redirect('/auth/login');
+    }
+};
+
+// Resend verification email
+exports.resendVerification = async (req, res) => {
+    try {
+        const { email } = req.body;
+        
+        const user = await User.findOne({ email, isEmailVerified: false });
+        
+        if (!user) {
+            req.flash('error', 'No unverified account found with this email.');
+            return res.redirect('/auth/login');
+        }
+
+        // Generate new verification token
+        const verificationToken = user.generateEmailVerificationToken();
+        await user.save();
+
+        // Send verification email
+        await emailService.sendEmailVerificationEmail(user, verificationToken);
+
+        req.flash('success', 'Verification email sent! Please check your inbox.');
+        res.redirect('/auth/login');
+    } catch (error) {
+        console.error('Resend verification error:', error);
+        req.flash('error', 'Failed to resend verification email.');
+        res.redirect('/auth/login');
     }
 };
 
@@ -82,9 +154,16 @@ exports.login = async (req, res) => {
             return res.redirect('/auth/login');
         }
 
+        // Check if email is verified (skip for admin)
+        if (!user.isEmailVerified && user.role !== 'admin') {
+            req.flash('error', 'Please verify your email before logging in. <a href="/auth/resend-verification?email=' + user.email + '">Resend verification email</a>');
+            return res.redirect('/auth/login');
+        }
+
         // Set session
         req.session.user = {
             id: user._id,
+            _id: user._id,
             username: user.username,
             email: user.email,
             role: user.role
