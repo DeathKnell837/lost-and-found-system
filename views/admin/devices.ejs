@@ -102,7 +102,7 @@
                             <th>Device Info</th>
                             <th>IP Address</th>
                             <th>Browser / OS</th>
-                            <th>Users</th>
+                            <th>Logged In Users</th>
                             <th>Activity</th>
                             <th>Status</th>
                             <th class="text-end">Actions</th>
@@ -131,7 +131,11 @@
                                         <% } %>
                                     </div>
                                     <div>
-                                        <strong><%= device.device.vendor || 'Unknown' %> <%= device.device.model || device.device.type %></strong>
+                                        <% if (device.device.type === 'desktop') { %>
+                                            <strong><%= device.os.name || 'Unknown' %> Desktop</strong>
+                                        <% } else { %>
+                                            <strong><%= device.device.vendor || 'Unknown' %> <%= device.device.model || device.device.type %></strong>
+                                        <% } %>
                                         <br>
                                         <small class="text-muted font-monospace"><%= device.fingerprint.substring(0, 12) %>...</small>
                                     </div>
@@ -153,14 +157,13 @@
                                 <small class="text-muted"><%= device.os.name %> <%= device.os.version %></small>
                             </td>
                             <td>
-                                <% if (device.users && device.users.length > 0) { %>
-                                    <% device.users.slice(0, 2).forEach(u => { %>
-                                        <% if (u.user) { %>
-                                            <span class="badge bg-info"><%= u.user.username || 'Unknown' %></span>
-                                        <% } %>
+                                <% if (device.users && device.users.length > 0 && device.users.some(u => u.user)) { %>
+                                    <% device.users.filter(u => u.user).slice(0, 2).forEach(u => { %>
+                                        <span class="badge bg-info"><%= u.user.username || 'Unknown' %></span>
                                     <% }) %>
-                                    <% if (device.users.length > 2) { %>
-                                        <span class="badge bg-secondary">+<%= device.users.length - 2 %></span>
+                                    <% const actualUsers = device.users.filter(u => u.user).length; %>
+                                    <% if (actualUsers > 2) { %>
+                                        <span class="badge bg-secondary">+<%= actualUsers - 2 %></span>
                                     <% } %>
                                 <% } else { %>
                                     <span class="text-muted">Guest</span>

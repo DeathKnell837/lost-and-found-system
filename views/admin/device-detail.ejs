@@ -28,7 +28,11 @@
                             <i class="fas fa-desktop fa-4x text-secondary"></i>
                         <% } %>
                     </div>
-                    <h4><%= device.device.vendor || 'Unknown' %> <%= device.device.model || device.device.type %></h4>
+                    <% if (device.device.type === 'desktop') { %>
+                        <h4><%= device.os.name %> Desktop</h4>
+                    <% } else { %>
+                        <h4><%= device.device.vendor || 'Unknown' %> <%= device.device.model || device.device.type %></h4>
+                    <% } %>
                     <p class="text-muted mb-0"><%= device.os.name %> <%= device.os.version %></p>
                     
                     <div class="mt-3">
