@@ -5,6 +5,12 @@ const mongoose = require('mongoose');
  * Get comments for an item
  */
 exports.getItemComments = async (req, res) => {
+    // Set headers to prevent caching and ensure JSON response
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    
     try {
         const { itemId } = req.params;
         
@@ -13,20 +19,28 @@ exports.getItemComments = async (req, res) => {
             return res.json({ success: true, comments: [] });
         }
 
-        const comments = await Comment.find({ 
+        // Set a timeout for the database query
+        const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Database query timeout')), 8000)
+        );
+        
+        const queryPromise = Comment.find({ 
             item: itemId,
             isHidden: false 
         })
         .populate('author', 'username')
         .populate('replies.author', 'username')
         .sort({ isPinned: -1, createdAt: -1 })
-        .lean(); // Use lean() for better performance
+        .lean()
+        .exec();
 
-        res.json({ success: true, comments: comments || [] });
+        const comments = await Promise.race([queryPromise, timeoutPromise]);
+
+        return res.json({ success: true, comments: comments || [] });
     } catch (error) {
-        console.error('Get comments error:', error);
+        console.error('Get comments error:', error.message);
         // Return empty array instead of error for better UX
-        res.json({ success: true, comments: [] });
+        return res.json({ success: true, comments: [], error: error.message });
     }
 };
 

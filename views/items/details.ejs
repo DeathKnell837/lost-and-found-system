@@ -336,8 +336,14 @@ async function loadComments() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000);
         
-        const res = await fetch(`/comments/item/${itemId}`, {
-            signal: controller.signal
+        // Add cache-busting parameter and no-cache headers
+        const res = await fetch(`/comments/item/${itemId}?_t=${Date.now()}`, {
+            signal: controller.signal,
+            cache: 'no-store',
+            headers: {
+                'Cache-Control': 'no-cache',
+                'Pragma': 'no-cache'
+            }
         });
         clearTimeout(timeoutId);
         

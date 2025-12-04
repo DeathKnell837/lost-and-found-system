@@ -1,13 +1,17 @@
-const CACHE_NAME = 'lost-found-v2';
-const STATIC_CACHE = 'static-v2';
-const DYNAMIC_CACHE = 'dynamic-v2';
+const CACHE_NAME = 'lost-found-v3';
+const STATIC_CACHE = 'static-v3';
+const DYNAMIC_CACHE = 'dynamic-v3';
 
 // Static assets to cache (only files that exist)
 const STATIC_ASSETS = [
     '/',
     '/offline',
-    '/manifest.json'
+    '/manifest.json',
+    '/css/style.css'
 ];
+
+// API routes that should NEVER be cached
+const API_ROUTES = ['/comments/', '/claims/', '/api/', '/admin/', '/auth/'];
 
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
@@ -57,9 +61,10 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // API requests - network first, then cache
-    if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/comments/') || url.pathname.startsWith('/claims/')) {
-        event.respondWith(networkFirst(request));
+    // CRITICAL: Skip ALL API routes - never cache these, always go to network
+    const isApiRoute = API_ROUTES.some(route => url.pathname.startsWith(route));
+    if (isApiRoute) {
+        // Don't intercept API requests at all - let them go directly to network
         return;
     }
 
@@ -200,8 +205,6 @@ self.addEventListener('push', (event) => {
 
     const options = {
         body: data.body,
-        icon: '/images/icons/icon-192x192.png',
-        badge: '/images/icons/icon-72x72.png',
         vibrate: [100, 50, 100],
         data: {
             url: data.url || '/'
