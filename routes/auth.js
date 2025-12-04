@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const { isAuthenticated, isGuest } = require('../middleware/auth');
-const { authRateLimit } = require('../middleware/security');
 
 // Login page
 router.get('/login', isGuest, authController.getLoginPage);
@@ -10,11 +9,11 @@ router.get('/login', isGuest, authController.getLoginPage);
 // Register page
 router.get('/register', isGuest, authController.getRegisterPage);
 
-// Handle registration (rate limited)
-router.post('/register', isGuest, authRateLimit, authController.register);
+// Handle registration
+router.post('/register', isGuest, authController.register);
 
-// Handle login (rate limited)
-router.post('/login', isGuest, authRateLimit, authController.login);
+// Handle login
+router.post('/login', isGuest, authController.login);
 
 // Handle logout
 router.get('/logout', authController.logout);
@@ -29,7 +28,7 @@ router.get('/resend-verification', (req, res) => {
         email: req.query.email || ''
     });
 });
-router.post('/resend-verification', authRateLimit, authController.resendVerification);
+router.post('/resend-verification', authController.resendVerification);
 
 // Profile page
 router.get('/profile', isAuthenticated, authController.getProfile);
@@ -37,7 +36,7 @@ router.get('/profile', isAuthenticated, authController.getProfile);
 // Update profile
 router.post('/profile', isAuthenticated, authController.updateProfile);
 
-// Change password (rate limited)
-router.post('/change-password', isAuthenticated, authRateLimit, authController.changePassword);
+// Change password
+router.post('/change-password', isAuthenticated, authController.changePassword);
 
 module.exports = router;

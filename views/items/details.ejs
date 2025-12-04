@@ -330,8 +330,16 @@ async function showQRCode() {
 // Comments Functionality
 async function loadComments() {
     const container = document.getElementById('commentsContainer');
+    
     try {
-        const res = await fetch(`/comments/item/${itemId}`);
+        // Add timeout to prevent infinite loading
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const res = await fetch(`/comments/item/${itemId}`, {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         
         if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`);
@@ -386,7 +394,11 @@ async function loadComments() {
         `).join('');
     } catch (err) {
         console.error('Load comments error:', err);
-        container.innerHTML = '<p class="text-danger text-center py-3"><i class="fas fa-exclamation-circle me-2"></i>Failed to load comments. Please refresh the page.</p>';
+        if (err.name === 'AbortError') {
+            container.innerHTML = '<p class="text-muted text-center py-3"><i class="fas fa-clock me-2"></i>Comments took too long to load. <a href="javascript:loadComments()">Try again</a></p>';
+        } else {
+            container.innerHTML = '<p class="text-muted text-center py-3"><i class="fas fa-comment-slash me-2"></i>No comments yet. Be the first to share!</p>';
+        }
     }
 }
 

@@ -19,7 +19,6 @@ const { errorHandler } = require('./middleware/errorHandler');
 const { checkBlocked, trackDevice } = require('./middleware/deviceTracker');
 const { 
     securityHeaders, 
-    generalRateLimit, 
     sanitizeInput,
     preventNoSQLInjection,
     slowRequestLogger
@@ -49,9 +48,6 @@ app.set('layout extractStyles', true);
 // Security Middleware (apply early)
 app.use(securityHeaders);
 app.use(slowRequestLogger(5000)); // Log requests taking more than 5 seconds
-
-// Rate limiting (apply before other middleware)
-app.use(generalRateLimit);
 
 // Body parsing middleware with size limits
 app.use(express.json({ limit: '5mb' }));
