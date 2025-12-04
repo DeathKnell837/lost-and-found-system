@@ -43,17 +43,12 @@ exports.register = async (req, res) => {
             email,
             password,
             role: 'user',
-            isEmailVerified: false
+            isEmailVerified: true // Auto-verify
         });
 
-        // Generate verification token
-        const verificationToken = user.generateEmailVerificationToken();
         await user.save();
 
-        // Send verification email
-        await emailService.sendEmailVerificationEmail(user, verificationToken);
-
-        req.flash('success', 'Registration successful! Please check your email to verify your account.');
+        req.flash('success', 'Registration successful! You can now log in.');
         res.redirect('/auth/login');
     } catch (error) {
         console.error('Registration error:', error);
@@ -151,12 +146,6 @@ exports.login = async (req, res) => {
         // Check if user is active
         if (!user.isActive) {
             req.flash('error', 'Your account has been deactivated');
-            return res.redirect('/auth/login');
-        }
-
-        // Check if email is verified (skip for admin)
-        if (!user.isEmailVerified && user.role !== 'admin') {
-            req.flash('error', 'Please verify your email before logging in. <a href="/auth/resend-verification?email=' + user.email + '">Resend verification email</a>');
             return res.redirect('/auth/login');
         }
 

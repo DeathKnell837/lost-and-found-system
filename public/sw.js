@@ -2,18 +2,11 @@ const CACHE_NAME = 'lost-found-v1';
 const STATIC_CACHE = 'static-v1';
 const DYNAMIC_CACHE = 'dynamic-v1';
 
-// Static assets to cache
+// Static assets to cache (only files that exist)
 const STATIC_ASSETS = [
     '/',
     '/offline',
-    '/css/style.css',
-    '/js/main.js',
-    '/manifest.json',
-    '/images/icons/icon-192x192.png',
-    '/images/icons/icon-512x512.png',
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',
-    'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'
+    '/manifest.json'
 ];
 
 // Install event - cache static assets
@@ -23,10 +16,7 @@ self.addEventListener('install', (event) => {
         caches.open(STATIC_CACHE)
             .then((cache) => {
                 console.log('[Service Worker] Caching static assets');
-                return cache.addAll(STATIC_ASSETS.filter(url => {
-                    // Only cache local files, skip external CDNs that might fail
-                    return url.startsWith('/');
-                }));
+                return cache.addAll(STATIC_ASSETS);
             })
             .then(() => self.skipWaiting())
             .catch((err) => {
@@ -76,13 +66,13 @@ self.addEventListener('fetch', (event) => {
     // HTML pages - network first with offline fallback
     if (request.headers.get('accept')?.includes('text/html')) {
         event.respondWith(
-            fetch(request)
+            fetch(request.clone())
                 .then((response) => {
-                    // Clone and cache successful responses
-                    if (response.ok) {
-                        const clonedResponse = response.clone();
+                    // Clone before caching
+                    if (response && response.ok) {
+                        const responseToCache = response.clone();
                         caches.open(DYNAMIC_CACHE).then((cache) => {
-                            cache.put(request, clonedResponse);
+                            cache.put(request, responseToCache);
                         });
                     }
                     return response;

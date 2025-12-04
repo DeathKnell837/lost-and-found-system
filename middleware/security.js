@@ -128,17 +128,13 @@ const generalRateLimit = rateLimit({
 
 /**
  * Sanitize input strings to prevent XSS
+ * Only sanitize dangerous HTML characters, not URL-safe characters
  */
 const sanitizeString = (str) => {
     if (typeof str !== 'string') return str;
     return str
         .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        .replace(/\//g, '&#x2F;')
-        .replace(/\\/g, '&#x5C;')
-        .replace(/`/g, '&#x60;');
+        .replace(/>/g, '&gt;');
 };
 
 /**
