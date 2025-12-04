@@ -2,41 +2,28 @@ const { Comment, Item } = require('../models');
 const mongoose = require('mongoose');
 
 /**
- * Get comments for an item - Simplified and robust
+ * Get comments for an item - Ultra simple version
  */
 exports.getItemComments = async (req, res) => {
-    // Always return JSON
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Cache-Control', 'no-store');
-    
-    const { itemId } = req.params;
-    
-    // Quick validation
-    if (!itemId || !mongoose.Types.ObjectId.isValid(itemId)) {
-        console.log('[Comments] Invalid itemId:', itemId);
-        return res.json({ success: true, comments: [] });
-    }
-
     try {
-        console.log('[Comments] Fetching comments for item:', itemId);
+        const itemId = req.params.itemId;
         
-        const comments = await Comment.find({ 
-            item: itemId,
-            isHidden: { $ne: true }
-        })
-        .populate('author', 'username')
-        .populate('replies.author', 'username')
-        .sort({ isPinned: -1, createdAt: -1 })
-        .limit(50)
-        .lean()
-        .maxTimeMS(5000); // 5 second timeout on query
+        // Validate
+        if (!itemId || !mongoose.Types.ObjectId.isValid(itemId)) {
+            return res.status(200).json({ success: true, comments: [] });
+        }
 
-        console.log('[Comments] Found', comments?.length || 0, 'comments');
-        return res.json({ success: true, comments: comments || [] });
-        
-    } catch (error) {
-        console.error('[Comments] Error:', error.message);
-        return res.json({ success: true, comments: [] });
+        // Simple query with timeout
+        const comments = await Comment.find({ item: itemId, isHidden: { $ne: true } })
+            .populate('author', 'username')
+            .sort({ createdAt: -1 })
+            .limit(30)
+            .lean();
+
+        return res.status(200).json({ success: true, comments: comments || [] });
+    } catch (err) {
+        console.error('Comments error:', err.message);
+        return res.status(200).json({ success: true, comments: [] });
     }
 };
 

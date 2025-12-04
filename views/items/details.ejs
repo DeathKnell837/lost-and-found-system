@@ -106,42 +106,20 @@
                     
                     <!-- Comments Section -->
                     <hr class="my-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0"><i class="fas fa-comments me-2"></i> Comments & Tips</h5>
-                        <button class="btn btn-sm btn-outline-secondary" onclick="loadComments()" title="Refresh comments">
-                            <i class="fas fa-sync-alt"></i>
-                        </button>
-                    </div>
+                    <h5><i class="fas fa-comments me-2"></i> Comments & Tips</h5>
                     
                     <% if (typeof user !== 'undefined' && user) { %>
-                        <div class="mb-4">
-                            <form id="commentForm">
-                                <div class="input-group">
-                                    <select id="commentType" class="form-select" style="max-width: 130px;">
-                                        <option value="comment">💬 Comment</option>
-                                        <option value="tip">💡 Tip</option>
-                                        <option value="question">❓ Question</option>
-                                    </select>
-                                    <input type="text" id="commentContent" class="form-control" placeholder="Share a comment or tip..." required minlength="2" maxlength="500">
-                                    <button type="submit" class="btn btn-primary" id="commentSubmitBtn">
-                                        <i class="fas fa-paper-plane"></i>
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
+                        <form id="newCommentForm" class="mb-3">
+                            <div class="input-group">
+                                <input type="text" id="newCommentText" class="form-control" placeholder="Write a comment..." maxlength="500">
+                                <button type="submit" class="btn btn-primary">Post</button>
+                            </div>
+                        </form>
                     <% } else { %>
-                        <div class="alert alert-info mb-4">
-                            <i class="fas fa-info-circle me-2"></i>
-                            <a href="/auth/login">Login</a> to leave a comment or tip.
-                        </div>
+                        <p class="text-muted"><a href="/auth/login">Login</a> to comment.</p>
                     <% } %>
                     
-                    <div id="commentsContainer">
-                        <div class="text-center text-muted py-4" id="commentsLoading">
-                            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-                            Loading comments...
-                        </div>
-                    </div>
+                    <div id="commentsList"></div>
                 </div>
             </div>
         </div>
@@ -278,330 +256,114 @@
 </div>
 
 <script>
-const itemId = '<%= item._id %>';
-let commentsLoaded = false;
+(function() {
+    var ITEM_ID = '<%= item._id %>';
+    var commentsDiv = document.getElementById('commentsList');
+    
+    // Show initial loading
+    commentsDiv.innerHTML = '<p class="text-muted">Loading...</p>';
+    
+    // Fetch comments using XMLHttpRequest (more reliable than fetch)
+    function getComments() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/comments/item/' + ITEM_ID + '?t=' + Date.now(), true);
+        xhr.setRequestHeader('Accept', 'application/json');
+        xhr.timeout = 10000;
+        
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                try {
+                    var data = JSON.parse(xhr.responseText);
+                    if (data.comments && data.comments.length > 0) {
+                        var html = '';
+                        for (var i = 0; i < data.comments.length; i++) {
+                            var c = data.comments[i];
+                            var author = c.author ? c.author.username : 'User';
+                            var date = new Date(c.createdAt).toLocaleDateString();
+                            html += '<div class="border-bottom py-2">';
+                            html += '<strong>' + author + '</strong> ';
+                            html += '<small class="text-muted">' + date + '</small>';
+                            html += '<p class="mb-0">' + c.content + '</p>';
+                            html += '</div>';
+                        }
+                        commentsDiv.innerHTML = html;
+                    } else {
+                        commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
+                    }
+                } catch (e) {
+                    commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
+                }
+            } else {
+                commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
+            }
+        };
+        
+        xhr.onerror = function() {
+            commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
+        };
+        
+        xhr.ontimeout = function() {
+            commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
+        };
+        
+        xhr.send();
+    }
+    
+    // Post new comment
+    var form = document.getElementById('newCommentForm');
+    if (form) {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            var input = document.getElementById('newCommentText');
+            var text = input.value.trim();
+            if (text.length < 2) return;
+            
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/comments/item/' + ITEM_ID, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.onload = function() {
+                if (xhr.status === 200 || xhr.status === 201) {
+                    input.value = '';
+                    getComments();
+                } else if (xhr.status === 401) {
+                    window.location.href = '/auth/login';
+                }
+            };
+            xhr.send(JSON.stringify({ content: text, type: 'comment' }));
+        };
+    }
+    
+    // Load comments on page ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', getComments);
+    } else {
+        getComments();
+    }
+})();
+</script>
 
+<script>
+// Share functions
 function shareOnFacebook() {
     window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
 }
-
 function shareOnTwitter() {
-    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.type === "lost" ? "Lost" : "Found" %>: <%= item.itemName %>'), '_blank');
+    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href), '_blank');
 }
-
 function shareOnWhatsApp() {
-    window.open('https://wa.me/?text=' + encodeURIComponent('<%= item.type === "lost" ? "Lost" : "Found" %>: <%= item.itemName %> - ' + window.location.href), '_blank');
+    window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank');
 }
-
 function copyLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-        alert('Link copied to clipboard!');
-    });
+    navigator.clipboard.writeText(window.location.href);
+    alert('Link copied!');
 }
-
-// QR Code Modal
-async function showQRCode() {
-    try {
-        const res = await fetch(`/posters/qr/${itemId}`);
-        const data = await res.json();
-        if (data.success) {
-            const modal = document.createElement('div');
-            modal.className = 'modal fade show';
-            modal.style.display = 'block';
-            modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
-            modal.innerHTML = `
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title"><i class="fas fa-qrcode me-2"></i>QR Code</h5>
-                            <button type="button" class="btn-close" onclick="this.closest('.modal').remove()"></button>
-                        </div>
-                        <div class="modal-body text-center">
-                            <img src="${data.qrCode}" alt="QR Code" style="max-width: 250px;">
-                            <p class="mt-3 text-muted small">Scan to view this item</p>
-                        </div>
-                        <div class="modal-footer">
-                            <a href="${data.qrCode}" download="qr-code.png" class="btn btn-primary">
-                                <i class="fas fa-download me-1"></i> Download
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
-        }
-    } catch (err) {
-        alert('Failed to generate QR code');
-    }
-}
-
-// ============ COMMENTS SECTION ============
-
-function renderComments(comments) {
-    if (!comments || comments.length === 0) {
-        return `
-            <div class="text-center text-muted py-4">
-                <i class="fas fa-comment-slash fa-2x mb-2"></i>
-                <p class="mb-0">No comments yet. Be the first to share!</p>
-            </div>
-        `;
-    }
-    
-    return comments.map(c => {
-        const typeIcon = c.type === 'tip' ? '💡' : c.type === 'question' ? '❓' : '💬';
-        const typeBg = c.type === 'tip' ? 'success' : c.type === 'question' ? 'info' : 'secondary';
-        const date = new Date(c.createdAt).toLocaleDateString();
-        const author = c.author?.username || 'Anonymous';
-        const votes = c.helpfulVotes?.length || 0;
-        
-        let repliesHtml = '';
-        if (c.replies && c.replies.length > 0) {
-            repliesHtml = `
-                <div class="ms-4 mt-2 border-start border-2 ps-3">
-                    ${c.replies.map(r => `
-                        <div class="small text-muted mb-1">
-                            <strong>${r.author?.username || 'User'}:</strong> ${escapeHtml(r.content)}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-        
-        return `
-            <div class="card mb-2 ${c.isPinned ? 'border-primary border-2' : ''}" id="comment-${c._id}">
-                <div class="card-body py-2 px-3">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            ${c.isPinned ? '<i class="fas fa-thumbtack text-primary me-1" title="Pinned"></i>' : ''}
-                            ${c.isHelpful ? '<i class="fas fa-star text-warning me-1" title="Helpful"></i>' : ''}
-                            <span class="badge bg-${typeBg} me-2">${typeIcon}</span>
-                            <strong>${escapeHtml(author)}</strong>
-                            <small class="text-muted ms-2">${date}</small>
-                            ${c.isEdited ? '<small class="text-muted ms-1">(edited)</small>' : ''}
-                        </div>
-                        <button class="btn btn-sm btn-outline-success py-0 px-2" onclick="voteHelpful('${c._id}')" title="Mark as helpful">
-                            <i class="fas fa-thumbs-up"></i> ${votes}
-                        </button>
-                    </div>
-                    <p class="mb-1 mt-2">${escapeHtml(c.content)}</p>
-                    ${repliesHtml}
-                </div>
-            </div>
-        `;
-    }).join('');
-}
-
-function escapeHtml(text) {
-    if (!text) return '';
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function showCommentsError(message) {
-    const container = document.getElementById('commentsContainer');
-    container.innerHTML = `
-        <div class="alert alert-warning py-2">
-            <i class="fas fa-exclamation-triangle me-2"></i>
-            ${message}
-            <button class="btn btn-sm btn-link p-0 ms-2" onclick="loadComments()">Retry</button>
-        </div>
-    `;
-}
-
-async function loadComments() {
-    const container = document.getElementById('commentsContainer');
-    
-    // Show loading state
-    container.innerHTML = `
-        <div class="text-center text-muted py-4">
-            <div class="spinner-border spinner-border-sm me-2" role="status"></div>
-            Loading comments...
-        </div>
-    `;
-    
-    // Create abort controller for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
-    
-    try {
-        const url = `/comments/item/${itemId}?_=${Date.now()}`;
-        console.log('[Comments] Fetching:', url);
-        
-        const response = await fetch(url, {
-            method: 'GET',
-            signal: controller.signal,
-            headers: {
-                'Accept': 'application/json',
-                'Cache-Control': 'no-cache'
+function showQRCode() {
+    fetch('/posters/qr/<%= item._id %>')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            if (data.success) {
+                alert('QR Code generated! Open Print Poster for full version.');
             }
         });
-        
-        clearTimeout(timeoutId);
-        console.log('[Comments] Response status:', response.status);
-        
-        if (!response.ok) {
-            throw new Error(`Server returned ${response.status}`);
-        }
-        
-        const text = await response.text();
-        console.log('[Comments] Response text:', text.substring(0, 200));
-        
-        let data;
-        try {
-            data = JSON.parse(text);
-        } catch (parseError) {
-            console.error('[Comments] JSON parse error:', parseError);
-            throw new Error('Invalid response from server');
-        }
-        
-        if (data.success) {
-            commentsLoaded = true;
-            container.innerHTML = renderComments(data.comments);
-            console.log('[Comments] Loaded', data.comments?.length || 0, 'comments');
-        } else {
-            throw new Error(data.message || 'Failed to load comments');
-        }
-        
-    } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('[Comments] Error:', error);
-        
-        if (error.name === 'AbortError') {
-            showCommentsError('Request timed out. Server may be slow.');
-        } else {
-            // Show empty state instead of error for better UX
-            container.innerHTML = `
-                <div class="text-center text-muted py-4">
-                    <i class="fas fa-comment-slash fa-2x mb-2"></i>
-                    <p class="mb-0">No comments yet. Be the first to share!</p>
-                </div>
-            `;
-        }
-    }
 }
-
-async function voteHelpful(commentId) {
-    try {
-        const res = await fetch(`/comments/${commentId}/helpful`, { 
-            method: 'POST',
-            headers: { 'Accept': 'application/json' }
-        });
-        
-        if (res.status === 401) {
-            window.location.href = '/auth/login';
-            return;
-        }
-        
-        const data = await res.json();
-        if (data.success) {
-            loadComments();
-        }
-    } catch (err) {
-        console.error('[Comments] Vote error:', err);
-    }
-}
-
-async function submitComment(content, type) {
-    const submitBtn = document.getElementById('commentSubmitBtn');
-    const originalHtml = submitBtn.innerHTML;
-    
-    try {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-        
-        const res = await fetch(`/comments/item/${itemId}`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({ content, type })
-        });
-        
-        if (res.status === 401) {
-            window.location.href = '/auth/login';
-            return false;
-        }
-        
-        const data = await res.json();
-        
-        if (data.success) {
-            document.getElementById('commentContent').value = '';
-            await loadComments();
-            return true;
-        } else {
-            alert(data.message || 'Failed to post comment');
-            return false;
-        }
-    } catch (err) {
-        console.error('[Comments] Submit error:', err);
-        alert('Failed to post comment. Please try again.');
-        return false;
-    } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalHtml;
-    }
-}
-
-// Comment form handler
-const commentForm = document.getElementById('commentForm');
-if (commentForm) {
-    commentForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const content = document.getElementById('commentContent').value.trim();
-        const type = document.getElementById('commentType').value;
-        
-        if (content.length < 2) {
-            alert('Comment must be at least 2 characters');
-            return;
-        }
-        
-        await submitComment(content, type);
-    });
-}
-
-// Load potential matches
-async function loadMatches() {
-    try {
-        const res = await fetch(`/items/${itemId}/matches`);
-        const data = await res.json();
-        
-        if (data.success && data.matches && data.matches.length > 0) {
-            const card = document.getElementById('matchesCard');
-            const container = document.getElementById('matchesContainer');
-            
-            container.innerHTML = `
-                <ul class="list-group list-group-flush">
-                    ${data.matches.slice(0, 5).map(m => `
-                        <li class="list-group-item">
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <a href="/items/${m.item._id}" class="text-decoration-none">
-                                        <strong>${m.item.itemName}</strong>
-                                    </a>
-                                    <small class="text-muted d-block">${m.item.location}</small>
-                                </div>
-                                <span class="badge bg-${m.score >= 60 ? 'success' : m.score >= 40 ? 'warning' : 'secondary'}">
-                                    ${m.score}% match
-                                </span>
-                            </div>
-                        </li>
-                    `).join('')}
-                </ul>
-            `;
-            card.style.display = 'block';
-        }
-    } catch (err) {
-        console.error('[Matches] Error:', err);
-    }
-}
-
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('[Page] Loading comments for item:', itemId);
-    loadComments();
-    loadMatches();
-});
 </script>
