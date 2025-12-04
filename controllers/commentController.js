@@ -2,28 +2,35 @@ const { Comment, Item } = require('../models');
 const mongoose = require('mongoose');
 
 /**
- * Get comments for an item - Ultra simple version
+ * Get comments for an item - Ultra simple version with logging
  */
 exports.getItemComments = async (req, res) => {
+    const itemId = req.params.itemId;
+    console.log('=== GET COMMENTS ===');
+    console.log('ItemId:', itemId);
+    
     try {
-        const itemId = req.params.itemId;
-        
         // Validate
         if (!itemId || !mongoose.Types.ObjectId.isValid(itemId)) {
+            console.log('Invalid itemId');
             return res.status(200).json({ success: true, comments: [] });
         }
 
-        // Simple query with timeout
+        console.log('Querying database...');
+        
+        // Simple query
         const comments = await Comment.find({ item: itemId, isHidden: { $ne: true } })
             .populate('author', 'username')
             .sort({ createdAt: -1 })
             .limit(30)
             .lean();
 
+        console.log('Found comments:', comments ? comments.length : 0);
+        
         return res.status(200).json({ success: true, comments: comments || [] });
     } catch (err) {
-        console.error('Comments error:', err.message);
-        return res.status(200).json({ success: true, comments: [] });
+        console.error('Comments error:', err);
+        return res.status(200).json({ success: true, comments: [], error: err.message });
     }
 };
 
