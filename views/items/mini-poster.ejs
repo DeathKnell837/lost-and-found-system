@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        @page {
+            size: A5 landscape;
+            margin: 5mm;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .flyer {
+            width: 210mm;
+            height: 148mm;
+            margin: 10mm auto;
+            padding: 8mm;
+            background: white;
+            border-radius: 5mm;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 8mm;
+        }
+        
+        .left-section {
+            flex: 0 0 55mm;
+        }
+        
+        .item-image {
+            width: 55mm;
+            height: 55mm;
+            object-fit: cover;
+            border-radius: 4mm;
+            border: 2px solid #ecf0f1;
+        }
+        
+        .no-image {
+            width: 55mm;
+            height: 55mm;
+            background: #ecf0f1;
+            border-radius: 4mm;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+        
+        .qr-code {
+            margin-top: 5mm;
+            text-align: center;
+        }
+        
+        .qr-code img {
+            width: 50mm;
+            height: 50mm;
+        }
+        
+        .qr-code p {
+            font-size: 8px;
+            color: #7f8c8d;
+            margin-top: 2mm;
+        }
+        
+        .right-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .type-badge {
+            display: inline-block;
+            padding: 3mm 6mm;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 3mm;
+            margin-bottom: 3mm;
+        }
+        
+        .type-lost {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .type-found {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 4mm;
+        }
+        
+        .details {
+            flex: 1;
+        }
+        
+        .detail-row {
+            display: flex;
+            margin-bottom: 3mm;
+            font-size: 12px;
+        }
+        
+        .detail-icon {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .detail-text {
+            flex: 1;
+            color: #2c3e50;
+        }
+        
+        .description {
+            font-size: 11px;
+            color: #7f8c8d;
+            line-height: 1.4;
+            margin-top: 3mm;
+            padding: 3mm;
+            background: #f8f9fa;
+            border-radius: 2mm;
+        }
+        
+        .footer {
+            margin-top: auto;
+            padding-top: 3mm;
+            border-top: 1px solid #ecf0f1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .brand {
+            font-size: 14px;
+            font-weight: bold;
+            color: #6c5ce7;
+        }
+        
+        .scan-text {
+            font-size: 10px;
+            color: #95a5a6;
+        }
+        
+        .print-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 25px;
+            font-size: 16px;
+            background: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        @media print {
+            .print-btn { display: none; }
+            body { background: white; }
+            .flyer { box-shadow: none; margin: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="flyer">
+        <div class="left-section">
+            <% if (item.image) { %>
+                <img src="<%= item.image %>" alt="<%= item.title %>" class="item-image">
+            <% } else { %>
+                <div class="no-image">No Image</div>
+            <% } %>
+            
+            <div class="qr-code">
+                <img src="<%= qrCode %>" alt="QR Code">
+                <p>Scan for details</p>
+            </div>
+        </div>
+        
+        <div class="right-section">
+            <span class="type-badge type-<%= item.type %>">
+                <%= item.type === 'lost' ? '🔍 LOST' : '✅ FOUND' %>
+            </span>
+            
+            <h1 class="title"><%= item.title %></h1>
+            
+            <div class="details">
+                <div class="detail-row">
+                    <span class="detail-icon">📁</span>
+                    <span class="detail-text"><%= item.category ? item.category.name : 'General' %></span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-icon">📍</span>
+                    <span class="detail-text"><%= item.location %></span>
+                </div>
+                
+                <div class="detail-row">
+                    <span class="detail-icon">📅</span>
+                    <span class="detail-text"><%= new Date(item.dateFound || item.dateLost || item.createdAt).toLocaleDateString() %></span>
+                </div>
+                
+                <% if (item.color) { %>
+                    <div class="detail-row">
+                        <span class="detail-icon">🎨</span>
+                        <span class="detail-text"><%= item.color %></span>
+                    </div>
+                <% } %>
+                
+                <% if (item.description) { %>
+                    <div class="description">
+                        <%= item.description.substring(0, 150) %><%= item.description.length > 150 ? '...' : '' %>
+                    </div>
+                <% } %>
+            </div>
+            
+            <div class="footer">
+                <span class="brand">🔎 Lost & Found</span>
+                <span class="scan-text">Scan QR code or visit website</span>
+            </div>
+        </div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">🖨️ Print</button>
+</body>
+</html>

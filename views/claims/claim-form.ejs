@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Lost & Found</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .claim-card { background: white; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.08); }
+        .item-preview { border-radius: 8px; overflow: hidden; }
+        .item-preview img { width: 100%; height: 200px; object-fit: cover; }
+        .form-section { border-left: 3px solid #6c5ce7; padding-left: 1rem; margin-bottom: 1.5rem; }
+        .form-section h5 { color: #6c5ce7; }
+        .required-badge { font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+
+    <div class="container py-4">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="/items/<%= item._id %>"><%= item.title %></a></li>
+                <li class="breadcrumb-item active">Claim Item</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Item Preview -->
+            <div class="col-lg-4 mb-4">
+                <div class="claim-card p-3 position-sticky" style="top: 80px;">
+                    <h6 class="text-muted mb-3">
+                        <i class="fas fa-box me-2"></i>Item You're Claiming
+                    </h6>
+                    
+                    <div class="item-preview mb-3">
+                        <% if (item.image) { %>
+                            <img src="<%= item.image %>" alt="<%= item.title %>">
+                        <% } else { %>
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        <% } %>
+                    </div>
+                    
+                    <h5 class="mb-2"><%= item.title %></h5>
+                    <p class="text-muted small mb-2">
+                        <i class="fas fa-folder me-1"></i><%= item.category ? item.category.name : 'Uncategorized' %>
+                    </p>
+                    <p class="text-muted small mb-2">
+                        <i class="fas fa-map-marker-alt me-1"></i><%= item.location %>
+                    </p>
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-calendar me-1"></i><%= new Date(item.dateFound || item.dateLost).toLocaleDateString() %>
+                    </p>
+                    
+                    <hr>
+                    
+                    <div class="alert alert-info small mb-0">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Please provide accurate information to help us verify your ownership.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claim Form -->
+            <div class="col-lg-8">
+                <div class="claim-card p-4">
+                    <h4 class="mb-4">
+                        <i class="fas fa-hand-holding me-2 text-primary"></i>
+                        Submit Claim Request
+                    </h4>
+                    
+                    <form action="/claims/submit/<%= item._id %>" method="POST" enctype="multipart/form-data">
+                        <!-- Description Section -->
+                        <div class="form-section">
+                            <h5>
+                                <i class="fas fa-comment-alt me-2"></i>Why is this your item?
+                                <span class="badge bg-danger required-badge">Required</span>
+                            </h5>
+                            <p class="text-muted small">Describe in detail why you believe this item belongs to you.</p>
+                            
+                            <textarea 
+                                name="description" 
+                                class="form-control" 
+                                rows="4" 
+                                placeholder="E.g., This is my black Samsung phone that I lost on Monday near the library. It has a crack on the top right corner of the screen..."
+                                minlength="20"
+                                maxlength="1000"
+                                required
+                            ></textarea>
+                            <div class="form-text">Minimum 20 characters</div>
+                        </div>
+
+                        <!-- Proof of Ownership -->
+                        <div class="form-section">
+                            <h5>
+                                <i class="fas fa-certificate me-2"></i>Proof of Ownership
+                                <span class="badge bg-danger required-badge">Required</span>
+                            </h5>
+                            <p class="text-muted small">Describe how you can prove this is yours (serial numbers, unique marks, contents, etc.)</p>
+                            
+                            <textarea 
+                                name="proofOfOwnership" 
+                                class="form-control" 
+                                rows="3" 
+                                placeholder="E.g., The phone has IMEI: 123456789012345, there are photos of my family in the gallery, the wallpaper is a beach sunset..."
+                                minlength="10"
+                                required
+                            ></textarea>
+                        </div>
+
+                        <!-- Identifying Features -->
+                        <div class="form-section">
+                            <h5>
+                                <i class="fas fa-fingerprint me-2"></i>Identifying Features
+                                <span class="badge bg-secondary required-badge">Optional</span>
+                            </h5>
+                            <p class="text-muted small">Any unique features, scratches, stickers, or modifications</p>
+                            
+                            <textarea 
+                                name="identifyingFeatures" 
+                                class="form-control" 
+                                rows="2" 
+                                placeholder="E.g., Has a small scratch on the back, blue silicone case with SpongeBob sticker..."
+                            ></textarea>
+                        </div>
+
+                        <!-- Proof Images -->
+                        <div class="form-section">
+                            <h5>
+                                <i class="fas fa-camera me-2"></i>Proof Images
+                                <span class="badge bg-secondary required-badge">Optional</span>
+                            </h5>
+                            <p class="text-muted small">Upload up to 3 images as proof (receipts, photos of item, etc.)</p>
+                            
+                            <input type="file" name="proofImages" class="form-control" accept="image/*" multiple>
+                            <div class="form-text">Max 3 images, 5MB each</div>
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="form-section">
+                            <h5>
+                                <i class="fas fa-phone me-2"></i>Contact Information
+                            </h5>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Phone Number (Optional)</label>
+                                    <input type="tel" name="contactPhone" class="form-control" placeholder="Your phone number">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Preferred Contact Method</label>
+                                    <select name="preferredContactMethod" class="form-select">
+                                        <option value="email">Email</option>
+                                        <option value="phone">Phone</option>
+                                        <option value="both">Both</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Submit Claim
+                            </button>
+                            <a href="/items/<%= item._id %>" class="btn btn-outline-secondary btn-lg">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

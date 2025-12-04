@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - Lost & Found</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background: #f8f9fa; }
+        .page-header { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; padding: 2rem 0; margin-bottom: 2rem; }
+        .claim-card { background: white; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.08); overflow: hidden; margin-bottom: 1rem; }
+        .claim-item-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; }
+        .status-badge { padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; }
+        .status-pending { background: #ffeaa7; color: #856404; }
+        .status-under_review { background: #81ecec; color: #0984e3; }
+        .status-approved { background: #55efc4; color: #00b894; }
+        .status-rejected { background: #fab1a0; color: #d63031; }
+        .status-withdrawn { background: #dfe6e9; color: #636e72; }
+        .empty-state { text-align: center; padding: 4rem 2rem; }
+        .empty-state i { font-size: 4rem; color: #dfe6e9; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <%- include('../partials/navbar') %>
+
+    <div class="page-header">
+        <div class="container">
+            <h2><i class="fas fa-hand-holding me-2"></i>My Claims</h2>
+            <p class="mb-0 opacity-75">Track the status of your claim requests</p>
+        </div>
+    </div>
+
+    <div class="container pb-5">
+        <% if (claims.length === 0) { %>
+            <div class="claim-card">
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h4>No Claims Yet</h4>
+                    <p class="text-muted">You haven't submitted any claim requests yet.</p>
+                    <a href="/items?type=found" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Browse Found Items
+                    </a>
+                </div>
+            </div>
+        <% } else { %>
+            <!-- Status Filter Tabs -->
+            <ul class="nav nav-pills mb-4">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#all" data-bs-toggle="pill">
+                        All <span class="badge bg-secondary"><%= claims.length %></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#pending" data-bs-toggle="pill">
+                        Pending <span class="badge bg-warning text-dark"><%= claims.filter(c => c.status === 'pending').length %></span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#approved" data-bs-toggle="pill">
+                        Approved <span class="badge bg-success"><%= claims.filter(c => c.status === 'approved').length %></span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Claims List -->
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="all">
+                    <% claims.forEach(claim => { %>
+                        <div class="claim-card" data-status="<%= claim.status %>">
+                            <div class="p-3">
+                                <div class="d-flex">
+                                    <!-- Item Image -->
+                                    <div class="me-3">
+                                        <% if (claim.item && claim.item.image) { %>
+                                            <img src="<%= claim.item.image %>" alt="" class="claim-item-img">
+                                        <% } else { %>
+                                            <div class="claim-item-img bg-light d-flex align-items-center justify-content-center">
+                                                <i class="fas fa-box text-muted"></i>
+                                            </div>
+                                        <% } %>
+                                    </div>
+
+                                    <!-- Claim Info -->
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h5 class="mb-1">
+                                                    <% if (claim.item) { %>
+                                                        <%= claim.item.title %>
+                                                    <% } else { %>
+                                                        <span class="text-muted">Item Deleted</span>
+                                                    <% } %>
+                                                </h5>
+                                                <p class="text-muted small mb-0">
+                                                    <i class="fas fa-clock me-1"></i>
+                                                    Submitted <%= new Date(claim.createdAt).toLocaleDateString() %>
+                                                </p>
+                                            </div>
+                                            <span class="status-badge status-<%= claim.status %>">
+                                                <% if (claim.status === 'pending') { %>
+                                                    <i class="fas fa-hourglass-half me-1"></i>Pending
+                                                <% } else if (claim.status === 'under_review') { %>
+                                                    <i class="fas fa-search me-1"></i>Under Review
+                                                <% } else if (claim.status === 'approved') { %>
+                                                    <i class="fas fa-check me-1"></i>Approved
+                                                <% } else if (claim.status === 'rejected') { %>
+                                                    <i class="fas fa-times me-1"></i>Rejected
+                                                <% } else { %>
+                                                    <i class="fas fa-undo me-1"></i>Withdrawn
+                                                <% } %>
+                                            </span>
+                                        </div>
+
+                                        <p class="mb-2 text-truncate" style="max-width: 500px;">
+                                            <%= claim.description.substring(0, 100) %><%= claim.description.length > 100 ? '...' : '' %>
+                                        </p>
+
+                                        <div class="d-flex gap-2">
+                                            <a href="/claims/details/<%= claim._id %>" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye me-1"></i>View Details
+                                            </a>
+                                            <% if (['pending', 'under_review'].includes(claim.status)) { %>
+                                                <form action="/claims/withdraw/<%= claim._id %>" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to withdraw this claim?')">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-times me-1"></i>Withdraw
+                                                    </button>
+                                                </form>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <% if (claim.status === 'rejected' && claim.rejectionReason) { %>
+                                    <div class="alert alert-danger small mt-3 mb-0">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        <strong>Rejection Reason:</strong> <%= claim.rejectionReason %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+
+    <%- include('../partials/footer') %>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -54,6 +54,30 @@
                 </a>
             </li>
             
+            <li class="nav-section">Claim Requests</li>
+            
+            <li class="nav-item">
+                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'claims' ? 'active' : '' %>" href="/admin/claims">
+                    <i class="fas fa-hand-holding"></i>
+                    <span>All Claims</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/admin/claims?status=pending">
+                    <i class="fas fa-hourglass-half"></i>
+                    <span>Pending Claims</span>
+                </a>
+            </li>
+            
+            <li class="nav-section">Community</li>
+            
+            <li class="nav-item">
+                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'comments' ? 'active' : '' %>" href="/admin/comments">
+                    <i class="fas fa-comments"></i>
+                    <span>Comments</span>
+                </a>
+            </li>
+            
             <li class="nav-section">Settings</li>
             
             <li class="nav-item">

@@ -8,6 +8,9 @@ const reportRoutes = require('./report');
 const searchRoutes = require('./search');
 const adminRoutes = require('./admin');
 const userRoutes = require('./user');
+const claimRoutes = require('./claims');
+const commentRoutes = require('./comments');
+const posterRoutes = require('./posters');
 
 // Mount routes
 router.use('/', homeRoutes);
@@ -17,5 +20,8 @@ router.use('/report', reportRoutes);
 router.use('/search', searchRoutes);
 router.use('/admin', adminRoutes);
 router.use('/user', userRoutes);
+router.use('/claims', claimRoutes);
+router.use('/comments', commentRoutes);
+router.use('/posters', posterRoutes);
 
 module.exports = router;

@@ -103,6 +103,37 @@
                     <!-- Description -->
                     <h5><i class="fas fa-align-left me-2"></i> Description</h5>
                     <p class="lead"><%= item.description %></p>
+                    
+                    <!-- Comments Section -->
+                    <hr class="my-4">
+                    <h5><i class="fas fa-comments me-2"></i> Comments & Tips</h5>
+                    
+                    <% if (typeof user !== 'undefined' && user) { %>
+                        <div class="mb-4">
+                            <form id="commentForm" class="d-flex gap-2">
+                                <select id="commentType" class="form-select" style="width: auto;">
+                                    <option value="comment">💬 Comment</option>
+                                    <option value="tip">💡 Tip</option>
+                                    <option value="question">❓ Question</option>
+                                </select>
+                                <input type="text" id="commentContent" class="form-control" placeholder="Share a comment or tip..." required>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </form>
+                        </div>
+                    <% } else { %>
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <a href="/auth/login">Login</a> to leave a comment or tip.
+                        </div>
+                    <% } %>
+                    
+                    <div id="commentsContainer">
+                        <div class="text-center text-muted py-3">
+                            <i class="fas fa-spinner fa-spin"></i> Loading comments...
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -167,6 +198,29 @@
                 </div>
             </div>
             
+            <!-- Quick Actions -->
+            <div class="card shadow mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt me-2"></i> Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <% if (item.type === 'found' && item.status === 'approved') { %>
+                        <a href="/claims/form/<%= item._id %>" class="btn btn-success w-100 mb-2">
+                            <i class="fas fa-hand-holding me-2"></i> Claim This Item
+                        </a>
+                    <% } %>
+                    <a href="/posters/poster/<%= item._id %>" class="btn btn-outline-primary w-100 mb-2" target="_blank">
+                        <i class="fas fa-print me-2"></i> Print Poster
+                    </a>
+                    <a href="/posters/mini/<%= item._id %>" class="btn btn-outline-secondary w-100 mb-2" target="_blank">
+                        <i class="fas fa-file-alt me-2"></i> Print Mini Flyer
+                    </a>
+                    <button class="btn btn-outline-dark w-100" onclick="showQRCode()">
+                        <i class="fas fa-qrcode me-2"></i> Show QR Code
+                    </button>
+                </div>
+            </div>
+            
             <!-- Related Items -->
             <% if (relatedItems && relatedItems.length > 0) { %>
                 <div class="card shadow">
@@ -206,6 +260,8 @@
 </div>
 
 <script>
+const itemId = '<%= item._id %>';
+
 function shareOnFacebook() {
     window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
 }
@@ -223,4 +279,129 @@ function copyLink() {
         alert('Link copied to clipboard!');
     });
 }
+
+// QR Code Modal
+async function showQRCode() {
+    try {
+        const res = await fetch(`/posters/qr/${itemId}`);
+        const data = await res.json();
+        if (data.success) {
+            const modal = document.createElement('div');
+            modal.className = 'modal fade show';
+            modal.style.display = 'block';
+            modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+            modal.innerHTML = `
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="fas fa-qrcode me-2"></i>QR Code</h5>
+                            <button type="button" class="btn-close" onclick="this.closest('.modal').remove()"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="${data.qrCode}" alt="QR Code" style="max-width: 250px;">
+                            <p class="mt-3 text-muted small">Scan to view this item</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="${data.qrCode}" download="qr-code.png" class="btn btn-primary">
+                                <i class="fas fa-download me-1"></i> Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+        }
+    } catch (err) {
+        alert('Failed to generate QR code');
+    }
+}
+
+// Comments Functionality
+async function loadComments() {
+    try {
+        const res = await fetch(`/comments/item/${itemId}`);
+        const data = await res.json();
+        const container = document.getElementById('commentsContainer');
+        
+        if (data.comments.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center py-3"><i class="fas fa-comment-slash me-2"></i>No comments yet. Be the first to share!</p>';
+            return;
+        }
+        
+        container.innerHTML = data.comments.map(c => `
+            <div class="card mb-2 ${c.isPinned ? 'border-primary' : ''}" id="comment-${c._id}">
+                <div class="card-body py-2 px-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            ${c.isPinned ? '<i class="fas fa-thumbtack text-primary me-1"></i>' : ''}
+                            ${c.isHelpful ? '<i class="fas fa-star text-warning me-1"></i>' : ''}
+                            <span class="badge bg-${c.type === 'tip' ? 'success' : c.type === 'question' ? 'info' : 'secondary'} me-2">
+                                ${c.type === 'tip' ? '💡' : c.type === 'question' ? '❓' : '💬'}
+                            </span>
+                            <strong>${c.author?.username || 'User'}</strong>
+                            <small class="text-muted ms-2">${new Date(c.createdAt).toLocaleDateString()}</small>
+                            ${c.isEdited ? '<small class="text-muted ms-1">(edited)</small>' : ''}
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-link text-success p-0" onclick="voteHelpful('${c._id}')">
+                                <i class="fas fa-thumbs-up"></i> <span>${c.helpfulVotes?.length || 0}</span>
+                            </button>
+                        </div>
+                    </div>
+                    <p class="mb-1 mt-2">${c.content}</p>
+                    ${c.replies?.length ? `
+                        <div class="ms-4 mt-2 border-start ps-3">
+                            ${c.replies.map(r => `
+                                <div class="small mb-1">
+                                    <strong>${r.author?.username || 'User'}:</strong> ${r.content}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            </div>
+        `).join('');
+    } catch (err) {
+        document.getElementById('commentsContainer').innerHTML = '<p class="text-muted">Failed to load comments</p>';
+    }
+}
+
+async function voteHelpful(commentId) {
+    try {
+        const res = await fetch(`/comments/${commentId}/helpful`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) loadComments();
+        else if (res.status === 401) window.location.href = '/auth/login';
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+// Submit comment
+document.getElementById('commentForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const content = document.getElementById('commentContent').value;
+    const type = document.getElementById('commentType').value;
+    
+    try {
+        const res = await fetch(`/comments/item/${itemId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content, type })
+        });
+        
+        if (res.ok) {
+            document.getElementById('commentContent').value = '';
+            loadComments();
+        } else if (res.status === 401) {
+            window.location.href = '/auth/login';
+        }
+    } catch (err) {
+        alert('Failed to post comment');
+    }
+});
+
+// Load comments on page load
+document.addEventListener('DOMContentLoaded', loadComments);
 </script>
