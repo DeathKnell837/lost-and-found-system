@@ -33,11 +33,8 @@ if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', 1);
 }
 
-// Connect to MongoDB with error handling
-connectDB().catch(err => {
-    console.error('Failed to connect to MongoDB:', err);
-    process.exit(1);
-});
+// Connect to MongoDB (non-blocking)
+connectDB();
 
 // View engine setup
 app.set('view engine', 'ejs');
@@ -131,17 +128,16 @@ app.use((req, res, next) => {
 // Error Handler
 app.use(errorHandler);
 
-// Start server
+// Start server - bind to 0.0.0.0 for Render
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const HOST = '0.0.0.0';
+
+app.listen(PORT, HOST, () => {
     console.log('========================================');
     console.log('  Campus Lost & Found Management System');
     console.log('========================================');
-    console.log(`  Server running on port ${PORT}`);
-    console.log(`  URL: http://localhost:${PORT}`);
+    console.log(`  Server running on ${HOST}:${PORT}`);
     console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log('========================================');
-    console.log('  Admin Panel: http://localhost:' + PORT + '/admin/login');
     console.log('========================================');
 });
 
