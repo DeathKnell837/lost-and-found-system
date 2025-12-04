@@ -74,14 +74,25 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li>
-                                <a class="dropdown-item" href="/auth/profile">
-                                    <i class="fas fa-user me-2"></i> Profile
+                                <a class="dropdown-item" href="/user/dashboard">
+                                    <i class="fas fa-tachometer-alt me-2"></i> My Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/user/my-items">
+                                    <i class="fas fa-list me-2"></i> My Items
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/user/settings">
+                                    <i class="fas fa-cog me-2"></i> Settings
                                 </a>
                             </li>
                             <% if (user.role === 'admin') { %>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/admin/dashboard">
-                                        <i class="fas fa-tachometer-alt me-2"></i> Admin Panel
+                                        <i class="fas fa-shield-alt me-2"></i> Admin Panel
                                     </a>
                                 </li>
                             <% } %>

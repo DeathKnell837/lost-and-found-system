@@ -7,6 +7,7 @@ const itemRoutes = require('./items');
 const reportRoutes = require('./report');
 const searchRoutes = require('./search');
 const adminRoutes = require('./admin');
+const userRoutes = require('./user');
 
 // Mount routes
 router.use('/', homeRoutes);
@@ -15,5 +16,6 @@ router.use('/items', itemRoutes);
 router.use('/report', reportRoutes);
 router.use('/search', searchRoutes);
 router.use('/admin', adminRoutes);
+router.use('/user', userRoutes);
 
 module.exports = router;

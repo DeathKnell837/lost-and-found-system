@@ -47,4 +47,7 @@ router.post('/devices/:id/block', adminController.blockDevice);
 router.post('/devices/:id/unblock', adminController.unblockDevice);
 router.post('/devices/:id/delete', adminController.deleteDevice);
 
+// Statistics
+router.get('/statistics', adminController.getStatistics);
+
 module.exports = router;

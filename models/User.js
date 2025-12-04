@@ -31,6 +31,12 @@ const userSchema = new mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
+    },
+    notificationPreferences: {
+        emailOnApproval: { type: Boolean, default: true },
+        emailOnRejection: { type: Boolean, default: true },
+        emailOnClaim: { type: Boolean, default: true },
+        emailOnMatch: { type: Boolean, default: true }
     }
 }, {
     timestamps: true

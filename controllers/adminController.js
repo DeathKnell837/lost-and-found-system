@@ -1,6 +1,7 @@
 const { User, Item, Category, BlockedDevice, TrackedDevice } = require('../models');
 const { cloudinary } = require('../config/cloudinary');
 const { generateFingerprint, getClientIP, parseUserAgent } = require('../middleware/deviceTracker');
+const emailService = require('../services/emailService');
 
 // Admin login page
 exports.getLoginPage = (req, res) => {
@@ -265,7 +266,16 @@ exports.updateItem = async (req, res) => {
 // Approve item
 exports.approveItem = async (req, res) => {
     try {
-        await Item.findByIdAndUpdate(req.params.id, { status: 'approved' });
+        const item = await Item.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
+        
+        // Send email notification if user exists
+        if (item.reportedBy) {
+            const user = await User.findById(item.reportedBy);
+            if (user && user.notificationPreferences?.emailOnApproval !== false) {
+                emailService.sendItemApprovedEmail(user, item);
+            }
+        }
+        
         req.flash('success', 'Item approved successfully');
         res.redirect('back');
     } catch (error) {
@@ -278,10 +288,20 @@ exports.approveItem = async (req, res) => {
 // Reject item
 exports.rejectItem = async (req, res) => {
     try {
-        await Item.findByIdAndUpdate(req.params.id, { 
+        const reason = req.body.reason || 'Rejected by admin';
+        const item = await Item.findByIdAndUpdate(req.params.id, { 
             status: 'rejected',
-            adminNotes: req.body.reason || 'Rejected by admin'
-        });
+            adminNotes: reason
+        }, { new: true });
+        
+        // Send email notification if user exists
+        if (item.reportedBy) {
+            const user = await User.findById(item.reportedBy);
+            if (user && user.notificationPreferences?.emailOnRejection !== false) {
+                emailService.sendItemRejectedEmail(user, item, reason);
+            }
+        }
+        
         req.flash('success', 'Item rejected');
         res.redirect('back');
     } catch (error) {
@@ -295,16 +315,20 @@ exports.rejectItem = async (req, res) => {
 exports.claimItem = async (req, res) => {
     try {
         const { claimerName, claimerEmail, claimerPhone } = req.body;
+        const claimerInfo = { name: claimerName, email: claimerEmail, phone: claimerPhone, date: new Date() };
 
-        await Item.findByIdAndUpdate(req.params.id, {
+        const item = await Item.findByIdAndUpdate(req.params.id, {
             status: 'claimed',
-            claimedBy: {
-                name: claimerName,
-                email: claimerEmail,
-                phone: claimerPhone,
-                date: new Date()
+            claimedBy: claimerInfo
+        }, { new: true });
+
+        // Send email notification if user exists
+        if (item.reportedBy) {
+            const user = await User.findById(item.reportedBy);
+            if (user && user.notificationPreferences?.emailOnClaim !== false) {
+                emailService.sendItemClaimedEmail(user, item, claimerInfo);
             }
-        });
+        }
 
         req.flash('success', 'Item marked as claimed');
         res.redirect('back');
@@ -700,5 +724,120 @@ exports.deleteDevice = async (req, res) => {
         console.error('Error deleting device:', error);
         req.flash('error', 'Error deleting device');
         res.redirect('/admin/devices');
+    }
+};
+
+// ==================== STATISTICS ====================
+
+// Get statistics page
+exports.getStatistics = async (req, res) => {
+    try {
+        // Basic counts
+        const totalItems = await Item.countDocuments();
+        const lostItems = await Item.countDocuments({ type: 'lost' });
+        const foundItems = await Item.countDocuments({ type: 'found' });
+        const claimedItems = await Item.countDocuments({ status: 'claimed' });
+        const pendingItems = await Item.countDocuments({ status: 'pending' });
+        const approvedItems = await Item.countDocuments({ status: 'approved' });
+        const rejectedItems = await Item.countDocuments({ status: 'rejected' });
+        const totalUsers = await User.countDocuments({ role: 'user' });
+
+        // Success rate
+        const successRate = totalItems > 0 ? ((claimedItems / totalItems) * 100).toFixed(1) : 0;
+
+        // Items by category
+        const categories = await Category.find();
+        const itemsByCategory = await Promise.all(
+            categories.map(async (cat) => ({
+                name: cat.name,
+                count: await Item.countDocuments({ category: cat._id }),
+                icon: cat.icon
+            }))
+        );
+        itemsByCategory.sort((a, b) => b.count - a.count);
+
+        // Monthly data for the last 6 months
+        const monthlyData = [];
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+            const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+            const endOfMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
+
+            const lost = await Item.countDocuments({
+                type: 'lost',
+                dateReported: { $gte: startOfMonth, $lte: endOfMonth }
+            });
+            const found = await Item.countDocuments({
+                type: 'found',
+                dateReported: { $gte: startOfMonth, $lte: endOfMonth }
+            });
+            const claimed = await Item.countDocuments({
+                status: 'claimed',
+                'claimedBy.date': { $gte: startOfMonth, $lte: endOfMonth }
+            });
+
+            monthlyData.push({
+                month: date.toLocaleString('default', { month: 'short' }),
+                year: date.getFullYear(),
+                lost,
+                found,
+                claimed
+            });
+        }
+
+        // Recent activity (last 7 days)
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        const recentItems = await Item.countDocuments({ dateReported: { $gte: weekAgo } });
+        const recentClaims = await Item.countDocuments({ 
+            status: 'claimed', 
+            'claimedBy.date': { $gte: weekAgo } 
+        });
+
+        // Top locations
+        const locationAggregation = await Item.aggregate([
+            { $group: { _id: '$location', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 5 }
+        ]);
+
+        // Average time to claim (for claimed items)
+        const claimedItemsData = await Item.find({ status: 'claimed', 'claimedBy.date': { $exists: true } });
+        let avgDaysToClaim = 0;
+        if (claimedItemsData.length > 0) {
+            const totalDays = claimedItemsData.reduce((sum, item) => {
+                const reported = new Date(item.dateReported);
+                const claimed = new Date(item.claimedBy.date);
+                return sum + Math.ceil((claimed - reported) / (1000 * 60 * 60 * 24));
+            }, 0);
+            avgDaysToClaim = (totalDays / claimedItemsData.length).toFixed(1);
+        }
+
+        res.render('admin/statistics', {
+            title: 'Statistics - Admin',
+            layout: 'layouts/admin',
+            stats: {
+                totalItems,
+                lostItems,
+                foundItems,
+                claimedItems,
+                pendingItems,
+                approvedItems,
+                rejectedItems,
+                totalUsers,
+                successRate,
+                recentItems,
+                recentClaims,
+                avgDaysToClaim
+            },
+            itemsByCategory,
+            monthlyData,
+            topLocations: locationAggregation
+        });
+    } catch (error) {
+        console.error('Statistics error:', error);
+        req.flash('error', 'Error loading statistics');
+        res.redirect('/admin/dashboard');
     }
 };

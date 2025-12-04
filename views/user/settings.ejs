@@ -1,0 +1,151 @@
+<%- contentFor('body') %>
+
+<div class="container py-5">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/user/dashboard">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Settings</li>
+                </ol>
+            </nav>
+            <h2><i class="fas fa-cog me-2"></i>Settings</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Settings -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="fas fa-user me-2"></i>Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/user/settings/profile" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" value="<%= user.username %>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="<%= user.email %>" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Update Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="fas fa-lock me-2"></i>Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/user/settings/password" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" name="currentPassword" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" name="newPassword" class="form-control" minlength="6" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" name="confirmPassword" class="form-control" minlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-key me-1"></i>Change Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="col-12 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="fas fa-bell me-2"></i>Email Notifications</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/user/settings" method="POST">
+                        <p class="text-muted mb-4">Choose which email notifications you want to receive:</p>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="emailOnApproval" name="emailOnApproval" 
+                                           <%= user.notificationPreferences?.emailOnApproval !== false ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="emailOnApproval">
+                                        <strong>Item Approved</strong>
+                                        <br><small class="text-muted">Get notified when your item report is approved</small>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="emailOnRejection" name="emailOnRejection"
+                                           <%= user.notificationPreferences?.emailOnRejection !== false ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="emailOnRejection">
+                                        <strong>Item Rejected</strong>
+                                        <br><small class="text-muted">Get notified when your item report is rejected</small>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="emailOnClaim" name="emailOnClaim"
+                                           <%= user.notificationPreferences?.emailOnClaim !== false ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="emailOnClaim">
+                                        <strong>Item Claimed</strong>
+                                        <br><small class="text-muted">Get notified when your item is claimed by someone</small>
+                                    </label>
+                                </div>
+                                
+                                <div class="form-check form-switch mb-3">
+                                    <input class="form-check-input" type="checkbox" id="emailOnMatch" name="emailOnMatch"
+                                           <%= user.notificationPreferences?.emailOnMatch !== false ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="emailOnMatch">
+                                        <strong>Potential Match Found</strong>
+                                        <br><small class="text-muted">Get notified when a potential match for your lost item is found</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary mt-3">
+                            <i class="fas fa-save me-1"></i>Save Notification Preferences
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Info -->
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Account Status:</strong> 
+                                <span class="badge bg-success">Active</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
