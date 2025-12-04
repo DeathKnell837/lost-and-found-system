@@ -156,10 +156,10 @@ const sanitizeObject = (obj) => {
 
 /**
  * Input Sanitization Middleware
- * Sanitizes req.body, req.query, and req.params
+ * Sanitizes req.body and req.query only (NOT params - they contain ObjectIds)
  */
 const sanitizeInput = (req, res, next) => {
-    // Skip file uploads and certain routes
+    // Skip file uploads
     if (req.is('multipart/form-data')) {
         return next();
     }
@@ -171,9 +171,7 @@ const sanitizeInput = (req, res, next) => {
         if (req.query && typeof req.query === 'object') {
             req.query = sanitizeObject(req.query);
         }
-        if (req.params && typeof req.params === 'object') {
-            req.params = sanitizeObject(req.params);
-        }
+        // DON'T sanitize req.params - they contain ObjectIds
     } catch (err) {
         console.error('Sanitization error:', err);
     }
