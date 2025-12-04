@@ -40,4 +40,11 @@ router.post('/categories/:id/delete', adminController.deleteCategory);
 router.get('/users', adminController.getUsers);
 router.post('/users/:id/toggle', adminController.toggleUserStatus);
 
+// Device tracking
+router.get('/devices', adminController.getDevices);
+router.get('/devices/:id', adminController.getDeviceDetail);
+router.post('/devices/:id/block', adminController.blockDevice);
+router.post('/devices/:id/unblock', adminController.unblockDevice);
+router.post('/devices/:id/delete', adminController.deleteDevice);
+
 module.exports = router;

@@ -1,0 +1,288 @@
+<%- contentFor('body') %>
+
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1"><i class="fas fa-mobile-alt me-2"></i>Device Tracking</h2>
+                    <p class="text-muted mb-0">Monitor and manage devices accessing the website</p>
+                </div>
+                <div>
+                    <a href="/admin/devices?status=blocked" class="btn btn-outline-danger me-2">
+                        <i class="fas fa-ban me-1"></i>Blocked Devices
+                    </a>
+                    <a href="/admin/devices" class="btn btn-outline-primary">
+                        <i class="fas fa-sync me-1"></i>Refresh
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="display-6 text-primary"><%= stats.total %></div>
+                    <small class="text-muted">Total Devices</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="display-6 text-success"><%= stats.activeToday %></div>
+                    <small class="text-muted">Active Today</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="display-6 text-danger"><%= stats.blocked %></div>
+                    <small class="text-muted">Blocked</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <div class="display-6 text-warning"><%= stats.suspicious %></div>
+                    <small class="text-muted">Suspicious</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Device Type</label>
+                    <select name="deviceType" class="form-select">
+                        <option value="">All Types</option>
+                        <option value="desktop" <%= query.deviceType === 'desktop' ? 'selected' : '' %>>Desktop</option>
+                        <option value="mobile" <%= query.deviceType === 'mobile' ? 'selected' : '' %>>Mobile</option>
+                        <option value="tablet" <%= query.deviceType === 'tablet' ? 'selected' : '' %>>Tablet</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="active" <%= query.status === 'active' ? 'selected' : '' %>>Active</option>
+                        <option value="blocked" <%= query.status === 'blocked' ? 'selected' : '' %>>Blocked</option>
+                        <option value="suspicious" <%= query.status === 'suspicious' ? 'selected' : '' %>>Suspicious</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Search IP/Browser</label>
+                    <input type="text" name="search" class="form-control" placeholder="Search..." value="<%= query.search || '' %>">
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-search me-1"></i>Filter
+                    </button>
+                    <a href="/admin/devices" class="btn btn-outline-secondary">Clear</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Devices Table -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Device Info</th>
+                            <th>IP Address</th>
+                            <th>Browser / OS</th>
+                            <th>Users</th>
+                            <th>Activity</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (devices.length === 0) { %>
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="fas fa-mobile-alt fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-0">No devices found</p>
+                            </td>
+                        </tr>
+                        <% } else { %>
+                        <% devices.forEach(device => { %>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="device-icon me-3">
+                                        <% if (device.device.type === 'mobile') { %>
+                                            <i class="fas fa-mobile-alt fa-2x text-primary"></i>
+                                        <% } else if (device.device.type === 'tablet') { %>
+                                            <i class="fas fa-tablet-alt fa-2x text-info"></i>
+                                        <% } else { %>
+                                            <i class="fas fa-desktop fa-2x text-secondary"></i>
+                                        <% } %>
+                                    </div>
+                                    <div>
+                                        <strong><%= device.device.vendor || 'Unknown' %> <%= device.device.model || device.device.type %></strong>
+                                        <br>
+                                        <small class="text-muted font-monospace"><%= device.fingerprint.substring(0, 12) %>...</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <% if (device.ipAddresses && device.ipAddresses.length > 0) { %>
+                                    <code><%= device.ipAddresses[device.ipAddresses.length - 1].ip %></code>
+                                    <% if (device.ipAddresses.length > 1) { %>
+                                        <br><small class="text-muted">+<%= device.ipAddresses.length - 1 %> more</small>
+                                    <% } %>
+                                <% } else { %>
+                                    <span class="text-muted">Unknown</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark"><%= device.browser.name %> <%= device.browser.version %></span>
+                                <br>
+                                <small class="text-muted"><%= device.os.name %> <%= device.os.version %></small>
+                            </td>
+                            <td>
+                                <% if (device.users && device.users.length > 0) { %>
+                                    <% device.users.slice(0, 2).forEach(u => { %>
+                                        <% if (u.user) { %>
+                                            <span class="badge bg-info"><%= u.user.username || 'Unknown' %></span>
+                                        <% } %>
+                                    <% }) %>
+                                    <% if (device.users.length > 2) { %>
+                                        <span class="badge bg-secondary">+<%= device.users.length - 2 %></span>
+                                    <% } %>
+                                <% } else { %>
+                                    <span class="text-muted">Guest</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <div><strong><%= device.visits %></strong> visits</div>
+                                <small class="text-muted">
+                                    Last: <%= new Date(device.lastSeen).toLocaleDateString() %>
+                                </small>
+                            </td>
+                            <td>
+                                <% if (device.isBlocked) { %>
+                                    <span class="badge bg-danger">Blocked</span>
+                                <% } else if (device.isSuspicious) { %>
+                                    <span class="badge bg-warning text-dark">Suspicious</span>
+                                <% } else { %>
+                                    <span class="badge bg-success">Active</span>
+                                <% } %>
+                            </td>
+                            <td class="text-end">
+                                <a href="/admin/devices/<%= device._id %>" class="btn btn-sm btn-outline-primary me-1" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <% if (!device.isBlocked) { %>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#blockModal"
+                                            data-device-id="<%= device._id %>"
+                                            data-device-name="<%= device.device.vendor || 'Unknown' %> <%= device.device.model || device.device.type %>"
+                                            title="Block Device">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                <% } else { %>
+                                    <form action="/admin/devices/<%= device._id %>/unblock" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success" title="Unblock Device">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                <% } %>
+                            </td>
+                        </tr>
+                        <% }) %>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="?page=<%= currentPage - 1 %>&<%= new URLSearchParams(query).toString() %>">Previous</a>
+            </li>
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                    <a class="page-link" href="?page=<%= i %>&<%= new URLSearchParams(query).toString() %>"><%= i %></a>
+                </li>
+            <% } %>
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="?page=<%= currentPage + 1 %>&<%= new URLSearchParams(query).toString() %>">Next</a>
+            </li>
+        </ul>
+    </nav>
+    <% } %>
+</div>
+
+<!-- Block Device Modal -->
+<div class="modal fade" id="blockModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="blockForm" method="POST" action="">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="fas fa-ban me-2"></i>Block Device</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>You are about to block: <strong id="deviceName"></strong></p>
+                    <div class="mb-3">
+                        <label class="form-label">Reason for blocking <span class="text-danger">*</span></label>
+                        <select name="reason" class="form-select" required>
+                            <option value="">Select a reason...</option>
+                            <option value="Spam or abuse">Spam or abuse</option>
+                            <option value="Fake reports">Submitting fake reports</option>
+                            <option value="Harassment">Harassment</option>
+                            <option value="Terms violation">Terms of service violation</option>
+                            <option value="Suspicious activity">Suspicious activity</option>
+                            <option value="Multiple accounts">Multiple account abuse</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Additional Notes</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="Optional additional details..."></textarea>
+                    </div>
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        This device will no longer be able to access the website.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-ban me-1"></i>Block Device
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Handle block modal
+    document.getElementById('blockModal').addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const deviceId = button.getAttribute('data-device-id');
+        const deviceName = button.getAttribute('data-device-name');
+        
+        document.getElementById('deviceName').textContent = deviceName;
+        document.getElementById('blockForm').action = `/admin/devices/${deviceId}/block`;
+    });
+</script>

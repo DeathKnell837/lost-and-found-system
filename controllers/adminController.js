@@ -1,5 +1,6 @@
-const { User, Item, Category } = require('../models');
+const { User, Item, Category, BlockedDevice, TrackedDevice } = require('../models');
 const { cloudinary } = require('../config/cloudinary');
+const { generateFingerprint, getClientIP, parseUserAgent } = require('../middleware/deviceTracker');
 
 // Admin login page
 exports.getLoginPage = (req, res) => {
@@ -481,5 +482,223 @@ exports.toggleUserStatus = async (req, res) => {
         console.error('Error updating user:', error);
         req.flash('error', 'Error updating user');
         res.redirect('/admin/users');
+    }
+};
+
+// ==================== DEVICE TRACKING ====================
+
+// Get all tracked devices
+exports.getDevices = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 20;
+        const skip = (page - 1) * limit;
+
+        let query = {};
+
+        // Device type filter
+        if (req.query.deviceType) {
+            query['device.type'] = req.query.deviceType;
+        }
+
+        // Status filter
+        if (req.query.status === 'blocked') {
+            query.isBlocked = true;
+        } else if (req.query.status === 'suspicious') {
+            query.isSuspicious = true;
+        } else if (req.query.status === 'active') {
+            query.isBlocked = { $ne: true };
+        }
+
+        // Search filter
+        if (req.query.search) {
+            query.$or = [
+                { 'browser.name': { $regex: req.query.search, $options: 'i' } },
+                { 'os.name': { $regex: req.query.search, $options: 'i' } },
+                { 'ipAddresses.ip': { $regex: req.query.search, $options: 'i' } },
+                { fingerprint: { $regex: req.query.search, $options: 'i' } }
+            ];
+        }
+
+        const devices = await TrackedDevice.find(query)
+            .populate('users.user', 'username email')
+            .sort({ lastSeen: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        const total = await TrackedDevice.countDocuments(query);
+
+        // Get stats
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const stats = {
+            total: await TrackedDevice.countDocuments(),
+            activeToday: await TrackedDevice.countDocuments({ lastSeen: { $gte: today } }),
+            blocked: await TrackedDevice.countDocuments({ isBlocked: true }),
+            suspicious: await TrackedDevice.countDocuments({ isSuspicious: true })
+        };
+
+        res.render('admin/devices', {
+            title: 'Device Tracking - Admin',
+            layout: 'layouts/admin',
+            devices,
+            stats,
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            query: req.query
+        });
+    } catch (error) {
+        console.error('Error loading devices:', error);
+        req.flash('error', 'Error loading devices');
+        res.redirect('/admin/dashboard');
+    }
+};
+
+// Get device detail
+exports.getDeviceDetail = async (req, res) => {
+    try {
+        const device = await TrackedDevice.findById(req.params.id)
+            .populate('users.user', 'username email role');
+
+        if (!device) {
+            req.flash('error', 'Device not found');
+            return res.redirect('/admin/devices');
+        }
+
+        // Check if device is blocked
+        const blockedInfo = await BlockedDevice.findOne({ fingerprint: device.fingerprint, isActive: true })
+            .populate('blockedBy', 'username');
+
+        res.render('admin/device-detail', {
+            title: 'Device Details - Admin',
+            layout: 'layouts/admin',
+            device,
+            blockedInfo
+        });
+    } catch (error) {
+        console.error('Error loading device:', error);
+        req.flash('error', 'Error loading device details');
+        res.redirect('/admin/devices');
+    }
+};
+
+// Block a device
+exports.blockDevice = async (req, res) => {
+    try {
+        const { reason, notes } = req.body;
+        const device = await TrackedDevice.findById(req.params.id);
+
+        if (!device) {
+            req.flash('error', 'Device not found');
+            return res.redirect('/admin/devices');
+        }
+
+        // Check if already blocked
+        let blockedDevice = await BlockedDevice.findOne({ fingerprint: device.fingerprint });
+
+        if (blockedDevice) {
+            // Reactivate block
+            blockedDevice.isActive = true;
+            blockedDevice.reason = reason + (notes ? ` - ${notes}` : '');
+            blockedDevice.blockedAt = new Date();
+            blockedDevice.blockedBy = req.session.admin.id;
+            blockedDevice.blockHistory.push({
+                action: 'blocked',
+                date: new Date(),
+                by: req.session.admin.id,
+                reason: reason
+            });
+            await blockedDevice.save();
+        } else {
+            // Create new block
+            blockedDevice = new BlockedDevice({
+                fingerprint: device.fingerprint,
+                ipAddress: device.ipAddresses.length > 0 ? device.ipAddresses[device.ipAddresses.length - 1].ip : 'unknown',
+                userAgent: device.userAgent,
+                browser: device.browser,
+                os: device.os,
+                device: device.device,
+                reason: reason + (notes ? ` - ${notes}` : ''),
+                blockedBy: req.session.admin.id,
+                blockHistory: [{
+                    action: 'blocked',
+                    date: new Date(),
+                    by: req.session.admin.id,
+                    reason: reason
+                }]
+            });
+            await blockedDevice.save();
+        }
+
+        // Mark device as blocked in tracking
+        device.isBlocked = true;
+        await device.save();
+
+        req.flash('success', 'Device has been blocked');
+        res.redirect('/admin/devices/' + req.params.id);
+    } catch (error) {
+        console.error('Error blocking device:', error);
+        req.flash('error', 'Error blocking device');
+        res.redirect('/admin/devices');
+    }
+};
+
+// Unblock a device
+exports.unblockDevice = async (req, res) => {
+    try {
+        const device = await TrackedDevice.findById(req.params.id);
+
+        if (!device) {
+            req.flash('error', 'Device not found');
+            return res.redirect('/admin/devices');
+        }
+
+        // Find and deactivate block
+        const blockedDevice = await BlockedDevice.findOne({ fingerprint: device.fingerprint });
+        if (blockedDevice) {
+            blockedDevice.isActive = false;
+            blockedDevice.blockHistory.push({
+                action: 'unblocked',
+                date: new Date(),
+                by: req.session.admin.id,
+                reason: 'Unblocked by admin'
+            });
+            await blockedDevice.save();
+        }
+
+        // Update tracking
+        device.isBlocked = false;
+        await device.save();
+
+        req.flash('success', 'Device has been unblocked');
+        res.redirect('/admin/devices/' + req.params.id);
+    } catch (error) {
+        console.error('Error unblocking device:', error);
+        req.flash('error', 'Error unblocking device');
+        res.redirect('/admin/devices');
+    }
+};
+
+// Delete device tracking record
+exports.deleteDevice = async (req, res) => {
+    try {
+        const device = await TrackedDevice.findById(req.params.id);
+
+        if (!device) {
+            req.flash('error', 'Device not found');
+            return res.redirect('/admin/devices');
+        }
+
+        // Also delete from blocked list if exists
+        await BlockedDevice.deleteOne({ fingerprint: device.fingerprint });
+        await TrackedDevice.findByIdAndDelete(req.params.id);
+
+        req.flash('success', 'Device record deleted');
+        res.redirect('/admin/devices');
+    } catch (error) {
+        console.error('Error deleting device:', error);
+        req.flash('error', 'Error deleting device');
+        res.redirect('/admin/devices');
     }
 };

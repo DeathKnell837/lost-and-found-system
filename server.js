@@ -16,6 +16,7 @@ const routes = require('./routes');
 // Import middleware
 const { setLocals } = require('./middleware/auth');
 const { errorHandler } = require('./middleware/errorHandler');
+const { checkBlocked, trackDevice } = require('./middleware/deviceTracker');
 
 // Initialize Express app
 const app = express();
@@ -69,6 +70,10 @@ app.use(flash());
 
 // Set local variables (user, flash messages)
 app.use(setLocals);
+
+// Device tracking - check if device is blocked, then track visit
+app.use(checkBlocked);
+app.use(trackDevice);
 
 // Custom locals for all views
 app.use((req, res, next) => {
