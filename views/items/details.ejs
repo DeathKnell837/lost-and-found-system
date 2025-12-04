@@ -256,43 +256,41 @@
 </div>
 
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
     var ITEM_ID = '<%= item._id %>';
     var commentsDiv = document.getElementById('commentsList');
     
-    // Show initial loading
-    commentsDiv.innerHTML = '<p class="text-muted">Loading comments...</p>';
+    if (!commentsDiv) {
+        console.error('commentsList div not found!');
+        return;
+    }
     
-    // Fetch comments using XMLHttpRequest
+    // Show initial loading
+    commentsDiv.innerHTML = '<p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Loading comments...</p>';
+    
+    // Fetch comments
     function getComments() {
-        commentsDiv.innerHTML = '<p class="text-muted">Fetching...</p>';
-        
         var xhr = new XMLHttpRequest();
         var url = '/comments/item/' + ITEM_ID + '?t=' + Date.now();
+        console.log('Fetching comments from:', url);
         
         xhr.open('GET', url, true);
-        xhr.setRequestHeader('Accept', 'application/json');
         xhr.timeout = 15000;
         
         xhr.onreadystatechange = function() {
             if (xhr.readyState === 4) {
-                console.log('XHR Status:', xhr.status);
-                console.log('XHR Response:', xhr.responseText);
+                console.log('Status:', xhr.status, 'Response:', xhr.responseText.substring(0, 200));
                 
                 if (xhr.status === 200) {
                     try {
                         var data = JSON.parse(xhr.responseText);
-                        console.log('Parsed data:', data);
-                        
-                        if (data.success && data.comments && data.comments.length > 0) {
+                        if (data.comments && data.comments.length > 0) {
                             var html = '';
                             for (var i = 0; i < data.comments.length; i++) {
                                 var c = data.comments[i];
                                 var author = (c.author && c.author.username) ? c.author.username : 'User';
-                                var date = new Date(c.createdAt).toLocaleDateString();
                                 html += '<div class="border rounded p-2 mb-2 bg-light">';
-                                html += '<strong>' + author + '</strong> ';
-                                html += '<small class="text-muted">- ' + date + '</small>';
+                                html += '<strong>' + author + '</strong>';
                                 html += '<p class="mb-0 mt-1">' + c.content + '</p>';
                                 html += '</div>';
                             }
@@ -301,71 +299,56 @@
                             commentsDiv.innerHTML = '<p class="text-muted">No comments yet. Be the first!</p>';
                         }
                     } catch (e) {
-                        console.error('Parse error:', e);
-                        commentsDiv.innerHTML = '<p class="text-danger">Error parsing response</p>';
+                        console.error('JSON parse error:', e);
+                        commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
                     }
                 } else {
-                    commentsDiv.innerHTML = '<p class="text-danger">Server error: ' + xhr.status + '</p>';
+                    commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
                 }
             }
         };
         
         xhr.onerror = function() {
-            console.error('XHR error');
-            commentsDiv.innerHTML = '<p class="text-danger">Network error</p>';
+            commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
         };
         
         xhr.ontimeout = function() {
-            console.error('XHR timeout');
-            commentsDiv.innerHTML = '<p class="text-warning">Request timed out. <a href="#" onclick="getComments();return false;">Retry</a></p>';
+            commentsDiv.innerHTML = '<p class="text-muted">Comments unavailable.</p>';
         };
         
         xhr.send();
     }
     
-    // Make getComments global so retry link works
-    window.getComments = getComments;
+    // Expose globally
+    window.refreshComments = getComments;
     
-    // Post new comment
+    // Handle form submit
     var form = document.getElementById('newCommentForm');
     if (form) {
         form.onsubmit = function(e) {
             e.preventDefault();
             var input = document.getElementById('newCommentText');
             var text = input.value.trim();
-            if (text.length < 2) {
-                alert('Comment too short');
-                return;
-            }
+            if (!text) return;
             
             var xhr = new XMLHttpRequest();
             xhr.open('POST', '/comments/item/' + ITEM_ID, true);
             xhr.setRequestHeader('Content-Type', 'application/json');
-            
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    console.log('POST Status:', xhr.status);
-                    console.log('POST Response:', xhr.responseText);
-                    
-                    if (xhr.status === 200 || xhr.status === 201) {
-                        input.value = '';
-                        // Wait a moment then refresh
-                        setTimeout(getComments, 500);
-                    } else if (xhr.status === 401) {
-                        window.location.href = '/auth/login';
-                    } else {
-                        alert('Failed to post comment');
-                    }
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    input.value = '';
+                    getComments();
+                } else if (xhr.status === 401) {
+                    window.location.href = '/auth/login';
                 }
             };
-            
             xhr.send(JSON.stringify({ content: text, type: 'comment' }));
         };
     }
     
-    // Load comments immediately
+    // Load comments now
     getComments();
-})();
+});
 </script>
 
 <script>
