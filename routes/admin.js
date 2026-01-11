@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 const claimController = require('../controllers/claimController');
-const commentController = require('../controllers/commentController');
 const { isAdmin } = require('../middleware/auth');
 const { upload } = require('../config/cloudinary');
 
@@ -54,12 +53,6 @@ router.get('/claims', claimController.adminGetClaims);
 router.get('/claims/:claimId', claimController.adminGetClaimDetail);
 router.post('/claims/:claimId/status', claimController.adminUpdateClaimStatus);
 router.post('/claims/:claimId/priority', claimController.adminSetPriority);
-
-// Comments moderation
-router.get('/comments', commentController.adminGetAllComments);
-router.post('/comments/:commentId/hide', commentController.adminHideComment);
-router.post('/comments/:commentId/unhide', commentController.adminUnhideComment);
-router.post('/comments/:commentId/pin', commentController.adminPinComment);
 
 // Statistics
 router.get('/statistics', adminController.getStatistics);
