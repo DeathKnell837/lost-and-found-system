@@ -37,6 +37,12 @@ router.post('/categories', adminController.createCategory);
 router.post('/categories/:id', adminController.updateCategory);
 router.post('/categories/:id/delete', adminController.deleteCategory);
 
+// Locations management
+router.get('/locations', adminController.getLocations);
+router.post('/locations', adminController.createLocation);
+router.post('/locations/:id', adminController.updateLocation);
+router.post('/locations/:id/delete', adminController.deleteLocation);
+
 // Users management
 router.get('/users', adminController.getUsers);
 router.post('/users/:id/toggle', adminController.toggleUserStatus);

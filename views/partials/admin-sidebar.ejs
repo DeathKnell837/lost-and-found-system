@@ -75,15 +75,6 @@
                 </a>
             </li>
             
-            <li class="nav-section">Community</li>
-            
-            <li class="nav-item">
-                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'comments' ? 'active' : '' %>" href="/admin/comments">
-                    <i class="fas fa-comments"></i>
-                    <span>Comments</span>
-                </a>
-            </li>
-            
             <li class="nav-section">Settings</li>
             
             <li class="nav-item">
@@ -93,24 +84,15 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'locations' ? 'active' : '' %>" href="/admin/locations">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Locations</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'users' ? 'active' : '' %>" href="/admin/users">
                     <i class="fas fa-users"></i>
                     <span>Users</span>
-                </a>
-            </li>
-            
-            <li class="nav-section">Security</li>
-            
-            <li class="nav-item">
-                <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'devices' ? 'active' : '' %>" href="/admin/devices">
-                    <i class="fas fa-mobile-alt"></i>
-                    <span>Device Tracking</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/admin/devices?status=blocked">
-                    <i class="fas fa-ban"></i>
-                    <span>Blocked Devices</span>
                 </a>
             </li>
             

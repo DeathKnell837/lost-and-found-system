@@ -1,4 +1,4 @@
-const { Item, Category } = require('../models');
+const { Item, Category, Location } = require('../models');
 const { cloudinary } = require('../config/cloudinary');
 const matchingService = require('../services/matchingService');
 
@@ -185,9 +185,11 @@ exports.getItemDetails = async (req, res) => {
 exports.getReportLostForm = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true });
+        const locations = await Location.find({ isActive: true }).sort({ name: 1 });
         res.render('items/report-lost', {
             title: 'Report Lost Item - Lost & Found',
-            categories
+            categories,
+            locations
         });
     } catch (error) {
         console.error('Error loading form:', error);
@@ -200,9 +202,11 @@ exports.getReportLostForm = async (req, res) => {
 exports.getReportFoundForm = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true });
+        const locations = await Location.find({ isActive: true }).sort({ name: 1 });
         res.render('items/report-found', {
             title: 'Report Found Item - Lost & Found',
-            categories
+            categories,
+            locations
         });
     } catch (error) {
         console.error('Error loading form:', error);

@@ -1,6 +1,5 @@
-const { User, Item, Category, BlockedDevice, TrackedDevice } = require('../models');
+const { User, Item, Category, Location } = require('../models');
 const { cloudinary } = require('../config/cloudinary');
-const { generateFingerprint, getClientIP, parseUserAgent } = require('../middleware/deviceTracker');
 const emailService = require('../services/emailService');
 const matchingService = require('../services/matchingService');
 
@@ -899,5 +898,96 @@ exports.runMatching = async (req, res) => {
         console.error('Run matching error:', error);
         req.flash('error', 'Error running matching algorithm');
         res.redirect('/admin/matching');
+    }
+};
+
+// ==================== LOCATION MANAGEMENT ====================
+
+// Get all locations
+exports.getLocations = async (req, res) => {
+    try {
+        const locations = await Location.find().sort({ name: 1 });
+        res.render('admin/locations', {
+            title: 'Manage Locations - Admin',
+            layout: 'layouts/admin',
+            locations
+        });
+    } catch (error) {
+        console.error('Get locations error:', error);
+        req.flash('error', 'Error loading locations');
+        res.redirect('/admin/dashboard');
+    }
+};
+
+// Create new location
+exports.createLocation = async (req, res) => {
+    try {
+        const { name, description } = req.body;
+        
+        // Check if location already exists
+        const existing = await Location.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
+        if (existing) {
+            req.flash('error', 'A location with this name already exists');
+            return res.redirect('/admin/locations');
+        }
+        
+        const location = new Location({
+            name: name.trim(),
+            description: description ? description.trim() : ''
+        });
+        
+        await location.save();
+        req.flash('success', `Location "${name}" created successfully`);
+        res.redirect('/admin/locations');
+    } catch (error) {
+        console.error('Create location error:', error);
+        req.flash('error', 'Error creating location');
+        res.redirect('/admin/locations');
+    }
+};
+
+// Update location
+exports.updateLocation = async (req, res) => {
+    try {
+        const { name, description, isActive } = req.body;
+        
+        const location = await Location.findById(req.params.id);
+        if (!location) {
+            req.flash('error', 'Location not found');
+            return res.redirect('/admin/locations');
+        }
+        
+        location.name = name.trim();
+        location.description = description ? description.trim() : '';
+        location.isActive = isActive === 'on' || isActive === 'true';
+        
+        await location.save();
+        req.flash('success', `Location "${name}" updated successfully`);
+        res.redirect('/admin/locations');
+    } catch (error) {
+        console.error('Update location error:', error);
+        req.flash('error', 'Error updating location');
+        res.redirect('/admin/locations');
+    }
+};
+
+// Delete location
+exports.deleteLocation = async (req, res) => {
+    try {
+        const location = await Location.findById(req.params.id);
+        if (!location) {
+            req.flash('error', 'Location not found');
+            return res.redirect('/admin/locations');
+        }
+        
+        const locationName = location.name;
+        await Location.findByIdAndDelete(req.params.id);
+        
+        req.flash('success', `Location "${locationName}" deleted successfully`);
+        res.redirect('/admin/locations');
+    } catch (error) {
+        console.error('Delete location error:', error);
+        req.flash('error', 'Error deleting location');
+        res.redirect('/admin/locations');
     }
 };

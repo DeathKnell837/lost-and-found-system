@@ -1,0 +1,139 @@
+<div class="dashboard-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-map-marker-alt me-2"></i> Manage Locations</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLocationModal">
+            <i class="fas fa-plus me-1"></i> Add Location
+        </button>
+    </div>
+    
+    <% if (locations.length === 0) { %>
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            No locations added yet. Click "Add Location" to create your first location.
+        </div>
+    <% } %>
+    
+    <div class="row g-4">
+        <% locations.forEach(function(loc) { %>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="location-icon me-3">
+                                <i class="fas fa-map-marker-alt fa-2x text-danger"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h5 class="card-title mb-0"><%= loc.name %></h5>
+                            </div>
+                            <span class="badge bg-<%= loc.isActive ? 'success' : 'secondary' %>">
+                                <%= loc.isActive ? 'Active' : 'Inactive' %>
+                            </span>
+                        </div>
+                        <% if (loc.description) { %>
+                            <p class="card-text text-muted small"><%= loc.description %></p>
+                        <% } %>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm btn-outline-primary flex-grow-1" 
+                                    data-bs-toggle="modal" data-bs-target="#editModal<%= loc._id %>">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" 
+                                    data-bs-toggle="modal" data-bs-target="#deleteModal<%= loc._id %>">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Edit Modal -->
+                <div class="modal fade" id="editModal<%= loc._id %>" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <form action="/admin/locations/<%= loc._id %>" method="POST">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit Location</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label class="form-label">Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" name="name" 
+                                               value="<%= loc.name %>" required maxlength="100">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Description (optional)</label>
+                                        <textarea class="form-control" name="description" rows="2" 
+                                                  maxlength="200"><%= loc.description || '' %></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Status</label>
+                                        <select class="form-select" name="isActive">
+                                            <option value="true" <%= loc.isActive ? 'selected' : '' %>>Active</option>
+                                            <option value="false" <%= !loc.isActive ? 'selected' : '' %>>Inactive</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Delete Modal -->
+                <div class="modal fade" id="deleteModal<%= loc._id %>" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Delete Location</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete <strong><%= loc.name %></strong>?</p>
+                                <p class="text-muted small">Note: This will not affect existing items that use this location.</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <form action="/admin/locations/<%= loc._id %>/delete" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+</div>
+
+<!-- Add Location Modal -->
+<div class="modal fade" id="addLocationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/admin/locations" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Location</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Location Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="name" required 
+                               placeholder="e.g., Library, Building A, Cafeteria" maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description (optional)</label>
+                        <textarea class="form-control" name="description" rows="2" 
+                                  placeholder="Additional details about this location" maxlength="200"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Location</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

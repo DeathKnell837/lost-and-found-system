@@ -50,8 +50,20 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Location Found <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="location" required
-                                       placeholder="e.g., Library, Cafeteria, Building A" maxlength="200">
+                                <% if (locations && locations.length > 0) { %>
+                                    <select class="form-select" name="location" id="locationSelect" required>
+                                        <option value="">Select Location</option>
+                                        <% locations.forEach(function(loc) { %>
+                                            <option value="<%= loc.name %>"><%= loc.name %></option>
+                                        <% }); %>
+                                        <option value="other">Other (specify below)</option>
+                                    </select>
+                                    <input type="text" class="form-control mt-2" name="customLocation" id="customLocation"
+                                           placeholder="Enter custom location" maxlength="200" style="display: none;">
+                                <% } else { %>
+                                    <input type="text" class="form-control" name="location" required
+                                           placeholder="e.g., Library, Cafeteria, Building A" maxlength="200">
+                                <% } %>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Date Found <span class="text-danger">*</span></label>
@@ -111,3 +123,26 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const locationSelect = document.getElementById('locationSelect');
+    const customLocation = document.getElementById('customLocation');
+    
+    if (locationSelect && customLocation) {
+        locationSelect.addEventListener('change', function() {
+            if (this.value === 'other') {
+                customLocation.style.display = 'block';
+                customLocation.required = true;
+                customLocation.name = 'location';
+                locationSelect.name = '';
+            } else {
+                customLocation.style.display = 'none';
+                customLocation.required = false;
+                customLocation.name = 'customLocation';
+                locationSelect.name = 'location';
+            }
+        });
+    }
+});
+</script>
