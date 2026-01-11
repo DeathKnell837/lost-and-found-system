@@ -54,8 +54,8 @@
                                     <input type="text" class="form-control" name="location" id="locationInput" required
                                            placeholder="Type to search or enter your location" maxlength="200"
                                            autocomplete="off">
-                                    <ul class="list-group position-absolute w-100 shadow" id="locationSuggestions" 
-                                        style="display: none; max-height: 200px; overflow-y: auto; z-index: 1000;"></ul>
+                                    <div id="locationSuggestions" class="position-absolute w-100 shadow-lg" 
+                                         style="display: none; max-height: 200px; overflow-y: auto; z-index: 9999; background: #2d3748; border: 1px solid #4a5568; border-radius: 0.375rem; top: 100%;"></div>
                                 </div>
                                 <small class="text-muted">Select from suggestions or type your own location</small>
                             </div>
@@ -132,11 +132,38 @@ document.addEventListener('DOMContentLoaded', function() {
         <% } %>
     ];
     
+    console.log('Locations loaded:', locations); // Debug
+    
+    function showSuggestions(filteredLocations) {
+        suggestionsList.innerHTML = '';
+        if (filteredLocations.length === 0) {
+            suggestionsList.style.display = 'none';
+            return;
+        }
+        
+        filteredLocations.forEach(loc => {
+            const div = document.createElement('div');
+            div.style.cssText = 'padding: 10px 15px; cursor: pointer; color: #e2e8f0; border-bottom: 1px solid #4a5568;';
+            div.textContent = loc;
+            div.addEventListener('mouseenter', function() {
+                this.style.background = '#4a5568';
+            });
+            div.addEventListener('mouseleave', function() {
+                this.style.background = 'transparent';
+            });
+            div.addEventListener('click', function() {
+                locationInput.value = loc;
+                suggestionsList.style.display = 'none';
+            });
+            suggestionsList.appendChild(div);
+        });
+        suggestionsList.style.display = 'block';
+    }
+    
     if (locationInput && suggestionsList) {
         // Show suggestions on input
         locationInput.addEventListener('input', function() {
             const query = this.value.toLowerCase().trim();
-            suggestionsList.innerHTML = '';
             
             if (query.length === 0) {
                 suggestionsList.style.display = 'none';
@@ -146,42 +173,21 @@ document.addEventListener('DOMContentLoaded', function() {
             // Filter matching locations
             const matches = locations.filter(loc => 
                 loc.toLowerCase().includes(query)
-            ).slice(0, 10); // Limit to 10 suggestions
+            ).slice(0, 10);
             
-            if (matches.length > 0) {
-                matches.forEach(loc => {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item list-group-item-action';
-                    li.style.cursor = 'pointer';
-                    li.textContent = loc;
-                    li.addEventListener('click', function() {
-                        locationInput.value = loc;
-                        suggestionsList.style.display = 'none';
-                    });
-                    suggestionsList.appendChild(li);
-                });
-                suggestionsList.style.display = 'block';
-            } else {
-                suggestionsList.style.display = 'none';
-            }
+            showSuggestions(matches);
         });
         
         // Show all on focus if empty
         locationInput.addEventListener('focus', function() {
             if (this.value.trim() === '' && locations.length > 0) {
-                suggestionsList.innerHTML = '';
-                locations.slice(0, 10).forEach(loc => {
-                    const li = document.createElement('li');
-                    li.className = 'list-group-item list-group-item-action';
-                    li.style.cursor = 'pointer';
-                    li.textContent = loc;
-                    li.addEventListener('click', function() {
-                        locationInput.value = loc;
-                        suggestionsList.style.display = 'none';
-                    });
-                    suggestionsList.appendChild(li);
-                });
-                suggestionsList.style.display = 'block';
+                showSuggestions(locations.slice(0, 10));
+            } else if (this.value.trim() !== '') {
+                const query = this.value.toLowerCase().trim();
+                const matches = locations.filter(loc => 
+                    loc.toLowerCase().includes(query)
+                ).slice(0, 10);
+                showSuggestions(matches);
             }
         });
         
