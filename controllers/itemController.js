@@ -1,6 +1,5 @@
 const { Item, Category } = require('../models');
 const { cloudinary } = require('../config/cloudinary');
-const { CAMPUS_LOCATIONS, getLocationsByCategory, getLocationName } = require('../config/locations');
 const matchingService = require('../services/matchingService');
 
 // Get lost items listing page
@@ -186,12 +185,9 @@ exports.getItemDetails = async (req, res) => {
 exports.getReportLostForm = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true });
-        const locationsByCategory = getLocationsByCategory();
         res.render('items/report-lost', {
             title: 'Report Lost Item - Lost & Found',
-            categories,
-            locationsByCategory,
-            campusLocations: CAMPUS_LOCATIONS
+            categories
         });
     } catch (error) {
         console.error('Error loading form:', error);
@@ -204,12 +200,9 @@ exports.getReportLostForm = async (req, res) => {
 exports.getReportFoundForm = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true });
-        const locationsByCategory = getLocationsByCategory();
         res.render('items/report-found', {
             title: 'Report Found Item - Lost & Found',
-            categories,
-            locationsByCategory,
-            campusLocations: CAMPUS_LOCATIONS
+            categories
         });
     } catch (error) {
         console.error('Error loading form:', error);
@@ -225,27 +218,18 @@ exports.reportLostItem = async (req, res) => {
             itemName,
             category,
             description,
-            locationId,
-            customLocation,
+            location,
             contactInfo,
             reporterName,
             reporterEmail,
             dateLostFound
         } = req.body;
 
-        // Determine location name
-        let location = customLocation;
-        if (locationId && locationId !== 'other') {
-            location = getLocationName(locationId);
-        }
-
         const item = new Item({
             itemName,
             category,
             description,
             location,
-            locationId: locationId !== 'other' ? locationId : null,
-            customLocation: locationId === 'other' ? customLocation : null,
             contactInfo,
             reporterName,
             reporterEmail,
@@ -278,27 +262,18 @@ exports.reportFoundItem = async (req, res) => {
             itemName,
             category,
             description,
-            locationId,
-            customLocation,
+            location,
             contactInfo,
             reporterName,
             reporterEmail,
             dateLostFound
         } = req.body;
 
-        // Determine location name
-        let location = customLocation;
-        if (locationId && locationId !== 'other') {
-            location = getLocationName(locationId);
-        }
-
         const item = new Item({
             itemName,
             category,
             description,
             location,
-            locationId: locationId !== 'other' ? locationId : null,
-            customLocation: locationId === 'other' ? customLocation : null,
             contactInfo,
             reporterName,
             reporterEmail,

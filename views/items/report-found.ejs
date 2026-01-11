@@ -50,20 +50,8 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Location Found <span class="text-danger">*</span></label>
-                                <select class="form-select" name="locationId" id="locationSelect" required>
-                                    <option value="">Select Location</option>
-                                    <% Object.keys(locationsByCategory).forEach(function(category) { %>
-                                        <optgroup label="<%= category %>">
-                                            <% locationsByCategory[category].forEach(function(loc) { %>
-                                                <option value="<%= loc.id %>"><%= loc.name %></option>
-                                            <% }); %>
-                                        </optgroup>
-                                    <% }); %>
-                                </select>
-                                <div id="customLocationDiv" class="mt-2" style="display: none;">
-                                    <input type="text" class="form-control" name="customLocation" id="customLocation"
-                                           placeholder="Describe the location" maxlength="200">
-                                </div>
+                                <input type="text" class="form-control" name="location" required
+                                       placeholder="e.g., Library, Cafeteria, Building A" maxlength="200">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Date Found <span class="text-danger">*</span></label>
@@ -123,17 +111,3 @@
         </div>
     </div>
 </div>
-
-<script>
-document.getElementById('locationSelect').addEventListener('change', function() {
-    const customDiv = document.getElementById('customLocationDiv');
-    const customInput = document.getElementById('customLocation');
-    if (this.value === 'other') {
-        customDiv.style.display = 'block';
-        customInput.required = true;
-    } else {
-        customDiv.style.display = 'none';
-        customInput.required = false;
-    }
-});
-</script>

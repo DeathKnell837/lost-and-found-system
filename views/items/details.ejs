@@ -189,15 +189,10 @@
                             <i class="fas fa-hand-holding me-2"></i> Claim This Item
                         </a>
                     <% } %>
-                    <a href="/posters/poster/<%= item._id %>" class="btn btn-outline-primary w-100 mb-2" target="_blank">
-                        <i class="fas fa-print me-2"></i> Print Poster
+                    <a href="mailto:<%= item.reporterEmail %>?subject=Regarding: <%= item.itemName %>" 
+                       class="btn btn-outline-primary w-100">
+                        <i class="fas fa-envelope me-2"></i> Contact Reporter
                     </a>
-                    <a href="/posters/mini/<%= item._id %>" class="btn btn-outline-secondary w-100 mb-2" target="_blank">
-                        <i class="fas fa-file-alt me-2"></i> Print Mini Flyer
-                    </a>
-                    <button class="btn btn-outline-dark w-100" onclick="showQRCode()">
-                        <i class="fas fa-qrcode me-2"></i> Show QR Code
-                    </button>
                 </div>
             </div>
             
@@ -253,14 +248,5 @@ function shareOnWhatsApp() {
 function copyLink() {
     navigator.clipboard.writeText(window.location.href);
     alert('Link copied!');
-}
-function showQRCode() {
-    fetch('/posters/qr/<%= item._id %>')
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-            if (data.success) {
-                alert('QR Code generated! Open Print Poster for full version.');
-            }
-        });
 }
 </script>

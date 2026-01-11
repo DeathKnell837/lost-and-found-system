@@ -9,7 +9,6 @@ const searchRoutes = require('./search');
 const adminRoutes = require('./admin');
 const userRoutes = require('./user');
 const claimRoutes = require('./claims');
-const posterRoutes = require('./posters');
 
 // Mount routes
 router.use('/', homeRoutes);
@@ -20,6 +19,5 @@ router.use('/search', searchRoutes);
 router.use('/admin', adminRoutes);
 router.use('/user', userRoutes);
 router.use('/claims', claimRoutes);
-router.use('/posters', posterRoutes);
 
 module.exports = router;
