@@ -104,22 +104,6 @@
                     <h5><i class="fas fa-align-left me-2"></i> Description</h5>
                     <p class="lead"><%= item.description %></p>
                     
-                    <!-- Comments Section -->
-                    <hr class="my-4">
-                    <h5><i class="fas fa-comments me-2"></i> Comments & Tips</h5>
-                    
-                    <% if (typeof user !== 'undefined' && user) { %>
-                        <form id="newCommentForm" class="mb-3">
-                            <div class="input-group">
-                                <input type="text" id="newCommentText" class="form-control" placeholder="Write a comment..." maxlength="500">
-                                <button type="submit" class="btn btn-primary">Post</button>
-                            </div>
-                        </form>
-                    <% } else { %>
-                        <p class="text-muted"><a href="/auth/login">Login</a> to comment.</p>
-                    <% } %>
-                    
-                    <div id="commentsList"></div>
                 </div>
             </div>
         </div>
@@ -254,102 +238,6 @@
         </div>
     </div>
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var ITEM_ID = '<%= item._id %>';
-    var commentsDiv = document.getElementById('commentsList');
-    
-    if (!commentsDiv) {
-        console.error('commentsList div not found!');
-        return;
-    }
-    
-    // Show initial loading
-    commentsDiv.innerHTML = '<p class="text-muted"><i class="fas fa-spinner fa-spin"></i> Loading comments...</p>';
-    
-    // Fetch comments
-    function getComments() {
-        var xhr = new XMLHttpRequest();
-        var url = '/comments/item/' + ITEM_ID + '?t=' + Date.now();
-        console.log('Fetching comments from:', url);
-        
-        xhr.open('GET', url, true);
-        xhr.timeout = 15000;
-        
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4) {
-                console.log('Status:', xhr.status, 'Response:', xhr.responseText.substring(0, 200));
-                
-                if (xhr.status === 200) {
-                    try {
-                        var data = JSON.parse(xhr.responseText);
-                        if (data.comments && data.comments.length > 0) {
-                            var html = '';
-                            for (var i = 0; i < data.comments.length; i++) {
-                                var c = data.comments[i];
-                                var author = (c.author && c.author.username) ? c.author.username : 'User';
-                                html += '<div class="border rounded p-2 mb-2 bg-light">';
-                                html += '<strong>' + author + '</strong>';
-                                html += '<p class="mb-0 mt-1">' + c.content + '</p>';
-                                html += '</div>';
-                            }
-                            commentsDiv.innerHTML = html;
-                        } else {
-                            commentsDiv.innerHTML = '<p class="text-muted">No comments yet. Be the first!</p>';
-                        }
-                    } catch (e) {
-                        console.error('JSON parse error:', e);
-                        commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
-                    }
-                } else {
-                    commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
-                }
-            }
-        };
-        
-        xhr.onerror = function() {
-            commentsDiv.innerHTML = '<p class="text-muted">No comments yet.</p>';
-        };
-        
-        xhr.ontimeout = function() {
-            commentsDiv.innerHTML = '<p class="text-muted">Comments unavailable.</p>';
-        };
-        
-        xhr.send();
-    }
-    
-    // Expose globally
-    window.refreshComments = getComments;
-    
-    // Handle form submit
-    var form = document.getElementById('newCommentForm');
-    if (form) {
-        form.onsubmit = function(e) {
-            e.preventDefault();
-            var input = document.getElementById('newCommentText');
-            var text = input.value.trim();
-            if (!text) return;
-            
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/comments/item/' + ITEM_ID, true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    input.value = '';
-                    getComments();
-                } else if (xhr.status === 401) {
-                    window.location.href = '/auth/login';
-                }
-            };
-            xhr.send(JSON.stringify({ content: text, type: 'comment' }));
-        };
-    }
-    
-    // Load comments now
-    getComments();
-});
-</script>
 
 <script>
 // Share functions

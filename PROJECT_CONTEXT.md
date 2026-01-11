@@ -37,8 +37,7 @@ I'm building a **Campus Lost & Found Management System** using Node.js, Express.
 | 6 | Enhanced Device Detection (50+ brands) | ✅ Done |
 | 7 | Claim Request System | ✅ Done |
 | 8 | QR Code & Poster Generation | ✅ Done |
-| 9 | Comments System | ✅ Done (has loading issues) |
-| 10 | Location Dropdown (70+ campus locations) | ✅ Done |
+| 9 | Location Dropdown (70+ campus locations) | ✅ Done |
 | 11 | PWA Support (manifest + service worker) | ✅ Done |
 | 12 | Item Matching Algorithm | ✅ Done |
 | 13 | User Dashboard | ✅ Done |
@@ -49,11 +48,9 @@ I'm building a **Campus Lost & Found Management System** using Node.js, Express.
 
 ## Current Issues to Fix
 
-1. **Comments still loading infinitely** - The `/comments/item/:itemId` API might not be responding properly on Render. Added 10-second timeout but still shows "Loading comments..."
+1. **PWA icon 404 errors** - Old cached service worker looking for `/images/icons/icon-144x144.png` that doesn't exist. Need to clear browser cache/service worker.
 
-2. **PWA icon 404 errors** - Old cached service worker looking for `/images/icons/icon-144x144.png` that doesn't exist. Need to clear browser cache/service worker.
-
-3. **Rate limiting was removed** - Was blocking logins with "Too Many Requests" error
+2. **Rate limiting was removed** - Was blocking logins with "Too Many Requests" error
 
 ---
 
@@ -68,14 +65,12 @@ I'm building a **Campus Lost & Found Management System** using Node.js, Express.
 ├── controllers/
 │   ├── authController.js     # Login/register
 │   ├── itemController.js     # Items CRUD
-│   ├── commentController.js  # Comments API
 │   ├── claimController.js    # Claim requests
 │   └── adminController.js    # Admin functions
 ├── models/
 │   ├── User.js
 │   ├── Item.js
 │   ├── Category.js
-│   ├── Comment.js
 │   ├── ClaimRequest.js
 │   ├── BlockedDevice.js
 │   ├── TrackedDevice.js
@@ -83,7 +78,6 @@ I'm building a **Campus Lost & Found Management System** using Node.js, Express.
 ├── routes/
 │   ├── auth.js
 │   ├── items.js
-│   ├── comments.js
 │   ├── claims.js
 │   ├── admin.js
 │   ├── posters.js
@@ -138,9 +132,9 @@ PORT=3000
 2. **Removed all rate limiting** - Was causing "Too Many Requests" errors
 3. **Simplified database connection** - No blocking retries, server starts immediately
 4. **Server binds to 0.0.0.0** - Required for Render deployment
-5. **Added timeout to comments loading** - 10 second timeout with fallback message
-6. **Fixed params sanitization** - Was breaking MongoDB ObjectIds
-7. **Updated service worker to v2** - To clear old cached assets
+5. **Fixed params sanitization** - Was breaking MongoDB ObjectIds
+6. **Updated service worker to v2** - To clear old cached assets
+7. **Removed comments feature** - Comments functionality was removed from the system
 
 ---
 
@@ -152,13 +146,11 @@ PORT=3000
 - `GET /items/found` - Found items list
 - `GET /items/:id` - Item details
 - `GET /search` - Search items
-- `GET /comments/item/:itemId` - Get comments for item
 - `GET /health` - Health check
 
 ### Authenticated Users
 - `POST /report/lost` - Report lost item
 - `POST /report/found` - Report found item
-- `POST /comments/item/:itemId` - Add comment
 - `GET /claims/form/:itemId` - Claim form
 - `POST /claims/submit/:itemId` - Submit claim
 - `GET /user/dashboard` - User dashboard
@@ -264,10 +256,6 @@ git log --oneline
 
 ---
 
-## Please help me continue developing this project and fix any remaining issues, especially the comments loading problem.
-
----
-
 ## Database Details
 
 - **Database**: MongoDB Atlas (cloud)
@@ -276,7 +264,6 @@ git log --oneline
   - `users` - User accounts
   - `items` - Lost/found items
   - `categories` - Item categories (Electronics, Documents, Clothing, etc.)
-  - `comments` - Comments on items
   - `claimrequests` - Claim requests for items
   - `blockeddevices` - Blocked device fingerprints
   - `trackeddevices` - All tracked device visits
@@ -313,7 +300,7 @@ git log --oneline
 ## User Roles
 
 1. **Guest** - Can view items, search
-2. **User** - Can report items, submit claims, add comments
+2. **User** - Can report items, submit claims
 3. **Admin** - Full access to dashboard, manage items/users/claims, view statistics
 
 ---
@@ -398,7 +385,7 @@ views/
 ├── items/
 │   ├── lost.ejs              # Lost items list
 │   ├── found.ejs             # Found items list
-│   ├── details.ejs           # Item details + comments
+│   ├── details.ejs           # Item details
 │   ├── search.ejs            # Search results
 │   └── claimed.ejs           # Claimed items
 ├── report/
@@ -418,7 +405,6 @@ views/
     ├── claims.ejs            # Manage claims
     ├── statistics.ejs        # Statistics with charts
     ├── devices.ejs           # Tracked devices
-    ├── comments.ejs          # Moderate comments
     └── matching.ejs          # Item matching
 ```
 
@@ -431,19 +417,6 @@ views/
 3. **Cloudinary stores images** - Not local storage
 4. **Service worker caches pages** - May need to clear cache when testing
 5. **Render free tier sleeps after 15 min inactivity** - First request may be slow
-
----
-
-## Testing the Comments API
-
-The comments endpoint should return JSON:
-```
-GET /comments/item/:itemId
-Response: { success: true, comments: [] }
-```
-
-If it returns empty array, that's correct (no comments exist yet).
-If it hangs forever, there's a middleware or database issue.
 
 ---
 
@@ -542,24 +515,6 @@ Admin uses SEPARATE login at `/admin/login`:
 }
 ```
 
-### Comment Model
-```javascript
-{
-    item: { type: ObjectId, ref: 'Item', required: true },
-    author: { type: ObjectId, ref: 'User', required: true },
-    content: { type: String, required: true, maxlength: 500 },
-    type: { type: String, enum: ['comment', 'tip', 'question', 'update'], default: 'comment' },
-    isHelpful: Boolean,
-    helpfulVotes: [{ user: ObjectId, votedAt: Date }],
-    replies: [{ author: ObjectId, content: String, createdAt: Date }],
-    isPinned: Boolean,
-    isHidden: Boolean,
-    hiddenReason: String,
-    isEdited: Boolean,
-    createdAt: Date
-}
-```
-
 ### ClaimRequest Model
 ```javascript
 {
@@ -582,8 +537,6 @@ Admin uses SEPARATE login at `/admin/login`:
 ## Frontend JavaScript (in EJS files)
 
 ### Item Details Page (`views/items/details.ejs`)
-- `loadComments()` - Fetches comments via API
-- `voteHelpful(commentId)` - Vote comment as helpful
 - `showQRCode()` - Generate and display QR code
 - `shareOnFacebook/Twitter/WhatsApp()` - Social sharing
 - `copyLink()` - Copy item URL to clipboard
@@ -695,7 +648,7 @@ const upload = multer({ storage });
 
 - Version: v3 (cache name: `static-v3`, `dynamic-v3`)
 - Caches: `/`, `/offline`, `/manifest.json`, `/css/style.css`
-- **API routes are NEVER cached** - Comments, claims, auth, admin routes bypass service worker
+- **API routes are NEVER cached** - Claims, auth, admin routes bypass service worker
 - Network-first for HTML pages
 - Cache-first for static assets
 - Shows `/offline` page when offline
@@ -708,7 +661,6 @@ const upload = multer({ storage });
 | Issue | Solution |
 |-------|----------|
 | "Too Many Requests" | Rate limiting removed, clear browser cache |
-| Comments loading forever | Check if API returns JSON, clear service worker |
 | Can't login | Check if user exists, password correct, isActive=true |
 | Images not uploading | Check Cloudinary credentials in .env |
 | Deployment timeout | Server must bind to 0.0.0.0, DB connection non-blocking |
