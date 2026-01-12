@@ -1596,6 +1596,37 @@ body.dark-mode .fw-bold {
     color: var(--text-primary);
 }
 
+/* Dark Mode - Card Body Text */
+body.dark-mode .card-body {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .card-body p {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .card-body h5 {
+    color: var(--text-primary);
+}
+
+body.dark-mode .card-body .border-bottom {
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .form-check-label {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
 /* Dark Mode Transition */
 body,
 .navbar,
