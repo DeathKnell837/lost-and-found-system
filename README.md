@@ -8,7 +8,7 @@ A comprehensive web-based Lost and Found Item Management System designed for cam
 
 **Admin Login:**
 - Username: `admin`
-- Password: `admin123`
+- Password: ``
 
 ## ✨ Features
 
