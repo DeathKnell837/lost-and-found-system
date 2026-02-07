@@ -1668,11 +1668,22 @@ body.dark-mode .card-body .border-bottom {
 }
 
 body.dark-mode .form-check-label {
-    color: var(--text-secondary) !important;
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .form-check-label,
+body.dark-mode .card .form-check-label,
+body.dark-mode .card-body .form-check-label,
+body.dark-mode form .form-check-label {
+    color: #e2e8f0 !important;
+}
+
+body.dark-mode .dark-mode-label {
+    color: #f1f5f9 !important;
 }
 
 body.dark-mode label {
-    color: var(--text-secondary);
+    color: #cbd5e1 !important;
 }
 
 body.dark-mode .btn-outline-secondary {
