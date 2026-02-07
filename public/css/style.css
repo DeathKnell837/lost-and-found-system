@@ -537,6 +537,13 @@ a:hover {
 .item-card {
     position: relative;
     overflow: hidden;
+    border-radius: var(--radius);
+    transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.item-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
 }
 
 .item-card .card-img-container {
@@ -546,15 +553,53 @@ a:hover {
     background: var(--gray-100);
 }
 
-.item-card .card-img-top {
+.item-card .card-img-top,
+.item-card .item-image {
     width: 100%;
-    height: 100%;
+    height: 180px;
     object-fit: cover;
     transition: transform var(--transition-slow);
 }
 
-.item-card:hover .card-img-top {
+.item-card:hover .card-img-top,
+.item-card:hover .item-image {
     transform: scale(1.05);
+}
+
+.item-card .item-image-placeholder {
+    height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-100);
+    color: var(--gray-400);
+}
+
+.item-card .card-body {
+    padding: 1rem 1.25rem;
+}
+
+.item-card .card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-card .item-description {
+    font-size: 0.85rem;
+    color: var(--gray-500);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.item-card .card-footer {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
 }
 
 .item-card .card-img-overlay-badge {
@@ -1242,6 +1287,14 @@ body.dark-mode .navbar-nav .nav-link:hover {
     background: var(--bg-tertiary);
 }
 
+/* Prevent navbar link text from wrapping */
+.navbar-nav .nav-link {
+    white-space: nowrap;
+    font-size: 0.9rem;
+    padding-left: 0.65rem !important;
+    padding-right: 0.65rem !important;
+}
+
 body.dark-mode .navbar .form-control {
     background: var(--bg-tertiary);
     border-color: var(--border-color);
@@ -1615,6 +1668,10 @@ body.dark-mode .card-body .border-bottom {
 }
 
 body.dark-mode .form-check-label {
+    color: var(--text-secondary) !important;
+}
+
+body.dark-mode label {
     color: var(--text-secondary);
 }
 
@@ -1626,6 +1683,46 @@ body.dark-mode .btn-outline-secondary {
 body.dark-mode .btn-outline-secondary:hover {
     background: var(--bg-tertiary);
     color: var(--text-primary);
+}
+
+/* Dark Mode - Alert text */
+body.dark-mode .alert {
+    color: var(--text-primary);
+}
+
+/* Dark Mode - Accordion */
+body.dark-mode .accordion-item {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .accordion-button {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+body.dark-mode .accordion-button:not(.collapsed) {
+    background: var(--bg-tertiary);
+    color: var(--primary-light);
+}
+
+body.dark-mode .accordion-body {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+}
+
+body.dark-mode .accordion-button::after {
+    filter: invert(1);
+}
+
+/* Dark Mode - Item card footer */
+body.dark-mode .item-card .card-footer {
+    background: var(--bg-tertiary) !important;
+}
+
+body.dark-mode .item-image-placeholder {
+    background: var(--bg-tertiary) !important;
+    color: var(--text-muted) !important;
 }
 
 /* Dark Mode Transition */
