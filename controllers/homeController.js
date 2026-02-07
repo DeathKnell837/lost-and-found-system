@@ -67,7 +67,7 @@ exports.submitContact = async (req, res) => {
 
         // Send the contact message via email to admin
         await emailService.sendEmail({
-            to: process.env.EMAIL_USER || 'lostandfound@campus.edu',
+            to: process.env.EMAIL_USER || 'rogiebacanto2002@gmail.com',
             subject: `[Contact Form] ${subject} - from ${name}`,
             html: `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
