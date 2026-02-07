@@ -7,45 +7,68 @@ const Location = require('../models/Location');
 console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'Set (hidden)' : 'NOT SET');
 
 const locations = [
-    // Academic Buildings
-    { name: 'Library', description: 'Main campus library' },
-    { name: 'Science Building', description: 'Science laboratories and classrooms' },
-    { name: 'Engineering Building', description: 'Engineering department' },
-    { name: 'Arts Building', description: 'Arts and humanities classrooms' },
-    { name: 'Business Building', description: 'Business department' },
-    { name: 'Computer Lab', description: 'Main computer laboratory' },
-    { name: 'Lecture Hall A', description: 'Large lecture hall' },
-    { name: 'Lecture Hall B', description: 'Large lecture hall' },
-    { name: 'Classroom Building 1', description: 'General classrooms' },
-    { name: 'Classroom Building 2', description: 'General classrooms' },
-    
-    // Student Facilities
-    { name: 'Cafeteria', description: 'Main dining area' },
-    { name: 'Student Center', description: 'Student activities center' },
-    { name: 'Gymnasium', description: 'Sports and fitness facility' },
-    { name: 'Sports Field', description: 'Outdoor sports area' },
-    { name: 'Swimming Pool', description: 'Campus swimming pool' },
-    { name: 'Auditorium', description: 'Main auditorium' },
-    
-    // Administrative
-    { name: 'Administration Building', description: 'Main admin offices' },
-    { name: 'Registrar Office', description: 'Student registration' },
-    { name: 'Finance Office', description: 'Payments and finance' },
-    { name: 'Security Office', description: 'Campus security' },
-    
-    // Common Areas
-    { name: 'Main Gate', description: 'Campus main entrance' },
-    { name: 'Parking Lot A', description: 'Main parking area' },
-    { name: 'Parking Lot B', description: 'Secondary parking' },
-    { name: 'Bus Stop', description: 'Campus bus stop' },
-    { name: 'Garden Area', description: 'Campus garden' },
-    { name: 'Hallway/Corridor', description: 'Building corridors' },
-    { name: 'Restroom', description: 'Campus restrooms' },
-    { name: 'Canteen', description: 'Snack and drinks area' },
-    
-    // Dormitory
-    { name: 'Dormitory Building 1', description: 'Student housing' },
-    { name: 'Dormitory Building 2', description: 'Student housing' },
+    // 1-9: Main Campus Buildings & Facilities
+    { name: 'Madonna Building', description: 'Building 1' },
+    { name: 'Facade (Main Entrance)', description: 'Building 1a - Main gate entrance' },
+    { name: 'Madonna Grotto', description: 'Building 2' },
+    { name: 'Old Library Bldg.', description: 'Building 3' },
+    { name: 'College Library Bldg.', description: 'Building 4' },
+    { name: 'McGrath Bldg.', description: 'Building 5' },
+    { name: 'Student Lounge 1', description: 'Building 6' },
+    { name: 'Student Lounge 3', description: 'Building 7' },
+    { name: 'De Mazenod Bldg.', description: 'Building 8' },
+    { name: 'Garage', description: 'Building 9' },
+
+    // 10-16: Student & Campus Facilities
+    { name: 'College Canteen', description: 'Building 10 - Main dining area' },
+    { name: 'Student Lounge 2', description: 'Building 11' },
+    { name: 'Rotonda', description: 'Building 12' },
+    { name: 'Student Lounge', description: 'Building 13' },
+    { name: 'Gym', description: 'Building 14 - Campus gymnasium' },
+    { name: 'Carpentry Shop', description: 'Building 15' },
+    { name: 'Clinic', description: 'Building 16 - Campus clinic' },
+
+    // 17-26: Academic & Administrative
+    { name: 'Primera Hall', description: 'Building 17' },
+    { name: 'Chapel', description: 'Building 18' },
+    { name: 'Guest House', description: 'Building 19' },
+    { name: 'CCGE Bldg.', description: 'Building 20' },
+    { name: 'Taekwondo Gym', description: 'Building 21' },
+    { name: 'Power House', description: 'Building 22' },
+    { name: 'Water Pump', description: 'Building 23' },
+    { name: 'Fr. Sullivan Bldg.', description: 'Building 24' },
+    { name: 'NDMC Chapel', description: 'Building 25' },
+    { name: 'Joseph Bldg.', description: 'Building 26' },
+
+    // 27-31: Housing & Utilities
+    { name: 'Reco House', description: 'Building 27' },
+    { name: 'NDMC Farm', description: 'Building 28' },
+    { name: 'Ladies Dormitory', description: 'Building 29' },
+    { name: 'Refilling Station', description: 'Building 29a' },
+    { name: 'MEMED Office', description: 'Building 29b' },
+    { name: 'GSD Office', description: 'Building 29c' },
+    { name: 'Material Recovery Facility 2', description: 'Building 29d' },
+    { name: 'New Science Laboratory', description: 'Building 30' },
+    { name: 'Water Pump (HS)', description: 'Building 31' },
+
+    // 32-37: High School Area
+    { name: 'HS Gordon Bldg.', description: 'Building 32' },
+    { name: 'IBED Computer Laboratory', description: 'Building 33' },
+    { name: 'HS Chemistry Laboratory (Old)', description: 'Building 34' },
+    { name: 'HS Student Lounge', description: 'Building 35' },
+    { name: 'Bishop Mongeau Bldg.', description: 'Building 36' },
+    { name: 'Clinic (HS)', description: 'Building 37 - High School clinic' },
+
+    // 38-42: ETD & Security Area
+    { name: 'ETD Bldg.', description: 'Building 38' },
+    { name: 'ETD Asst. Principal\'s Office', description: 'Building 38a' },
+    { name: 'ETD Covered Court', description: 'Building 39' },
+    { name: 'Halad Stage', description: 'Building 40' },
+    { name: 'Chief Security Office', description: 'Building 41' },
+    { name: 'Coop Building', description: 'Building 41a' },
+    { name: 'Guard House Gate 02', description: 'Building 41b' },
+    { name: 'Nursery Play Ground', description: 'Building 42' },
+    { name: 'ETD Stage', description: 'Building 39a' },
 ];
 
 async function seedLocations() {
@@ -53,18 +76,13 @@ async function seedLocations() {
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('Connected to MongoDB');
         
-        // Check existing locations
-        const existingCount = await Location.countDocuments();
-        console.log(`Existing locations: ${existingCount}`);
-        
-        if (existingCount > 0) {
-            console.log('Locations already exist. Skipping seed.');
-            console.log('If you want to reset, delete all locations first from admin panel.');
-        } else {
-            // Insert locations
-            await Location.insertMany(locations);
-            console.log(`Added ${locations.length} locations successfully!`);
-        }
+        // Delete all old locations and re-seed with campus map locations
+        const deleted = await Location.deleteMany({});
+        console.log(`Deleted ${deleted.deletedCount} old locations.`);
+
+        // Insert new campus map locations
+        await Location.insertMany(locations);
+        console.log(`Added ${locations.length} campus locations successfully!`);
         
         // Show all locations
         const allLocations = await Location.find().sort({ name: 1 });
