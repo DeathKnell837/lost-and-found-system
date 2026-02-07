@@ -3,16 +3,30 @@
    ================================ */
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-hide alerts after 5 seconds
+    
+    // === LOADING OVERLAY ===
+    // Create a full-page loading overlay element and add it to body
+    const overlay = document.createElement('div');
+    overlay.className = 'loading-overlay';
+    overlay.id = 'loadingOverlay';
+    overlay.innerHTML = '<div class="loading-spinner"></div><div class="loading-text">Processing...</div>';
+    document.body.appendChild(overlay);
+
+    // === AUTO-HIDE ALERTS ===
+    // Automatically dismiss flash messages after 5 seconds with a slide-out animation
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
         setTimeout(() => {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
+            alert.classList.add('alert-dismissing');
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 300);
         }, 5000);
     });
     
-    // Image preview for file uploads
+    // === IMAGE PREVIEW ===
+    // Show thumbnail preview when user selects an image file
     const imageInputs = document.querySelectorAll('input[type="file"][accept*="image"]');
     imageInputs.forEach(input => {
         input.addEventListener('change', function(e) {
@@ -42,31 +56,42 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Form validation enhancement
+    // === FORM SUBMIT WITH LOADING OVERLAY ===
+    // Show loading overlay and disable submit button when any form is submitted
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const submitBtn = form.querySelector('button[type="submit"]');
-            if (submitBtn && !submitBtn.disabled) {
-                submitBtn.disabled = true;
-                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
-                
-                // Re-enable after 10 seconds (safety)
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = submitBtn.getAttribute('data-original-text') || 'Submit';
-                }, 10000);
-            }
-        });
-        
-        // Store original button text
+        // Store original button text on page load
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) {
             submitBtn.setAttribute('data-original-text', submitBtn.innerHTML);
         }
+
+        form.addEventListener('submit', function(e) {
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+                
+                // Show the full-page loading overlay
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add('active');
+                }
+                
+                // Safety: re-enable everything after 15 seconds if page hasn't navigated
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = btn.getAttribute('data-original-text') || 'Submit';
+                    if (loadingOverlay) {
+                        loadingOverlay.classList.remove('active');
+                    }
+                }, 15000);
+            }
+        });
     });
     
-    // Search input clear button
+    // === SEARCH CLEAR BUTTON ===
+    // Add a clear (X) button to search inputs that have a value
     const searchInputs = document.querySelectorAll('input[name="q"], input[name="search"]');
     searchInputs.forEach(input => {
         if (input.value) {
@@ -84,7 +109,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Smooth scroll for anchor links
+    // === SMOOTH SCROLL ===
+    // Enable smooth scrolling for same-page anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
@@ -98,19 +124,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Add loading state to navigation links
+    // === NAVIGATION LOADING CURSOR ===
+    // Change cursor to "wait" when navigating to internal links
     document.querySelectorAll('a').forEach(link => {
         if (link.href && !link.href.startsWith('#') && !link.target && link.hostname === window.location.hostname) {
             link.addEventListener('click', function(e) {
-                // Don't add loading for dropdown toggles
-                if (!this.classList.contains('dropdown-toggle')) {
+                // Don't add loading for dropdown toggles or javascript: links
+                if (!this.classList.contains('dropdown-toggle') && !this.href.startsWith('javascript:')) {
                     document.body.style.cursor = 'wait';
                 }
             });
         }
     });
     
-    // Date input max date (today)
+    // === DATE INPUT LIMIT ===
+    // Set max date on date inputs to today (can't report items in the future)
     const dateInputs = document.querySelectorAll('input[type="date"]');
     dateInputs.forEach(input => {
         if (!input.max) {
@@ -118,7 +146,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Confirm before leaving page with unsaved changes
+    // === UNSAVED CHANGES WARNING ===
+    // Warn user if they try to leave a page with unsaved form changes
     let formChanged = false;
     const formInputs = document.querySelectorAll('form input, form textarea, form select');
     formInputs.forEach(input => {
@@ -134,18 +163,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Reset formChanged on form submit
+    // Reset unsaved changes flag on form submit (so the warning doesn't fire)
     forms.forEach(form => {
         form.addEventListener('submit', () => {
             formChanged = false;
         });
     });
     
-    // Initialize tooltips
+    // === TOOLTIPS ===
+    // Initialize Bootstrap tooltips on elements with data-bs-toggle="tooltip"
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
     tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
     
-    // Character counter for textareas
+    // === CHARACTER COUNTER ===
+    // Show live character count on textareas that have a maxlength attribute
     const textareas = document.querySelectorAll('textarea[maxlength]');
     textareas.forEach(textarea => {
         const maxLength = textarea.getAttribute('maxlength');
@@ -166,14 +197,32 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initial count
         counter.textContent = `${textarea.value.length}/${maxLength}`;
     });
+
+    // === MOBILE MENU AUTO-CLOSE ===
+    // Close the mobile navbar when a nav link is clicked
+    const navbarCollapse = document.getElementById('navbarNav');
+    if (navbarCollapse) {
+        const navLinks = navbarCollapse.querySelectorAll('.nav-link:not(.dropdown-toggle)');
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                const bsCollapse = bootstrap.Collapse.getInstance(navbarCollapse);
+                if (bsCollapse && navbarCollapse.classList.contains('show')) {
+                    bsCollapse.hide();
+                }
+            });
+        });
+    }
 });
 
-// Utility functions
+// === UTILITY FUNCTIONS ===
+
+// Format a date string into a human-readable format
 function formatDate(dateString) {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
 }
 
+// Debounce helper to limit how often a function is called
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {

@@ -1,52 +1,127 @@
+/**
+ * ============================================================================
+ * ITEM CONTROLLER (itemController.js)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * This controller handles all item-related operations in the system.
+ * It processes requests for viewing, creating, updating, and deleting items.
+ * 
+ * WHAT IS A CONTROLLER?
+ * A controller is the "brain" of the application. It:
+ * - Receives HTTP requests from routes
+ * - Processes the request (get data from database, perform logic)
+ * - Sends a response (render a page or send JSON)
+ * 
+ * FUNCTIONS IN THIS FILE:
+ * - getLostItems()       - Display list of lost items
+ * - getFoundItems()      - Display list of found items
+ * - getClaimedItems()    - Display list of claimed items
+ * - getItemDetails()     - Show single item details
+ * - getReportLostForm()  - Show form to report lost item
+ * - postReportLost()     - Process lost item submission
+ * - getReportFoundForm() - Show form to report found item
+ * - postReportFound()    - Process found item submission
+ * 
+ * ============================================================================
+ */
+
+// Import required models from the database
 const { Item, Category, Location } = require('../models');
+
+// Import Cloudinary for image upload handling
 const { cloudinary } = require('../config/cloudinary');
+
+// Import matching service to find potential matches between lost and found items
 const matchingService = require('../services/matchingService');
 
-// Get lost items listing page
+/**
+ * GET LOST ITEMS
+ * 
+ * Route: GET /items/lost
+ * Purpose: Display a paginated list of all approved lost items
+ * 
+ * Features:
+ * - Pagination (12 items per page)
+ * - Category filtering
+ * - Date range filtering
+ * 
+ * @param {Object} req - Express request object (contains query parameters)
+ * @param {Object} res - Express response object (used to send response)
+ */
 exports.getLostItems = async (req, res) => {
     try {
+        // PAGINATION SETUP
+        // Get current page from URL query (?page=2), default to page 1
         const page = parseInt(req.query.page) || 1;
+        
+        // Show 12 items per page (3 rows x 4 columns in grid layout)
         const limit = 12;
+        
+        // Calculate how many items to skip
+        // Page 1: skip 0, Page 2: skip 12, Page 3: skip 24
         const skip = (page - 1) * limit;
 
-        // Build query
+        // BUILD DATABASE QUERY
+        // Only show lost items that have been approved by admin
         let query = { type: 'lost', status: 'approved' };
 
-        // Category filter
+        // TEXT SEARCH
+        // Search by item name, description, or location
+        if (req.query.q && req.query.q.trim() !== '') {
+            query.$or = [
+                { itemName: { $regex: req.query.q, $options: 'i' } },
+                { description: { $regex: req.query.q, $options: 'i' } },
+                { location: { $regex: req.query.q, $options: 'i' } }
+            ];
+        }
+
+        // CATEGORY FILTER
+        // If user selected a category from dropdown, add to query
         if (req.query.category && req.query.category !== '') {
             query.category = req.query.category;
         }
 
-        // Date filter
+        // DATE FILTER
+        // Filter items by date range if provided
         if (req.query.dateFrom || req.query.dateTo) {
             query.dateLostFound = {};
             if (req.query.dateFrom) {
+                // $gte = greater than or equal (on or after this date)
                 query.dateLostFound.$gte = new Date(req.query.dateFrom);
             }
             if (req.query.dateTo) {
+                // $lte = less than or equal (on or before this date)
                 query.dateLostFound.$lte = new Date(req.query.dateTo);
             }
         }
 
+        // EXECUTE DATABASE QUERY
         const items = await Item.find(query)
-            .populate('category')
-            .sort({ dateReported: -1 })
-            .skip(skip)
-            .limit(limit);
+            .populate('category')        // Replace category ID with actual category data
+            .sort({ dateReported: -1 })  // Sort newest first
+            .skip(skip)                  // Skip items for pagination
+            .limit(limit);               // Only get 12 items
 
+        // Get total count for pagination calculation
         const total = await Item.countDocuments(query);
+        
+        // Get all active categories for filter dropdown
         const categories = await Category.find({ isActive: true });
 
+        // RENDER THE VIEW
+        // Send data to the EJS template to generate HTML
         res.render('items/lost', {
             title: 'Lost Items - Lost & Found',
-            items,
-            categories,
-            currentPage: page,
-            totalPages: Math.ceil(total / limit),
-            totalItems: total,
-            query: req.query
+            items,                               // The items to display
+            categories,                          // For filter dropdown
+            currentPage: page,                   // Current page number
+            totalPages: Math.ceil(total / limit),// Calculate total pages
+            totalItems: total,                   // Total items found
+            query: req.query                     // Current filter values
         });
     } catch (error) {
+        // If anything goes wrong, log error and redirect
         console.error('Error loading lost items:', error);
         req.flash('error', 'Error loading items');
         res.redirect('/');
@@ -62,6 +137,15 @@ exports.getFoundItems = async (req, res) => {
 
         // Build query
         let query = { type: 'found', status: 'approved' };
+
+        // Text search
+        if (req.query.q && req.query.q.trim() !== '') {
+            query.$or = [
+                { itemName: { $regex: req.query.q, $options: 'i' } },
+                { description: { $regex: req.query.q, $options: 'i' } },
+                { location: { $regex: req.query.q, $options: 'i' } }
+            ];
+        }
 
         // Category filter
         if (req.query.category && req.query.category !== '') {
@@ -233,7 +317,7 @@ exports.reportLostItem = async (req, res) => {
             itemName,
             category,
             description,
-            location,
+            location: location === '__other__' ? (req.body.locationCustom || location) : location,
             contactInfo,
             reporterName,
             reporterEmail,
@@ -277,7 +361,7 @@ exports.reportFoundItem = async (req, res) => {
             itemName,
             category,
             description,
-            location,
+            location: location === '__other__' ? (req.body.locationCustom || location) : location,
             contactInfo,
             reporterName,
             reporterEmail,

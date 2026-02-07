@@ -1,16 +1,70 @@
+/**
+ * ============================================================================
+ * EMAIL SERVICE (emailService.js)
+ * ============================================================================
+ * 
+ * PURPOSE:
+ * This service handles all email notifications in the system.
+ * It sends automated emails when certain events occur.
+ * 
+ * WHEN EMAILS ARE SENT:
+ * - Item approved by admin
+ * - Item rejected by admin
+ * - Claim submitted on user's item
+ * - Claim approved/rejected
+ * - Potential match found between lost and found items
+ * - Email verification for new accounts
+ * 
+ * TECHNOLOGY USED:
+ * - Nodemailer: Node.js library for sending emails
+ * - Gmail SMTP: Google's email server (can use other providers)
+ * 
+ * CONFIGURATION:
+ * Email credentials are stored in environment variables:
+ * - EMAIL_USER: Gmail address
+ * - EMAIL_PASS: Gmail app password (not regular password)
+ * 
+ * HOW TO SET UP GMAIL:
+ * 1. Enable 2-Factor Authentication on Gmail
+ * 2. Go to Google Account → Security → App passwords
+ * 3. Generate app password for "Mail"
+ * 4. Use that password in EMAIL_PASS
+ * 
+ * ============================================================================
+ */
+
+// Import Nodemailer library for sending emails
 const nodemailer = require('nodemailer');
 
-// Create transporter - using Gmail or any SMTP
-// For production, use environment variables
+/**
+ * CREATE EMAIL TRANSPORTER
+ * 
+ * The transporter is configured to use Gmail's SMTP server.
+ * It handles the actual sending of emails.
+ * 
+ * SMTP = Simple Mail Transfer Protocol
+ * This is the standard protocol for sending emails.
+ */
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: 'gmail',  // Use Gmail's SMTP configuration
     auth: {
+        // Email address to send from (stored in environment variable)
         user: process.env.EMAIL_USER || 'your-email@gmail.com',
+        // App password (NOT regular Gmail password)
         pass: process.env.EMAIL_PASS || 'your-app-password'
     }
 });
 
-// Base email template
+/**
+ * EMAIL TEMPLATE GENERATOR
+ * 
+ * Creates a consistent HTML template for all emails.
+ * Uses inline CSS for email client compatibility.
+ * 
+ * @param {String} content - The HTML content for the email body
+ * @param {String} title - Email title (shown in browser tab if opened)
+ * @returns {String} Complete HTML email template
+ */
 const getEmailTemplate = (content, title = 'Lost & Found Notification') => `
 <!DOCTYPE html>
 <html>
@@ -52,23 +106,36 @@ const getEmailTemplate = (content, title = 'Lost & Found Notification') => `
 </html>
 `;
 
-// Send email function
+/**
+ * SEND EMAIL FUNCTION
+ * 
+ * Core function that actually sends the email.
+ * All other email functions use this.
+ * 
+ * @param {String} to - Recipient email address
+ * @param {String} subject - Email subject line
+ * @param {String} htmlContent - HTML content for email body
+ * @returns {Object} Result with success status and message/error
+ */
 const sendEmail = async (to, subject, htmlContent) => {
     try {
         // Check if email is configured
+        // If not configured, log but don't throw error
         if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
             console.log('Email not configured. Skipping email send to:', to);
             console.log('Subject:', subject);
             return { success: false, message: 'Email not configured' };
         }
 
+        // Prepare email options
         const mailOptions = {
             from: `"Campus Lost & Found" <${process.env.EMAIL_USER}>`,
             to: to,
             subject: subject,
-            html: getEmailTemplate(htmlContent, subject)
+            html: getEmailTemplate(htmlContent, subject)  // Wrap content in template
         };
 
+        // Send email using transporter
         const info = await transporter.sendMail(mailOptions);
         console.log('Email sent:', info.messageId);
         return { success: true, messageId: info.messageId };
@@ -78,7 +145,15 @@ const sendEmail = async (to, subject, htmlContent) => {
     }
 };
 
-// Email: Item Approved
+/**
+ * SEND ITEM APPROVED EMAIL
+ * 
+ * Sent when an admin approves a pending item report.
+ * Notifies the user that their item is now visible on the platform.
+ * 
+ * @param {Object} user - User who reported the item
+ * @param {Object} item - The approved item
+ */
 const sendItemApprovedEmail = async (user, item) => {
     const subject = `✅ Your ${item.type} item report has been approved!`;
     const content = `
@@ -103,7 +178,16 @@ const sendItemApprovedEmail = async (user, item) => {
     return sendEmail(user.email, subject, content);
 };
 
-// Email: Item Rejected
+/**
+ * SEND ITEM REJECTED EMAIL
+ * 
+ * Sent when an admin rejects a pending item report.
+ * Includes the reason for rejection if provided.
+ * 
+ * @param {Object} user - User who reported the item
+ * @param {Object} item - The rejected item
+ * @param {String} reason - Reason for rejection (optional)
+ */
 const sendItemRejectedEmail = async (user, item, reason = '') => {
     const subject = `❌ Your ${item.type} item report was not approved`;
     const content = `

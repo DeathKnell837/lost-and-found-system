@@ -1674,3 +1674,189 @@ body,
     align-items: center;
     justify-content: center;
 }
+
+/* ================================
+   Loading Overlay
+   ================================ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(4px);
+    z-index: 99999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.loading-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+body.dark-mode .loading-overlay {
+    background: rgba(15, 23, 42, 0.85);
+}
+
+.loading-overlay .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--gray-200);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.loading-overlay .loading-text {
+    margin-top: 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--gray-600);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ================================
+   Flash Message Animations
+   ================================ */
+.alert-animated {
+    animation: alertSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes alertSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.alert-animated.alert-dismissing {
+    animation: alertSlideOut 0.3s ease-in forwards;
+}
+
+@keyframes alertSlideOut {
+    to {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+}
+
+/* Success Checkmark Animation */
+.success-checkmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-right: 8px;
+    animation: checkPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+}
+
+.success-checkmark i {
+    color: white;
+    font-size: 12px;
+}
+
+@keyframes checkPop {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Success alert glow effect */
+.alert-success.alert-animated {
+    border-left: 4px solid var(--success);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
+}
+
+.alert-danger.alert-animated {
+    border-left: 4px solid var(--danger);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.alert-info.alert-animated {
+    border-left: 4px solid var(--accent);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.15);
+}
+
+/* ================================
+   Mobile Menu Improvements
+   ================================ */
+@media (max-width: 991.98px) {
+    .navbar-collapse {
+        background: var(--primary-dark);
+        border-radius: 0 0 var(--radius) var(--radius);
+        padding: 1rem;
+        margin-top: 0.5rem;
+        max-height: 80vh;
+        overflow-y: auto;
+        animation: menuSlideDown 0.3s ease;
+    }
+
+    @keyframes menuSlideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .navbar-nav .nav-link {
+        padding: 0.75rem 1rem !important;
+        border-radius: var(--radius-sm);
+        margin-bottom: 2px;
+    }
+
+    .navbar-nav .nav-link:hover,
+    .navbar-nav .nav-link:focus {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .navbar .d-flex {
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+
+    .navbar .d-flex .form-control {
+        width: 100% !important;
+    }
+
+    .navbar .dropdown-menu {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        box-shadow: none;
+        padding-left: 1rem;
+    }
+
+    .navbar .dropdown-menu .dropdown-item {
+        color: rgba(255, 255, 255, 0.9);
+        border-radius: var(--radius-sm);
+    }
+
+    .navbar .dropdown-menu .dropdown-item:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+}

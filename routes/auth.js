@@ -18,6 +18,14 @@ router.post('/login', isGuest, authController.login);
 // Handle logout
 router.get('/logout', authController.logout);
 
+// Forgot password
+router.get('/forgot-password', isGuest, authController.getForgotPasswordPage);
+router.post('/forgot-password', isGuest, authController.forgotPassword);
+
+// Reset password
+router.get('/reset-password/:token', isGuest, authController.getResetPasswordPage);
+router.post('/reset-password/:token', isGuest, authController.resetPassword);
+
 // Email verification
 router.get('/verify-email/:token', authController.verifyEmail);
 

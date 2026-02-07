@@ -1,7 +1,8 @@
 <% if (typeof success !== 'undefined' && success && success.length > 0) { %>
     <% success.forEach(function(msg) { %>
-        <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
-            <i class="fas fa-check-circle me-2"></i><%= msg %>
+        <div class="alert alert-success alert-dismissible fade show alert-animated m-3" role="alert">
+            <span class="success-checkmark"><i class="fas fa-check"></i></span>
+            <%= msg %>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <% }); %>
@@ -9,7 +10,7 @@
 
 <% if (typeof error !== 'undefined' && error && error.length > 0) { %>
     <% error.forEach(function(msg) { %>
-        <div class="alert alert-danger alert-dismissible fade show m-3" role="alert">
+        <div class="alert alert-danger alert-dismissible fade show alert-animated m-3" role="alert">
             <i class="fas fa-exclamation-circle me-2"></i><%= msg %>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
@@ -18,7 +19,7 @@
 
 <% if (typeof info !== 'undefined' && info && info.length > 0) { %>
     <% info.forEach(function(msg) { %>
-        <div class="alert alert-info alert-dismissible fade show m-3" role="alert">
+        <div class="alert alert-info alert-dismissible fade show alert-animated m-3" role="alert">
             <i class="fas fa-info-circle me-2"></i><%= msg %>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>

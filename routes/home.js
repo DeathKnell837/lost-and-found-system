@@ -11,6 +11,7 @@ router.get('/about', homeController.getAboutPage);
 
 // Contact page
 router.get('/contact', homeController.getContactPage);
+router.post('/contact', homeController.submitContact);
 
 // Offline page (for PWA)
 router.get('/offline', (req, res) => {

@@ -50,14 +50,18 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Location Found <span class="text-danger">*</span></label>
-                                <div class="position-relative">
-                                    <input type="text" class="form-control" name="location" id="locationInput" required
-                                           placeholder="Type to search or enter your location" maxlength="200"
-                                           autocomplete="off">
-                                    <div id="locationSuggestions" class="position-absolute w-100 shadow-lg" 
-                                         style="display: none; max-height: 200px; overflow-y: auto; z-index: 9999; background: #2d3748; border: 1px solid #4a5568; border-radius: 0.375rem; top: 100%;"></div>
-                                </div>
-                                <small class="text-muted">Select from suggestions or type your own location</small>
+                                <select class="form-select" name="location" id="locationSelect" required>
+                                    <option value="">Select Location</option>
+                                    <% if (locations && locations.length > 0) { %>
+                                        <% locations.forEach(function(loc) { %>
+                                            <option value="<%= loc.name %>"><%= loc.name %></option>
+                                        <% }); %>
+                                    <% } %>
+                                    <option value="__other__">Other (type manually)</option>
+                                </select>
+                                <input type="text" class="form-control mt-2" name="locationCustom" id="locationCustom"
+                                       placeholder="Type your location" maxlength="200" style="display: none;">
+                                <small class="text-muted">Select from list or choose "Other" to type your own</small>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Date Found <span class="text-danger">*</span></label>
@@ -109,7 +113,9 @@
                             <button type="submit" class="btn btn-success btn-lg">
                                 <i class="fas fa-paper-plane me-2"></i> Submit Report
                             </button>
-                            <a href="/" class="btn btn-outline-secondary btn-lg">Cancel</a>
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-1"></i> Go Back
+                            </a>
                         </div>
                     </form>
                 </div>
@@ -120,79 +126,32 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const locationInput = document.getElementById('locationInput');
-    const suggestionsList = document.getElementById('locationSuggestions');
+    // Location dropdown: show custom input when "Other" is selected
+    const locationSelect = document.getElementById('locationSelect');
+    const locationCustom = document.getElementById('locationCustom');
     
-    // Available locations from database
-    const locations = [
-        <% if (locations && locations.length > 0) { %>
-            <% locations.forEach(function(loc, index) { %>
-                "<%= loc.name %>"<%= index < locations.length - 1 ? ',' : '' %>
-            <% }); %>
-        <% } %>
-    ];
-    
-    function showSuggestions(filteredLocations) {
-        suggestionsList.innerHTML = '';
-        if (filteredLocations.length === 0) {
-            suggestionsList.style.display = 'none';
-            return;
-        }
-        
-        filteredLocations.forEach(loc => {
-            const div = document.createElement('div');
-            div.style.cssText = 'padding: 10px 15px; cursor: pointer; color: #e2e8f0; border-bottom: 1px solid #4a5568;';
-            div.textContent = loc;
-            div.addEventListener('mouseenter', function() {
-                this.style.background = '#4a5568';
-            });
-            div.addEventListener('mouseleave', function() {
-                this.style.background = 'transparent';
-            });
-            div.addEventListener('click', function() {
-                locationInput.value = loc;
-                suggestionsList.style.display = 'none';
-            });
-            suggestionsList.appendChild(div);
-        });
-        suggestionsList.style.display = 'block';
-    }
-    
-    if (locationInput && suggestionsList) {
-        // Show suggestions on input
-        locationInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            
-            if (query.length === 0) {
-                suggestionsList.style.display = 'none';
-                return;
-            }
-            
-            // Filter matching locations
-            const matches = locations.filter(loc => 
-                loc.toLowerCase().includes(query)
-            ).slice(0, 10);
-            
-            showSuggestions(matches);
-        });
-        
-        // Show all on focus if empty
-        locationInput.addEventListener('focus', function() {
-            if (this.value.trim() === '' && locations.length > 0) {
-                showSuggestions(locations.slice(0, 10));
-            } else if (this.value.trim() !== '') {
-                const query = this.value.toLowerCase().trim();
-                const matches = locations.filter(loc => 
-                    loc.toLowerCase().includes(query)
-                ).slice(0, 10);
-                showSuggestions(matches);
+    if (locationSelect && locationCustom) {
+        locationSelect.addEventListener('change', function() {
+            if (this.value === '__other__') {
+                locationCustom.style.display = 'block';
+                locationCustom.required = true;
+                locationCustom.focus();
+            } else {
+                locationCustom.style.display = 'none';
+                locationCustom.required = false;
+                locationCustom.value = '';
             }
         });
         
-        // Hide suggestions when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!locationInput.contains(e.target) && !suggestionsList.contains(e.target)) {
-                suggestionsList.style.display = 'none';
+        // Before form submit, set proper location value
+        locationSelect.closest('form').addEventListener('submit', function(e) {
+            if (locationSelect.value === '__other__' && locationCustom.value.trim()) {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'location';
+                hiddenInput.value = locationCustom.value.trim();
+                this.appendChild(hiddenInput);
+                locationSelect.name = '';
             }
         });
     }

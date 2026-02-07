@@ -8,7 +8,7 @@
             
             <div class="row g-4">
                 <div class="col-md-4">
-                    <div class="text-center p-4 border rounded">
+                    <div class="text-center p-4 border rounded h-100">
                         <i class="fas fa-map-marker-alt fa-2x text-primary mb-3"></i>
                         <h5>Location</h5>
                         <p class="text-muted mb-0">
@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="text-center p-4 border rounded">
+                    <div class="text-center p-4 border rounded h-100">
                         <i class="fas fa-phone fa-2x text-primary mb-3"></i>
                         <h5>Phone</h5>
                         <p class="text-muted mb-0">
@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="text-center p-4 border rounded">
+                    <div class="text-center p-4 border rounded h-100">
                         <i class="fas fa-envelope fa-2x text-primary mb-3"></i>
                         <h5>Email</h5>
                         <p class="text-muted mb-0">
@@ -40,32 +40,111 @@
             </div>
             
             <div class="mt-5 p-4 bg-light rounded">
-                <h4 class="mb-4">Send us a Message</h4>
-                <form>
+                <h4 class="mb-4"><i class="fas fa-paper-plane me-2"></i>Send us a Message</h4>
+                <form action="/contact" method="POST" id="contactForm">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">Name</label>
-                            <input type="text" class="form-control" required>
+                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="name" required
+                                   value="<%= typeof user !== 'undefined' && user ? user.username : '' %>"
+                                   placeholder="Your full name">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" required>
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" name="email" required
+                                   value="<%= typeof user !== 'undefined' && user ? user.email : '' %>"
+                                   placeholder="Your email address">
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Subject</label>
-                            <input type="text" class="form-control" required>
+                            <label class="form-label">Subject <span class="text-danger">*</span></label>
+                            <select class="form-select" name="subject" required>
+                                <option value="">Select a subject</option>
+                                <option value="General Inquiry">General Inquiry</option>
+                                <option value="Lost Item Help">Lost Item Help</option>
+                                <option value="Found Item Help">Found Item Help</option>
+                                <option value="Claim Issue">Claim Issue</option>
+                                <option value="Account Problem">Account Problem</option>
+                                <option value="Bug Report">Bug Report</option>
+                                <option value="Suggestion">Suggestion</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                         <div class="col-12">
-                            <label class="form-label">Message</label>
-                            <textarea class="form-control" rows="5" required></textarea>
+                            <label class="form-label">Message <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="message" rows="5" required
+                                      placeholder="Tell us how we can help..." maxlength="2000"></textarea>
                         </div>
                         <div class="col-12">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-paper-plane me-2"></i> Send Message
                             </button>
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg ms-2">
+                                <i class="fas fa-arrow-left me-1"></i> Go Back
+                            </a>
                         </div>
                     </div>
                 </form>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="mt-5">
+                <h4 class="mb-4"><i class="fas fa-question-circle me-2"></i>Frequently Asked Questions</h4>
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                How do I report a lost item?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Click "Report Lost Item" from the navigation menu or homepage. Fill in the details about your lost item 
+                                including name, description, location where you last had it, and optionally upload a photo. 
+                                Your report will be reviewed by an admin before being published.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                How long does it take for my report to be approved?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Reports are typically reviewed within 24 hours. You'll receive an email notification once your 
+                                report has been approved or if additional information is needed.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                                How do I claim an item I found on the site?
+                            </button>
+                        </h2>
+                        <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Browse the lost or found items. When you find your item, click "Claim This Item" and fill out 
+                                the claim form with proof of ownership. An admin will verify your claim and contact you.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                                Where do I pick up my claimed item?
+                            </button>
+                        </h2>
+                        <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body">
+                                Once your claim is approved, you'll receive an email with pickup instructions. 
+                                Generally, items can be collected at the Campus Security Office (Building A, Room 101) 
+                                during business hours (Mon-Fri, 8AM - 6PM).
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
