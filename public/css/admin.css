@@ -1176,3 +1176,130 @@ body,
 .dark-mode-toggle {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
+
+/* ================================
+   Claim Detail Styles
+   ================================ */
+.detail-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    margin-bottom: 1rem;
+}
+
+.proof-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: transform var(--transition);
+}
+
+.proof-image:hover {
+    transform: scale(1.05);
+}
+
+.item-img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: var(--radius);
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 25px;
+    padding-bottom: 15px;
+    border-left: 2px solid var(--border);
+}
+
+.timeline-item:last-child {
+    border-left: 2px solid transparent;
+}
+
+.timeline-dot {
+    position: absolute;
+    left: -6px;
+    top: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--primary);
+}
+
+/* Item Thumbnail in Tables */
+.item-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    object-fit: cover;
+}
+
+.item-thumb-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+}
+
+/* Dark Mode - Claim Detail */
+body.dark-mode .detail-card {
+    background: var(--card-bg);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .timeline-item {
+    border-left-color: var(--border);
+}
+
+body.dark-mode .item-thumb-placeholder {
+    background: var(--bg);
+    color: var(--text-muted);
+}
+
+body.dark-mode .bg-light {
+    background-color: #2d3748 !important;
+    color: var(--text);
+}
+
+body.dark-mode .table-light {
+    --bs-table-bg: #2d3748;
+    --bs-table-color: var(--text);
+    --bs-table-border-color: var(--border);
+}
+
+body.dark-mode .card-header.bg-transparent {
+    border-bottom-color: var(--border);
+}
+
+body.dark-mode .breadcrumb-item a {
+    color: var(--primary);
+}
+
+body.dark-mode .breadcrumb-item.active {
+    color: var(--text-muted);
+}
+
+body.dark-mode .accordion-button {
+    background-color: var(--card-bg);
+    color: var(--text);
+}
+
+body.dark-mode .accordion-button:not(.collapsed) {
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+body.dark-mode .accordion-item {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+}
+
+body.dark-mode .accordion-body {
+    background-color: var(--card-bg);
+}

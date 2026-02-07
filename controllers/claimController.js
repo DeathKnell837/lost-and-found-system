@@ -242,6 +242,7 @@ exports.adminGetClaims = async (req, res) => {
 
         res.render('admin/claims', {
             title: 'Manage Claims',
+            layout: 'layouts/admin',
             claims,
             counts,
             currentStatus: status || 'all',
@@ -288,6 +289,7 @@ exports.adminGetClaimDetail = async (req, res) => {
 
         res.render('admin/claim-detail', {
             title: 'Review Claim',
+            layout: 'layouts/admin',
             claim,
             otherClaims,
             claimantHistory,

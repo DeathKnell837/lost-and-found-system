@@ -147,9 +147,6 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </div>
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
                                         
                                         <!-- Reject Modal -->
                                         <div class="modal fade" id="rejectModal<%= item._id %>" tabindex="-1">
@@ -234,7 +231,7 @@
                 
                 <!-- Pagination -->
                 <% if (totalPages > 1) { %>
-                    <div class="card-footer bg-white py-2">
+                    <div class="card-footer bg-transparent py-2">
                         <nav>
                             <ul class="pagination pagination-sm justify-content-center mb-0">
                                 <% for (let i = 1; i <= totalPages; i++) { %>
