@@ -106,15 +106,15 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <% if (claim.item && claim.item.image) { %>
-                                                <img src="<%= claim.item.image %>" class="item-thumb me-2" alt="">
+                                            <% if (claim.item && claim.item.imagePath) { %>
+                                                <img src="<%= claim.item.imagePath %>" class="item-thumb me-2" alt="">
                                             <% } else { %>
                                                 <div class="item-thumb-placeholder me-2">
-                                                    <i class="fas fa-box"></i>
+                                                    <i class="fas <%= (claim.item && claim.item.category && claim.item.category.icon) ? claim.item.category.icon : 'fa-box' %>"></i>
                                                 </div>
                                             <% } %>
                                             <div>
-                                                <strong class="d-block"><%= claim.item ? claim.item.title : 'Deleted Item' %></strong>
+                                                <strong class="d-block"><%= claim.item ? claim.item.itemName : 'Deleted Item' %></strong>
                                                 <small class="text-muted"><%= claim.item ? claim.item.location : 'N/A' %></small>
                                             </div>
                                         </div>

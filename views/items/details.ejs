@@ -17,8 +17,8 @@
                 <% if (item.imagePath) { %>
                     <img src="<%= item.imagePath %>" class="card-img-top item-detail-image" alt="<%= item.itemName %>">
                 <% } else { %>
-                    <div class="item-detail-placeholder d-flex align-items-center justify-content-center bg-light">
-                        <i class="fas fa-image fa-5x text-muted"></i>
+                    <div class="item-detail-placeholder d-flex align-items-center justify-content-center <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
+                        <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %> fa-5x"></i>
                     </div>
                 <% } %>
                 
@@ -208,8 +208,8 @@
                                 <% if (related.imagePath) { %>
                                     <img src="<%= related.imagePath %>" class="related-item-img me-3" alt="<%= related.itemName %>">
                                 <% } else { %>
-                                    <div class="related-item-placeholder me-3 d-flex align-items-center justify-content-center bg-light">
-                                        <i class="fas fa-image text-muted"></i>
+                                    <div class="related-item-placeholder me-3 d-flex align-items-center justify-content-center <%= related.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
+                                        <i class="fas <%= (related.category && related.category.icon) ? related.category.icon : 'fa-box' %>"></i>
                                     </div>
                                 <% } %>
                                 <div>

@@ -72,11 +72,11 @@
                                 <div class="d-flex">
                                     <!-- Item Image -->
                                     <div class="me-3">
-                                        <% if (claim.item && claim.item.image) { %>
-                                            <img src="<%= claim.item.image %>" alt="" class="claim-item-img">
+                                        <% if (claim.item && claim.item.imagePath) { %>
+                                            <img src="<%= claim.item.imagePath %>" alt="" class="claim-item-img">
                                         <% } else { %>
-                                            <div class="claim-item-img bg-light d-flex align-items-center justify-content-center">
-                                                <i class="fas fa-box text-muted"></i>
+                                            <div class="claim-item-img d-flex align-items-center justify-content-center placeholder-found">
+                                                <i class="fas <%= (claim.item && claim.item.category && claim.item.category.icon) ? claim.item.category.icon : 'fa-box' %>"></i>
                                             </div>
                                         <% } %>
                                     </div>
@@ -87,7 +87,7 @@
                                             <div>
                                                 <h5 class="mb-1">
                                                     <% if (claim.item) { %>
-                                                        <%= claim.item.title %>
+                                                        <%= claim.item.itemName %>
                                                     <% } else { %>
                                                         <span class="text-muted">Item Deleted</span>
                                                     <% } %>

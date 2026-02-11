@@ -120,7 +120,7 @@ exports.submitClaim = async (req, res) => {
 exports.getMyClaims = async (req, res) => {
     try {
         const claims = await ClaimRequest.find({ claimant: req.session.user._id })
-            .populate('item')
+            .populate({ path: 'item', populate: { path: 'category' } })
             .sort({ createdAt: -1 });
 
         res.render('claims/my-claims', {
@@ -227,7 +227,7 @@ exports.adminGetClaims = async (req, res) => {
         else if (sort === 'priority') sortOption = { priority: -1, createdAt: -1 };
 
         const claims = await ClaimRequest.find(query)
-            .populate('item')
+            .populate({ path: 'item', populate: { path: 'category' } })
             .populate('claimant', 'username email')
             .sort(sortOption);
 

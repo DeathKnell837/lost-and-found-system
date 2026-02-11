@@ -73,8 +73,8 @@
                     <% if (item.imagePath) { %>
                         <img src="<%= item.imagePath %>" class="card-img-top" alt="<%= item.itemName %>" style="height: 180px; object-fit: cover;">
                     <% } else { %>
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 180px;">
-                            <i class="fas fa-image fa-3x text-muted"></i>
+                        <div class="card-img-top d-flex align-items-center justify-content-center <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>" style="height: 180px;">
+                            <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %> fa-3x"></i>
                         </div>
                     <% } %>
                     <div class="card-body">
