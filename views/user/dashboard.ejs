@@ -129,7 +129,9 @@
                                                     <img src="<%= item.imagePath %>" alt="<%= item.itemName %>" class="rounded me-2" style="width: 40px; height: 40px; object-fit: cover;">
                                                 <% } else { %>
                                                     <div class="rounded me-2 d-flex align-items-center justify-content-center <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>" style="width: 40px; height: 40px;">
-                                                        <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %> small"></i>
+                                                        <div class="placeholder-icon-wrap placeholder-icon-xs">
+                                                            <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
+                                                        </div>
                                                     </div>
                                                 <% } %>
                                                 <strong><%= item.itemName %></strong>

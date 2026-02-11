@@ -110,9 +110,12 @@
                     <% if (item.imagePath) { %>
                         <img src="<%= item.imagePath %>" class="img-fluid rounded" alt="<%= item.itemName %>">
                     <% } else { %>
-                        <div class="py-5 rounded <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
-                            <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %> fa-4x"></i>
-                            <p class="mt-2 mb-0" style="opacity: 0.7;">No image uploaded</p>
+                        <div class="rounded text-center <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>" style="padding: 3rem 1rem; position: relative; overflow: hidden;">
+                            <div class="placeholder-pattern"></div>
+                            <div class="placeholder-icon-wrap placeholder-icon-lg" style="position: relative; z-index: 1;">
+                                <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
+                            </div>
+                            <p class="mt-3 mb-0 fw-medium" style="opacity: 0.6; position: relative; z-index: 1;">No image uploaded</p>
                         </div>
                     <% } %>
                 </div>

@@ -569,29 +569,112 @@ a:hover {
 .item-card .item-image-placeholder {
     height: 180px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
 }
 
-/* ========== Category Placeholder Colors ========== */
+/* ========== Category Placeholder — Modern Style ========== */
+
+/* Subtle dot-grid pattern overlay */
+.placeholder-pattern {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background-image: radial-gradient(circle, currentColor 1px, transparent 1px);
+    background-size: 16px 16px;
+    pointer-events: none;
+}
+
+/* Circular icon container */
+.placeholder-icon-wrap {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.6);
+    font-size: 1.5rem;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.placeholder-icon-wrap.placeholder-icon-lg {
+    width: 96px;
+    height: 96px;
+    font-size: 2.5rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+.placeholder-icon-wrap.placeholder-icon-sm {
+    width: 48px;
+    height: 48px;
+    font-size: 1.1rem;
+}
+
+.placeholder-icon-wrap.placeholder-icon-xs {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+/* Category label under icon */
+.placeholder-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-top: 0.6rem;
+    opacity: 0.5;
+    position: relative;
+    z-index: 1;
+}
+
+/* Hover lift for cards */
+.item-card:hover .placeholder-icon-wrap {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+/* ---- Lost item colors ---- */
 .placeholder-lost {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    background: linear-gradient(145deg, #fef2f2 0%, #fee2e2 40%, #fecaca 100%);
+    color: #b91c1c;
+}
+
+.placeholder-lost .placeholder-icon-wrap {
+    background: rgba(255,255,255,0.65);
     color: #dc2626;
 }
 
+/* ---- Found item colors ---- */
 .placeholder-found {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-    color: #16a34a;
+    background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 40%, #bbf7d0 100%);
+    color: #15803d;
 }
 
-.placeholder-lost i,
-.placeholder-found i {
-    opacity: 0.7;
+.placeholder-found .placeholder-icon-wrap {
+    background: rgba(255,255,255,0.65);
+    color: #16a34a;
 }
 
 /* Item detail page placeholder */
 .item-detail-placeholder {
     height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
     border-radius: 0.375rem 0.375rem 0 0;
 }
 
@@ -601,6 +684,11 @@ a:hover {
     height: 60px;
     border-radius: 0.375rem;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
 }
 
 .item-card .card-body {
@@ -1766,13 +1854,33 @@ body.dark-mode .related-item-placeholder {
 }
 
 body.dark-mode .placeholder-lost {
-    background: linear-gradient(135deg, #450a0a 0%, #7f1d1d 100%) !important;
+    background: linear-gradient(145deg, #1a0505 0%, #2d0a0a 40%, #450a0a 100%) !important;
     color: #fca5a5 !important;
 }
 
+body.dark-mode .placeholder-lost .placeholder-icon-wrap {
+    background: rgba(127, 29, 29, 0.35) !important;
+    color: #fca5a5 !important;
+    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.12), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+
 body.dark-mode .placeholder-found {
-    background: linear-gradient(135deg, #052e16 0%, #14532d 100%) !important;
+    background: linear-gradient(145deg, #021a09 0%, #052e16 40%, #14532d 100%) !important;
     color: #86efac !important;
+}
+
+body.dark-mode .placeholder-found .placeholder-icon-wrap {
+    background: rgba(20, 83, 45, 0.35) !important;
+    color: #86efac !important;
+    box-shadow: 0 4px 15px rgba(22, 163, 74, 0.12), inset 0 1px 0 rgba(255,255,255,0.05) !important;
+}
+
+body.dark-mode .placeholder-pattern {
+    opacity: 0.04;
+}
+
+body.dark-mode .placeholder-label {
+    opacity: 0.35;
 }
 
 /* Dark Mode Transition */

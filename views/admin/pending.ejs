@@ -28,7 +28,9 @@
                                         <img src="<%= item.imagePath %>" class="w-100 h-100 object-fit-cover rounded" alt="<%= item.itemName %>">
                                     <% } else { %>
                                         <div class="w-100 h-100 d-flex align-items-center justify-content-center rounded <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
-                                            <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %> fa-2x"></i>
+                                            <div class="placeholder-icon-wrap placeholder-icon-sm">
+                                                <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
+                                            </div>
                                         </div>
                                     <% } %>
                                 </div>

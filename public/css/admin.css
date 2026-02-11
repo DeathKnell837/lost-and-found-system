@@ -446,12 +446,14 @@ h1, h2, h3, h4, h5, h6 { font-weight: 600; color: var(--dark); }
 .item-thumb-placeholder {
     width: 36px;
     height: 36px;
-    background: var(--bg);
-    border-radius: 6px;
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
+    color: #0284c7;
+    font-size: 0.85rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 /* ================================
@@ -972,8 +974,9 @@ body.dark-mode .table-light {
 }
 
 body.dark-mode .item-thumb-placeholder {
-    background: var(--sidebar-hover);
-    color: var(--text-muted);
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: #93c5fd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 body.dark-mode .item-thumb {
@@ -1250,11 +1253,13 @@ body,
     width: 40px;
     height: 40px;
     border-radius: var(--radius);
-    background: var(--bg);
+    background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
+    color: #0284c7;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 
 /* Dark Mode - Claim Detail */
@@ -1268,8 +1273,9 @@ body.dark-mode .timeline-item {
 }
 
 body.dark-mode .item-thumb-placeholder {
-    background: var(--bg);
-    color: var(--text-muted);
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: #93c5fd;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
 }
 
 body.dark-mode .bg-light {
