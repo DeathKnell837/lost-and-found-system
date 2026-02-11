@@ -1,45 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> - Lost & Found</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { background: #f8f9fa; }
-        .detail-card { background: white; border-radius: 12px; box-shadow: 0 2px 15px rgba(0,0,0,0.08); }
-        .status-badge { padding: 0.5rem 1rem; border-radius: 25px; font-weight: 500; }
-        .status-pending { background: #ffeaa7; color: #856404; }
-        .status-under_review { background: #81ecec; color: #0984e3; }
-        .status-approved { background: #55efc4; color: #00b894; }
-        .status-rejected { background: #fab1a0; color: #d63031; }
-        .status-withdrawn { background: #dfe6e9; color: #636e72; }
-        .timeline-item { position: relative; padding-left: 30px; padding-bottom: 20px; border-left: 2px solid #dfe6e9; }
-        .timeline-item:last-child { border-left: 2px solid transparent; }
-        .timeline-dot { position: absolute; left: -8px; top: 0; width: 14px; height: 14px; border-radius: 50%; background: #6c5ce7; border: 2px solid white; }
-        .item-image { width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; }
-        .proof-image { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; cursor: pointer; }
-    </style>
-</head>
-<body>
-    <%- include('../partials/navbar') %>
+<div class="container py-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">Home</a></li>
+            <li class="breadcrumb-item"><a href="/claims/my-claims">My Claims</a></li>
+            <li class="breadcrumb-item active">Claim Details</li>
+        </ol>
+    </nav>
 
-    <div class="container py-4">
-        <!-- Breadcrumb -->
-        <nav aria-label="breadcrumb" class="mb-4">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/">Home</a></li>
-                <li class="breadcrumb-item"><a href="/claims/my-claims">My Claims</a></li>
-                <li class="breadcrumb-item active">Claim Details</li>
-            </ol>
-        </nav>
-
-        <div class="row">
-            <!-- Main Content -->
-            <div class="col-lg-8">
-                <!-- Status Header -->
-                <div class="detail-card p-4 mb-4">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Status Header -->
+            <div class="card shadow mb-4">
+                <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div>
                             <h4 class="mb-1">Claim Request</h4>
@@ -49,7 +23,12 @@
                                 }) %>
                             </p>
                         </div>
-                        <span class="status-badge status-<%= claim.status %>">
+                        <span class="badge rounded-pill fs-6 bg-<%= 
+                            claim.status === 'pending' ? 'warning' : 
+                            claim.status === 'under_review' ? 'info' : 
+                            claim.status === 'approved' ? 'success' : 
+                            claim.status === 'rejected' ? 'danger' : 'secondary' 
+                        %> <%= claim.status === 'pending' ? 'text-dark' : '' %>">
                             <% if (claim.status === 'pending') { %>
                                 <i class="fas fa-hourglass-half me-1"></i>Pending Review
                             <% } else if (claim.status === 'under_review') { %>
@@ -78,15 +57,19 @@
                         </div>
                     <% } %>
                 </div>
+            </div>
 
-                <!-- Your Description -->
-                <div class="detail-card p-4 mb-4">
+            <!-- Your Description -->
+            <div class="card shadow mb-4">
+                <div class="card-body p-4">
                     <h5 class="mb-3"><i class="fas fa-comment-alt me-2 text-primary"></i>Your Description</h5>
                     <p class="mb-0"><%= claim.description %></p>
                 </div>
+            </div>
 
-                <!-- Proof of Ownership -->
-                <div class="detail-card p-4 mb-4">
+            <!-- Proof of Ownership -->
+            <div class="card shadow mb-4">
+                <div class="card-body p-4">
                     <h5 class="mb-3"><i class="fas fa-certificate me-2 text-success"></i>Proof of Ownership</h5>
                     <p><%= claim.proofOfOwnership %></p>
 
@@ -99,20 +82,24 @@
                         <h6 class="mt-4 mb-2">Uploaded Proof Images</h6>
                         <div class="d-flex gap-2 flex-wrap">
                             <% claim.proofImages.forEach(img => { %>
-                                <img src="<%= img.url %>" class="proof-image" onclick="window.open('<%= img.url %>')">
+                                <img src="<%= img.url %>" class="rounded" 
+                                     style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;" 
+                                     onclick="window.open('<%= img.url %>')">
                             <% }); %>
                         </div>
                     <% } %>
                 </div>
+            </div>
 
-                <!-- Timeline -->
-                <div class="detail-card p-4">
+            <!-- Timeline -->
+            <div class="card shadow">
+                <div class="card-body p-4">
                     <h5 class="mb-4"><i class="fas fa-history me-2 text-info"></i>Timeline</h5>
                     <div class="timeline">
                         <% if (claim.timeline && claim.timeline.length > 0) { %>
                             <% claim.timeline.slice().reverse().forEach(event => { %>
-                                <div class="timeline-item">
-                                    <div class="timeline-dot"></div>
+                                <div class="timeline-item" style="position: relative; padding-left: 30px; padding-bottom: 20px; border-left: 2px solid #dee2e6;">
+                                    <div style="position: absolute; left: -8px; top: 0; width: 14px; height: 14px; border-radius: 50%; background: #6c5ce7; border: 2px solid white;"></div>
                                     <div>
                                         <strong><%= event.action %></strong>
                                         <p class="text-muted small mb-0">
@@ -128,8 +115,8 @@
                                 </div>
                             <% }); %>
                         <% } else { %>
-                            <div class="timeline-item">
-                                <div class="timeline-dot"></div>
+                            <div class="timeline-item" style="position: relative; padding-left: 30px; border-left: 2px solid transparent;">
+                                <div style="position: absolute; left: -8px; top: 0; width: 14px; height: 14px; border-radius: 50%; background: #6c5ce7; border: 2px solid white;"></div>
                                 <div>
                                     <strong>Claim Submitted</strong>
                                     <p class="text-muted small mb-0"><%= new Date(claim.createdAt).toLocaleString() %></p>
@@ -139,26 +126,28 @@
                     </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Sidebar - Item Info -->
-            <div class="col-lg-4">
-                <div class="detail-card p-3 position-sticky" style="top: 80px;">
+        <!-- Sidebar - Item Info -->
+        <div class="col-lg-4">
+            <div class="card shadow position-sticky mb-4" style="top: 80px;">
+                <div class="card-body">
                     <h6 class="text-muted mb-3">
                         <i class="fas fa-box me-2"></i>Item Being Claimed
                     </h6>
                     
                     <% if (claim.item) { %>
-                        <% if (claim.item.image) { %>
-                            <img src="<%= claim.item.image %>" alt="" class="item-image mb-3">
+                        <% if (claim.item.imagePath) { %>
+                            <img src="<%= claim.item.imagePath %>" alt="" class="w-100 rounded mb-3" style="max-height: 300px; object-fit: cover;">
                         <% } %>
                         
-                        <h5><%= claim.item.title %></h5>
+                        <h5><%= claim.item.itemName %></h5>
                         <p class="text-muted small mb-2">
                             <i class="fas fa-map-marker-alt me-1"></i><%= claim.item.location %>
                         </p>
                         <p class="small"><%= claim.item.description ? claim.item.description.substring(0, 150) + '...' : 'No description' %></p>
                         
-                        <a href="/items/<%= claim.item._id %>" class="btn btn-outline-primary btn-sm w-100">
+                        <a href="/items/<%= claim.item._id %>" class="btn btn-outline-primary btn-sm w-100" target="_blank">
                             <i class="fas fa-external-link-alt me-1"></i>View Item
                         </a>
                     <% } else { %>
@@ -187,7 +176,8 @@
 
                     <% if (['pending', 'under_review'].includes(claim.status)) { %>
                         <hr>
-                        <form action="/claims/withdraw/<%= claim._id %>" method="POST" onsubmit="return confirm('Are you sure you want to withdraw this claim?')">
+                        <form action="/claims/withdraw/<%= claim._id %>" method="POST" 
+                              onsubmit="return confirm('Are you sure you want to withdraw this claim?')">
                             <button type="submit" class="btn btn-outline-danger w-100">
                                 <i class="fas fa-times me-1"></i>Withdraw Claim
                             </button>
@@ -197,8 +187,4 @@
             </div>
         </div>
     </div>
-
-    <%- include('../partials/footer') %>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>

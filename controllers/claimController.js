@@ -32,7 +32,7 @@ exports.getClaimForm = async (req, res) => {
         }
 
         res.render('claims/claim-form', {
-            title: `Claim Item - ${item.title}`,
+            title: `Claim Item - ${item.itemName}`,
             item,
             user: req.session.user
         });

@@ -143,18 +143,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Before form submit, set proper location value
-        locationSelect.closest('form').addEventListener('submit', function(e) {
-            if (locationSelect.value === '__other__' && locationCustom.value.trim()) {
-                // Create hidden input with the custom location
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'location';
-                hiddenInput.value = locationCustom.value.trim();
-                this.appendChild(hiddenInput);
-                locationSelect.name = ''; // Remove name from select so hidden input takes priority
-            }
-        });
+        // On submit: let location=__other__ and locationCustom=text pass through naturally
+        // The controller checks for __other__ and reads locationCustom separately
     }
 });
 </script>

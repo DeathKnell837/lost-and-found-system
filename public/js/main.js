@@ -110,11 +110,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // === SMOOTH SCROLL ===
-    // Enable smooth scrolling for same-page anchor links
+    // Enable smooth scrolling for same-page anchor links (skip bare "#" links)
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            if (!href || href === '#') return; // Don't intercept bare # links
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const target = document.querySelector(href);
             if (target) {
                 target.scrollIntoView({
                     behavior: 'smooth',
@@ -148,11 +150,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // === UNSAVED CHANGES WARNING ===
     // Warn user if they try to leave a page with unsaved form changes
+    // Only track data-entry forms (POST), not search/filter forms (GET)
     let formChanged = false;
-    const formInputs = document.querySelectorAll('form input, form textarea, form select');
-    formInputs.forEach(input => {
-        input.addEventListener('change', () => {
-            formChanged = true;
+    const dataForms = document.querySelectorAll('form[method="POST"], form[method="post"]');
+    dataForms.forEach(form => {
+        const inputs = form.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('change', () => {
+                formChanged = true;
+            });
         });
     });
     
