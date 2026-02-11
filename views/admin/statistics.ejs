@@ -251,6 +251,10 @@
 </div>
 
 <script>
+    const isDark = document.body.classList.contains('dark-mode');
+    const chartTextColor = isDark ? '#94a3b8' : '#666';
+    const chartGridColor = isDark ? 'rgba(148, 163, 184, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
     // Monthly Trend Chart
     const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
     const monthlyData = <%- JSON.stringify(monthlyData) %>;
@@ -291,15 +295,19 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    labels: { color: chartTextColor }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    ticks: {
-                        stepSize: 1
-                    }
+                    ticks: { stepSize: 1, color: chartTextColor },
+                    grid: { color: chartGridColor }
+                },
+                x: {
+                    ticks: { color: chartTextColor },
+                    grid: { color: chartGridColor }
                 }
             }
         }
@@ -327,7 +335,8 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'bottom'
+                    position: 'bottom',
+                    labels: { color: chartTextColor }
                 }
             }
         }

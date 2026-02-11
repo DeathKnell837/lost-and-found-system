@@ -916,20 +916,28 @@ body.dark-mode .sidebar-nav .nav-link.active {
 body.dark-mode .card {
     background: var(--card-bg);
     border-color: var(--border);
+    color: var(--text);
 }
 
 body.dark-mode .card-header {
+    background-color: var(--card-bg);
     border-bottom-color: var(--border);
     color: var(--text);
 }
 
-body.dark-mode .card-header h5 {
+body.dark-mode .card-header h5,
+body.dark-mode .card-header h6 {
+    color: var(--text);
+}
+
+body.dark-mode .card-body {
     color: var(--text);
 }
 
 body.dark-mode .card-footer {
-    background: var(--bg);
+    background: var(--card-bg);
     border-top-color: var(--border);
+    color: var(--text);
 }
 
 /* Dark Mode - Page Header Boxes */
@@ -1175,18 +1183,31 @@ body,
 .admin-header,
 .admin-sidebar,
 .card,
+.card-header,
+.card-body,
+.card-footer,
 .form-control,
 .form-select,
 .dropdown-menu,
 .dropdown-item,
 .modal-content,
 .table,
+.table thead th,
+.table tbody td,
 .page-link,
 .alert,
 .btn-secondary,
 .user-dropdown,
 .sidebar-toggle,
-.dark-mode-toggle {
+.dark-mode-toggle,
+.badge,
+.detail-card,
+.progress,
+.list-group-item,
+.accordion-item,
+.accordion-button,
+.btn-close,
+.breadcrumb {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
@@ -1318,4 +1339,308 @@ body.dark-mode .accordion-item {
 
 body.dark-mode .accordion-body {
     background-color: var(--card-bg);
+}
+
+/* ================================
+   COMPREHENSIVE DARK MODE FIXES
+   Bootstrap Utility & Component Overrides
+   ================================ */
+
+/* --- bg-white override --- */
+body.dark-mode .bg-white {
+    background-color: var(--card-bg) !important;
+    color: var(--text) !important;
+}
+
+/* --- bg-opacity-10 color variants --- */
+body.dark-mode .bg-warning.bg-opacity-10 {
+    background-color: var(--warning-light) !important;
+}
+
+body.dark-mode .bg-success.bg-opacity-10 {
+    background-color: var(--success-light) !important;
+}
+
+body.dark-mode .bg-danger.bg-opacity-10 {
+    background-color: var(--danger-light) !important;
+}
+
+body.dark-mode .bg-info.bg-opacity-10 {
+    background-color: var(--info-light) !important;
+}
+
+body.dark-mode .bg-primary.bg-opacity-10 {
+    background-color: var(--primary-light) !important;
+}
+
+/* --- Border color overrides --- */
+body.dark-mode .border {
+    border-color: var(--border) !important;
+}
+
+body.dark-mode .border-top {
+    border-top-color: var(--border) !important;
+}
+
+body.dark-mode .border-bottom {
+    border-bottom-color: var(--border) !important;
+}
+
+body.dark-mode .border-start {
+    border-start-color: var(--border) !important;
+}
+
+body.dark-mode .border-end {
+    border-end-color: var(--border) !important;
+}
+
+body.dark-mode .border-warning {
+    border-color: rgba(255, 152, 0, 0.35) !important;
+}
+
+body.dark-mode .border-success {
+    border-color: rgba(76, 175, 80, 0.35) !important;
+}
+
+body.dark-mode .border-danger {
+    border-color: rgba(239, 83, 80, 0.35) !important;
+}
+
+/* --- btn-close visibility on dark backgrounds --- */
+body.dark-mode .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* --- Badge overrides --- */
+body.dark-mode .badge.bg-light {
+    background-color: var(--sidebar-hover) !important;
+    color: var(--text) !important;
+}
+
+body.dark-mode .badge.bg-secondary {
+    background-color: var(--sidebar-hover) !important;
+}
+
+/* --- Alert-light --- */
+body.dark-mode .alert-light {
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+}
+
+/* --- Progress bars --- */
+body.dark-mode .progress {
+    background-color: var(--bg);
+}
+
+/* --- Form checks (checkbox/radio) --- */
+body.dark-mode .form-check-label {
+    color: var(--text);
+}
+
+body.dark-mode .form-check-input {
+    background-color: var(--bg);
+    border-color: var(--border);
+}
+
+body.dark-mode .form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* --- Outline buttons text visibility --- */
+body.dark-mode .btn-outline-primary {
+    color: #818cf8;
+    border-color: #818cf8;
+}
+
+body.dark-mode .btn-outline-primary:hover {
+    background-color: rgba(129, 140, 248, 0.15);
+    color: #a5b4fc;
+    border-color: #818cf8;
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: var(--text-light);
+    border-color: var(--border);
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+    background-color: var(--sidebar-hover);
+    color: var(--text);
+    border-color: var(--text-muted);
+}
+
+body.dark-mode .btn-outline-success {
+    color: #4ade80;
+    border-color: #4ade80;
+}
+
+body.dark-mode .btn-outline-success:hover {
+    background-color: rgba(74, 222, 128, 0.15);
+    color: #86efac;
+    border-color: #4ade80;
+}
+
+body.dark-mode .btn-outline-danger {
+    color: #f87171;
+    border-color: #f87171;
+}
+
+body.dark-mode .btn-outline-danger:hover {
+    background-color: rgba(248, 113, 113, 0.15);
+    color: #fca5a5;
+    border-color: #f87171;
+}
+
+body.dark-mode .btn-outline-info {
+    color: #38bdf8;
+    border-color: #38bdf8;
+}
+
+body.dark-mode .btn-outline-warning {
+    color: #fbbf24;
+    border-color: #fbbf24;
+}
+
+/* --- Shadow adjustments for dark mode --- */
+body.dark-mode .shadow-sm {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35) !important;
+}
+
+body.dark-mode .shadow {
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* --- Generic text color inheritance --- */
+body.dark-mode .card-body strong,
+body.dark-mode .card-body p,
+body.dark-mode .card-body h3,
+body.dark-mode .card-body h4,
+body.dark-mode .card-body h5,
+body.dark-mode .card-body h6,
+body.dark-mode .card-body label,
+body.dark-mode .card-title {
+    color: var(--text);
+}
+
+body.dark-mode .card-body small,
+body.dark-mode .card-footer small {
+    color: var(--text-light);
+}
+
+body.dark-mode .card-text {
+    color: var(--text-light);
+}
+
+/* --- Links inside dark cards --- */
+body.dark-mode a.text-decoration-none strong {
+    color: var(--text) !important;
+}
+
+body.dark-mode .table a {
+    color: var(--primary);
+}
+
+/* --- Table hover fix --- */
+body.dark-mode .table-hover tbody tr:hover td {
+    background-color: var(--sidebar-hover);
+}
+
+/* --- List group --- */
+body.dark-mode .list-group-item {
+    background-color: var(--card-bg);
+    border-color: var(--border);
+    color: var(--text);
+}
+
+/* --- Nav tabs --- */
+body.dark-mode .nav-tabs {
+    border-bottom-color: var(--border);
+}
+
+body.dark-mode .nav-tabs .nav-link {
+    color: var(--text-light);
+}
+
+body.dark-mode .nav-tabs .nav-link:hover {
+    border-color: var(--border) var(--border) transparent;
+}
+
+body.dark-mode .nav-tabs .nav-link.active {
+    background-color: var(--card-bg);
+    border-color: var(--border) var(--border) var(--card-bg);
+    color: var(--text);
+}
+
+/* --- Nav pills --- */
+body.dark-mode .nav-pills .nav-link {
+    color: var(--text-light);
+}
+
+body.dark-mode .nav-pills .nav-link.active {
+    background-color: var(--primary);
+    color: #fff;
+}
+
+/* --- Stat card footer border --- */
+body.dark-mode .stat-card-footer {
+    border-top-color: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+body.dark-mode .stat-card-footer:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* --- Detail card in dark mode --- */
+body.dark-mode .detail-card {
+    border-color: var(--border);
+    color: var(--text);
+}
+
+body.dark-mode .detail-card h5,
+body.dark-mode .detail-card h6,
+body.dark-mode .detail-card p,
+body.dark-mode .detail-card strong {
+    color: var(--text);
+}
+
+/* --- Breadcrumb dark mode --- */
+body.dark-mode .breadcrumb {
+    background-color: transparent;
+}
+
+/* --- Btn-group dark mode --- */
+body.dark-mode .btn-group .btn-outline-secondary,
+body.dark-mode .btn-group .btn-outline-warning,
+body.dark-mode .btn-group .btn-outline-danger {
+    color: var(--text-light);
+    border-color: var(--border);
+}
+
+/* --- Placeholder patterns for pending items --- */
+body.dark-mode .placeholder-lost,
+body.dark-mode .placeholder-found {
+    background: var(--bg) !important;
+}
+
+/* --- Card with colored background (stat cards) - keep as-is but fix text --- */
+body.dark-mode .card.bg-primary,
+body.dark-mode .card.bg-danger,
+body.dark-mode .card.bg-success,
+body.dark-mode .card.bg-info,
+body.dark-mode .card.bg-warning {
+    border-color: transparent;
+}
+
+/* --- Fix select options in dark mode --- */
+body.dark-mode option {
+    background-color: var(--card-bg);
+    color: var(--text);
+}
+
+/* --- Fix text-white-50 in dark mode (used in stat cards — keep light) --- */
+body.dark-mode .text-white-50 {
+    color: rgba(255, 255, 255, 0.6) !important;
 }
