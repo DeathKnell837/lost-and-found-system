@@ -128,7 +128,11 @@
                         <div class="mb-3">
                             <label class="text-muted small">Email</label>
                             <p class="mb-0">
-                                <a href="mailto:<%= item.reporterEmail %>"><%= item.reporterEmail %></a>
+                                <a href="mailto:<%= item.reporterEmail %>" class="text-decoration-none"><%= item.reporterEmail %></a>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2 copy-email-btn" 
+                                        onclick="copyEmail('<%= item.reporterEmail %>')" title="Copy email">
+                                    <i class="fas fa-copy"></i>
+                                </button>
                             </p>
                         </div>
                         <div class="mb-3">
@@ -136,10 +140,9 @@
                             <p class="mb-0 contact-value"><%= item.contactInfo %></p>
                         </div>
                         <hr>
-                        <a href="mailto:<%= item.reporterEmail %>?subject=Regarding: <%= item.itemName %>" 
-                           class="btn btn-primary w-100">
+                        <button type="button" class="btn btn-primary w-100" onclick="contactReporter()">
                             <i class="fas fa-envelope me-2"></i> Contact Reporter
-                        </a>
+                        </button>
                     <% } else { %>
                         <div class="text-center text-muted">
                             <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
@@ -156,16 +159,16 @@
                 </div>
                 <div class="card-body">
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-primary flex-fill" onclick="shareOnFacebook()">
+                        <button type="button" class="btn btn-outline-primary flex-fill" onclick="shareOnFacebook()">
                             <i class="fab fa-facebook-f"></i>
                         </button>
-                        <button class="btn btn-outline-info flex-fill" onclick="shareOnTwitter()">
+                        <button type="button" class="btn btn-outline-info flex-fill" onclick="shareOnTwitter()">
                             <i class="fab fa-twitter"></i>
                         </button>
-                        <button class="btn btn-outline-success flex-fill" onclick="shareOnWhatsApp()">
+                        <button type="button" class="btn btn-outline-success flex-fill" onclick="shareOnWhatsApp()">
                             <i class="fab fa-whatsapp"></i>
                         </button>
-                        <button class="btn btn-outline-secondary flex-fill" onclick="copyLink()">
+                        <button type="button" class="btn btn-outline-secondary flex-fill" onclick="copyLink()">
                             <i class="fas fa-link"></i>
                         </button>
                     </div>
@@ -193,10 +196,9 @@
                             <i class="fas fa-hand-holding me-2"></i> Claim This Item
                         </a>
                     <% } %>
-                    <a href="mailto:<%= item.reporterEmail %>?subject=Regarding: <%= item.itemName %>" 
-                       class="btn btn-outline-primary w-100">
+                    <button type="button" class="btn btn-outline-primary w-100" onclick="contactReporter()">
                         <i class="fas fa-envelope me-2"></i> Contact Reporter
-                    </a>
+                    </button>
                 </div>
             </div>
             
@@ -240,45 +242,111 @@
     </div>
 </div>
 
+<!-- Toast notification container -->
+<div id="toastContainer" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99999;pointer-events:none;"></div>
+
 <script>
-// Share functions - use window.open with dimensions to help avoid popup blockers
-function shareOnFacebook() {
-    var url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href);
-    var win = window.open(url, 'facebook-share', 'width=580,height=400,scrollbars=yes');
-    if (!win || win.closed) window.location.href = url;
+// === TOAST NOTIFICATION ===
+function showToast(message, type) {
+    type = type || 'success';
+    var container = document.getElementById('toastContainer');
+    var toast = document.createElement('div');
+    toast.className = 'alert alert-' + type + ' shadow-lg px-4 py-3';
+    toast.style.cssText = 'pointer-events:auto;animation:slideUp 0.3s ease;min-width:280px;text-align:center;font-weight:500;';
+    toast.innerHTML = message;
+    container.appendChild(toast);
+    setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.3s';
+        setTimeout(function() { toast.remove(); }, 300);
+    }, 3000);
 }
-function shareOnTwitter() {
-    var url = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href);
-    var win = window.open(url, 'twitter-share', 'width=580,height=400,scrollbars=yes');
-    if (!win || win.closed) window.location.href = url;
-}
-function shareOnWhatsApp() {
-    window.location.href = 'https://wa.me/?text=' + encodeURIComponent(window.location.href);
-}
-function copyLink() {
+
+// === COPY TO CLIPBOARD HELPER ===
+function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(window.location.href).then(function() {
-            alert('Link copied!');
+        return navigator.clipboard.writeText(text).then(function() {
+            return true;
         }).catch(function() {
-            fallbackCopyLink();
+            return fallbackCopy(text);
         });
     } else {
-        fallbackCopyLink();
+        return Promise.resolve(fallbackCopy(text));
     }
 }
-function fallbackCopyLink() {
-    var textArea = document.createElement('textarea');
-    textArea.value = window.location.href;
-    textArea.style.position = 'fixed';
-    textArea.style.left = '-9999px';
-    document.body.appendChild(textArea);
-    textArea.select();
-    try {
-        document.execCommand('copy');
-        alert('Link copied!');
-    } catch (err) {
-        prompt('Copy this link:', window.location.href);
+function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    return ok;
+}
+
+// === CONTACT REPORTER ===
+function contactReporter() {
+    var email = '<%= item.reporterEmail %>';
+    var subject = 'Regarding: <%= item.itemName.replace(/'/g, "\\'") %>';
+    var mailtoUrl = 'mailto:' + email + '?subject=' + encodeURIComponent(subject);
+    
+    // Try opening mailto - also copy email to clipboard as backup
+    copyToClipboard(email).then(function() {
+        showToast('<i class="fas fa-check-circle me-2"></i>Email <strong>' + email + '</strong> copied to clipboard!', 'success');
+    });
+    
+    // Try opening email client
+    window.location.href = mailtoUrl;
+}
+
+// === COPY EMAIL ===
+function copyEmail(email) {
+    copyToClipboard(email).then(function(ok) {
+        if (ok !== false) {
+            showToast('<i class="fas fa-check-circle me-2"></i>Email copied: <strong>' + email + '</strong>', 'success');
+        } else {
+            prompt('Copy this email address:', email);
+        }
+    });
+}
+
+// === SHARE FUNCTIONS ===
+function shareOnFacebook() {
+    var shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href);
+    // Try native share first on mobile
+    if (navigator.share) {
+        navigator.share({ title: '<%= item.itemName.replace(/'/g, "\\'") %>', url: window.location.href }).catch(function() {
+            window.open(shareUrl, 'fb', 'width=600,height=400');
+        });
+    } else {
+        window.open(shareUrl, 'fb', 'width=600,height=400');
     }
-    document.body.removeChild(textArea);
+    showToast('<i class="fab fa-facebook me-2"></i>Opening Facebook share...', 'primary');
+}
+
+function shareOnTwitter() {
+    var shareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.itemName.replace(/'/g, "\\'") %>');
+    window.open(shareUrl, 'tw', 'width=600,height=400');
+    showToast('<i class="fab fa-twitter me-2"></i>Opening Twitter share...', 'info');
+}
+
+function shareOnWhatsApp() {
+    var text = '<%= item.itemName.replace(/'/g, "\\'") %> - ' + window.location.href;
+    // Use direct WhatsApp URL
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    showToast('<i class="fab fa-whatsapp me-2"></i>Opening WhatsApp...', 'success');
+}
+
+function copyLink() {
+    copyToClipboard(window.location.href).then(function(ok) {
+        if (ok !== false) {
+            showToast('<i class="fas fa-link me-2"></i>Link copied to clipboard!', 'success');
+        } else {
+            prompt('Copy this link:', window.location.href);
+        }
+    });
 }
 </script>
