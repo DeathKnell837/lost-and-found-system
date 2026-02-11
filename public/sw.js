@@ -1,6 +1,6 @@
-const CACHE_NAME = 'lost-found-v3';
-const STATIC_CACHE = 'static-v3';
-const DYNAMIC_CACHE = 'dynamic-v3';
+const CACHE_NAME = 'lost-found-v4';
+const STATIC_CACHE = 'static-v4';
+const DYNAMIC_CACHE = 'dynamic-v4';
 
 // Static assets to cache (only files that exist)
 const STATIC_ASSETS = [
@@ -97,14 +97,14 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Static assets - cache first
+    // Static assets - network first so code changes deploy immediately
     if (isStaticAsset(url.pathname)) {
-        event.respondWith(cacheFirst(request));
+        event.respondWith(networkFirst(request));
         return;
     }
 
-    // Default - stale while revalidate
-    event.respondWith(staleWhileRevalidate(request));
+    // Default - network first for freshest content
+    event.respondWith(networkFirst(request));
 });
 
 // Network first strategy

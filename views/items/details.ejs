@@ -241,15 +241,19 @@
 </div>
 
 <script>
-// Share functions
+// Share functions - use window.open with dimensions to help avoid popup blockers
 function shareOnFacebook() {
-    window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), '_blank');
+    var url = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href);
+    var win = window.open(url, 'facebook-share', 'width=580,height=400,scrollbars=yes');
+    if (!win || win.closed) window.location.href = url;
 }
 function shareOnTwitter() {
-    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href), '_blank');
+    var url = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href);
+    var win = window.open(url, 'twitter-share', 'width=580,height=400,scrollbars=yes');
+    if (!win || win.closed) window.location.href = url;
 }
 function shareOnWhatsApp() {
-    window.open('https://wa.me/?text=' + encodeURIComponent(window.location.href), '_blank');
+    window.location.href = 'https://wa.me/?text=' + encodeURIComponent(window.location.href);
 }
 function copyLink() {
     if (navigator.clipboard && navigator.clipboard.writeText) {
