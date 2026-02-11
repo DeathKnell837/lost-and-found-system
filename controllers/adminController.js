@@ -991,3 +991,170 @@ exports.deleteLocation = async (req, res) => {
         res.redirect('/admin/locations');
     }
 };
+
+// ==================== EXPORT ====================
+
+// Export items as CSV
+exports.exportItemsCSV = async (req, res) => {
+    try {
+        const items = await Item.find()
+            .populate('category')
+            .sort({ dateReported: -1 });
+
+        // Build CSV content
+        const headers = ['ID', 'Item Name', 'Type', 'Category', 'Location', 'Status', 'Reporter Name', 'Reporter Email', 'Contact Info', 'Date Lost/Found', 'Date Reported', 'Description'];
+        
+        const escapeCSV = (str) => {
+            if (!str) return '';
+            const s = String(str);
+            if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+                return '"' + s.replace(/"/g, '""') + '"';
+            }
+            return s;
+        };
+
+        let csv = headers.join(',') + '\n';
+        
+        items.forEach(item => {
+            const row = [
+                item._id,
+                escapeCSV(item.itemName),
+                item.type,
+                escapeCSV(item.category ? item.category.name : 'Uncategorized'),
+                escapeCSV(item.location),
+                item.status,
+                escapeCSV(item.reporterName),
+                escapeCSV(item.reporterEmail),
+                escapeCSV(item.contactInfo),
+                item.dateLostFound ? new Date(item.dateLostFound).toLocaleDateString() : '',
+                item.dateReported ? new Date(item.dateReported).toLocaleDateString() : '',
+                escapeCSV(item.description)
+            ];
+            csv += row.join(',') + '\n';
+        });
+
+        const filename = `lost-found-items-${new Date().toISOString().split('T')[0]}.csv`;
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(csv);
+    } catch (error) {
+        console.error('Export error:', error);
+        req.flash('error', 'Error exporting items');
+        res.redirect('/admin/items');
+    }
+};
+
+// Export claims as CSV
+exports.exportClaimsCSV = async (req, res) => {
+    try {
+        const ClaimRequest = require('../models').ClaimRequest;
+        const claims = await ClaimRequest.find()
+            .populate('item')
+            .populate('claimant', 'username email')
+            .sort({ createdAt: -1 });
+
+        const headers = ['Claim ID', 'Item Name', 'Claimant', 'Claimant Email', 'Status', 'Priority', 'Date Submitted', 'Description'];
+        
+        const escapeCSV = (str) => {
+            if (!str) return '';
+            const s = String(str);
+            if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+                return '"' + s.replace(/"/g, '""') + '"';
+            }
+            return s;
+        };
+
+        let csv = headers.join(',') + '\n';
+        
+        claims.forEach(claim => {
+            const row = [
+                claim._id,
+                escapeCSV(claim.item ? claim.item.itemName || claim.item.title : 'Deleted Item'),
+                escapeCSV(claim.claimant ? claim.claimant.username : 'Unknown'),
+                escapeCSV(claim.claimant ? claim.claimant.email : ''),
+                claim.status,
+                claim.priority || 'normal',
+                claim.createdAt ? new Date(claim.createdAt).toLocaleDateString() : '',
+                escapeCSV(claim.description)
+            ];
+            csv += row.join(',') + '\n';
+        });
+
+        const filename = `claim-requests-${new Date().toISOString().split('T')[0]}.csv`;
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(csv);
+    } catch (error) {
+        console.error('Export claims error:', error);
+        req.flash('error', 'Error exporting claims');
+        res.redirect('/admin/claims');
+    }
+};
+
+// Export statistics summary as CSV
+exports.exportStatisticsCSV = async (req, res) => {
+    try {
+        const totalItems = await Item.countDocuments();
+        const lostItems = await Item.countDocuments({ type: 'lost' });
+        const foundItems = await Item.countDocuments({ type: 'found' });
+        const claimedItems = await Item.countDocuments({ status: 'claimed' });
+        const pendingItems = await Item.countDocuments({ status: 'pending' });
+        const approvedItems = await Item.countDocuments({ status: 'approved' });
+        const rejectedItems = await Item.countDocuments({ status: 'rejected' });
+        const totalUsers = await User.countDocuments({ role: 'user' });
+        const successRate = totalItems > 0 ? ((claimedItems / totalItems) * 100).toFixed(1) : 0;
+
+        // Items by category  
+        const categories = await Category.find();
+        const itemsByCategory = await Promise.all(
+            categories.map(async (cat) => ({
+                name: cat.name,
+                count: await Item.countDocuments({ category: cat._id })
+            }))
+        );
+
+        // Top locations
+        const topLocations = await Item.aggregate([
+            { $group: { _id: '$location', count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+            { $limit: 10 }
+        ]);
+
+        let csv = 'LOST & FOUND SYSTEM - STATISTICS REPORT\n';
+        csv += `Generated: ${new Date().toLocaleString()}\n\n`;
+        
+        csv += 'SUMMARY\n';
+        csv += 'Metric,Value\n';
+        csv += `Total Items,${totalItems}\n`;
+        csv += `Lost Items,${lostItems}\n`;
+        csv += `Found Items,${foundItems}\n`;
+        csv += `Claimed Items,${claimedItems}\n`;
+        csv += `Pending Items,${pendingItems}\n`;
+        csv += `Approved Items,${approvedItems}\n`;
+        csv += `Rejected Items,${rejectedItems}\n`;
+        csv += `Total Users,${totalUsers}\n`;
+        csv += `Success Rate,${successRate}%\n\n`;
+        
+        csv += 'ITEMS BY CATEGORY\n';
+        csv += 'Category,Count\n';
+        itemsByCategory.forEach(cat => {
+            csv += `${cat.name},${cat.count}\n`;
+        });
+        csv += '\n';
+        
+        csv += 'TOP LOCATIONS\n';
+        csv += 'Location,Count\n';
+        topLocations.forEach(loc => {
+            csv += `"${loc._id || 'Unknown'}",${loc.count}\n`;
+        });
+
+        const filename = `statistics-report-${new Date().toISOString().split('T')[0]}.csv`;
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(csv);
+    } catch (error) {
+        console.error('Export statistics error:', error);
+        req.flash('error', 'Error exporting statistics');
+        res.redirect('/admin/statistics');
+    }
+};

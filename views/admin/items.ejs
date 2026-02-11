@@ -5,7 +5,12 @@
             <h2 class="mb-1"><i class="fas fa-box text-primary me-2"></i> All Items</h2>
             <p class="text-muted mb-0">Manage all lost and found items</p>
         </div>
-        <span class="badge bg-primary fs-6"><%= totalItems %> items</span>
+        <div class="d-flex align-items-center gap-2">
+            <a href="/admin/export/items" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-file-csv me-1"></i>Export CSV
+            </a>
+            <span class="badge bg-primary fs-6"><%= totalItems %> items</span>
+        </div>
     </div>
     
     <!-- Filters Card -->

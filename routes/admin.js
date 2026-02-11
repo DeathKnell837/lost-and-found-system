@@ -60,4 +60,9 @@ router.get('/statistics', adminController.getStatistics);
 router.get('/matching', adminController.getMatchingPage);
 router.post('/matching/run', adminController.runMatching);
 
+// Export / Download
+router.get('/export/items', adminController.exportItemsCSV);
+router.get('/export/claims', adminController.exportClaimsCSV);
+router.get('/export/statistics', adminController.exportStatisticsCSV);
+
 module.exports = router;

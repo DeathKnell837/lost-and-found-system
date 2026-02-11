@@ -777,8 +777,18 @@ textarea.form-control { min-height: 90px; resize: vertical; }
 
 /* Print */
 @media print {
-    .admin-sidebar, .admin-header { display: none !important; }
-    .admin-content.with-sidebar { margin-left: 0; }
+    .admin-sidebar, .admin-header, .sidebar-overlay { display: none !important; }
+    .admin-content.with-sidebar { margin-left: 0 !important; }
+    .admin-main { padding: 0 !important; }
+    body { background: white !important; }
+    .card { box-shadow: none !important; border: 1px solid #dee2e6 !important; break-inside: avoid; }
+    .btn, .dark-mode-toggle, .sidebar-toggle { display: none !important; }
+    .dashboard-content { padding: 0 !important; }
+    h2 { font-size: 1.5rem; }
+    .table { font-size: 0.85rem; }
+    canvas { max-height: 250px !important; }
+    a { text-decoration: none !important; color: inherit !important; }
+    .badge { border: 1px solid #999 !important; }
 }
 
 /* ================================
