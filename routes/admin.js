@@ -17,6 +17,17 @@ router.get('/logout', adminController.logout);
 // Protected routes - require admin authentication
 router.use(isAdmin);
 
+// Set pending location count for sidebar badge on all admin pages
+const Location = require('../models/Location');
+router.use(async (req, res, next) => {
+    try {
+        res.locals.pendingLocationCount = await Location.countDocuments({ status: 'pending' });
+    } catch (e) {
+        res.locals.pendingLocationCount = 0;
+    }
+    next();
+});
+
 // Dashboard
 router.get('/dashboard', adminController.getDashboard);
 router.get('/', (req, res) => res.redirect('/admin/dashboard'));
@@ -42,6 +53,8 @@ router.get('/locations', adminController.getLocations);
 router.post('/locations', adminController.createLocation);
 router.post('/locations/:id', adminController.updateLocation);
 router.post('/locations/:id/delete', adminController.deleteLocation);
+router.post('/locations/:id/approve', adminController.approveLocation);
+router.post('/locations/:id/reject', adminController.rejectLocation);
 
 // Users management
 router.get('/users', adminController.getUsers);

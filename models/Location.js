@@ -13,9 +13,21 @@ const locationSchema = new mongoose.Schema({
         maxlength: [200, 'Description cannot exceed 200 characters'],
         default: ''
     },
+    // Status: 'approved' = official location, 'pending' = user-suggested, awaiting admin review
+    status: {
+        type: String,
+        enum: ['approved', 'pending'],
+        default: 'approved'
+    },
     isActive: {
         type: Boolean,
         default: true
+    },
+    // Who suggested this location (null for admin-created ones)
+    suggestedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
     }
 }, {
     timestamps: true

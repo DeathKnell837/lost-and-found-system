@@ -87,6 +87,9 @@
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'locations' ? 'active' : '' %>" href="/admin/locations">
                     <i class="fas fa-map-marker-alt"></i>
                     <span>Locations</span>
+                    <% if (typeof pendingLocationCount !== 'undefined' && pendingLocationCount > 0) { %>
+                        <span class="badge bg-warning text-dark ms-auto"><%= pendingLocationCount %></span>
+                    <% } %>
                 </a>
             </li>
             <li class="nav-item">

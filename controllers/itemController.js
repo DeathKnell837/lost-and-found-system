@@ -269,7 +269,7 @@ exports.getItemDetails = async (req, res) => {
 exports.getReportLostForm = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true });
-        const locations = await Location.find({ isActive: true }).sort({ name: 1 });
+        const locations = await Location.find({ isActive: true, status: { $ne: 'pending' } }).sort({ name: 1 });
         res.render('items/report-lost', {
             title: 'Report Lost Item - Lost & Found',
             categories,
@@ -286,7 +286,7 @@ exports.getReportLostForm = async (req, res) => {
 exports.getReportFoundForm = async (req, res) => {
     try {
         const categories = await Category.find({ isActive: true });
-        const locations = await Location.find({ isActive: true }).sort({ name: 1 });
+        const locations = await Location.find({ isActive: true, status: { $ne: 'pending' } }).sort({ name: 1 });
         res.render('items/report-found', {
             title: 'Report Found Item - Lost & Found',
             categories,
@@ -313,11 +313,13 @@ exports.reportLostItem = async (req, res) => {
             dateLostFound
         } = req.body;
 
+        const resolvedLocation = location === '__other__' ? (req.body.locationCustom || location) : location;
+
         const item = new Item({
             itemName,
             category,
             description,
-            location: location === '__other__' ? (req.body.locationCustom || location) : location,
+            location: resolvedLocation,
             contactInfo,
             reporterName,
             reporterEmail,
@@ -329,6 +331,21 @@ exports.reportLostItem = async (req, res) => {
         });
 
         await item.save();
+
+        // If user typed a custom location, create a pending suggestion for admin review
+        if (location === '__other__' && req.body.locationCustom) {
+            const customName = req.body.locationCustom.trim();
+            const exists = await Location.findOne({ name: { $regex: new RegExp(`^${customName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
+            if (!exists && customName) {
+                await Location.create({
+                    name: customName,
+                    description: `Suggested by user via lost item report`,
+                    status: 'pending',
+                    isActive: false,
+                    suggestedBy: req.session.user ? req.session.user.id : null
+                });
+            }
+        }
 
         req.flash('success', 'Your lost item report has been submitted and is pending approval.');
         res.redirect('/items/lost');
@@ -357,11 +374,13 @@ exports.reportFoundItem = async (req, res) => {
             dateLostFound
         } = req.body;
 
+        const resolvedLocation = location === '__other__' ? (req.body.locationCustom || location) : location;
+
         const item = new Item({
             itemName,
             category,
             description,
-            location: location === '__other__' ? (req.body.locationCustom || location) : location,
+            location: resolvedLocation,
             contactInfo,
             reporterName,
             reporterEmail,
@@ -373,6 +392,21 @@ exports.reportFoundItem = async (req, res) => {
         });
 
         await item.save();
+
+        // If user typed a custom location, create a pending suggestion for admin review
+        if (location === '__other__' && req.body.locationCustom) {
+            const customName = req.body.locationCustom.trim();
+            const exists = await Location.findOne({ name: { $regex: new RegExp(`^${customName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } });
+            if (!exists && customName) {
+                await Location.create({
+                    name: customName,
+                    description: `Suggested by user via found item report`,
+                    status: 'pending',
+                    isActive: false,
+                    suggestedBy: req.session.user ? req.session.user.id : null
+                });
+            }
+        }
 
         req.flash('success', 'Your found item report has been submitted and is pending approval.');
         res.redirect('/items/found');

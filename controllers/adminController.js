@@ -72,7 +72,8 @@ exports.getDashboard = async (req, res) => {
             lostItems: await Item.countDocuments({ type: 'lost', status: 'approved' }),
             foundItems: await Item.countDocuments({ type: 'found', status: 'approved' }),
             totalUsers: await User.countDocuments({ role: 'user' }),
-            totalCategories: await Category.countDocuments()
+            totalCategories: await Category.countDocuments(),
+            pendingLocations: await Location.countDocuments({ status: 'pending' })
         };
 
         // Recent items
@@ -906,11 +907,22 @@ exports.runMatching = async (req, res) => {
 // Get all locations
 exports.getLocations = async (req, res) => {
     try {
-        const locations = await Location.find().sort({ name: 1 });
+        const locations = await Location.find({ status: { $ne: 'pending' } }).sort({ name: 1 });
+        const pendingLocations = await Location.find({ status: 'pending' })
+            .populate('suggestedBy', 'username email')
+            .sort({ createdAt: -1 });
+        
+        // Count items using each pending location name
+        const pendingWithCounts = await Promise.all(pendingLocations.map(async (loc) => {
+            const itemCount = await Item.countDocuments({ location: loc.name });
+            return { ...loc.toObject(), itemCount };
+        }));
+
         res.render('admin/locations', {
             title: 'Manage Locations - Admin',
             layout: 'layouts/admin',
-            locations
+            locations,
+            pendingLocations: pendingWithCounts
         });
     } catch (error) {
         console.error('Get locations error:', error);
@@ -988,6 +1000,51 @@ exports.deleteLocation = async (req, res) => {
     } catch (error) {
         console.error('Delete location error:', error);
         req.flash('error', 'Error deleting location');
+        res.redirect('/admin/locations');
+    }
+};
+
+// Approve a user-suggested location
+exports.approveLocation = async (req, res) => {
+    try {
+        const location = await Location.findById(req.params.id);
+        if (!location) {
+            req.flash('error', 'Location not found');
+            return res.redirect('/admin/locations');
+        }
+
+        location.status = 'approved';
+        location.isActive = true;
+        if (req.body.name) location.name = req.body.name.trim();
+        if (req.body.description !== undefined) location.description = req.body.description.trim();
+        await location.save();
+
+        req.flash('success', `Location "${location.name}" has been approved and added to the official list`);
+        res.redirect('/admin/locations');
+    } catch (error) {
+        console.error('Approve location error:', error);
+        req.flash('error', 'Error approving location');
+        res.redirect('/admin/locations');
+    }
+};
+
+// Reject a user-suggested location
+exports.rejectLocation = async (req, res) => {
+    try {
+        const location = await Location.findById(req.params.id);
+        if (!location) {
+            req.flash('error', 'Location not found');
+            return res.redirect('/admin/locations');
+        }
+
+        const locationName = location.name;
+        await Location.findByIdAndDelete(req.params.id);
+
+        req.flash('success', `Suggested location "${locationName}" has been rejected`);
+        res.redirect('/admin/locations');
+    } catch (error) {
+        console.error('Reject location error:', error);
+        req.flash('error', 'Error rejecting location');
         res.redirect('/admin/locations');
     }
 };
