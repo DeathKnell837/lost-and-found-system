@@ -291,15 +291,20 @@ function fallbackCopy(text) {
 function contactReporter() {
     var email = '<%= item.reporterEmail %>';
     var subject = 'Regarding: <%= item.itemName.replace(/'/g, "\\'") %>';
-    var mailtoUrl = 'mailto:' + email + '?subject=' + encodeURIComponent(subject);
+    var body = 'Hi, I am reaching out about your <%= item.type %> item "<%= item.itemName.replace(/'/g, "\\'") %>" posted on the Lost & Found system.';
     
-    // Try opening mailto - also copy email to clipboard as backup
+    // Open Gmail compose directly in a new tab
+    var gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
+        + '&to=' + encodeURIComponent(email)
+        + '&su=' + encodeURIComponent(subject)
+        + '&body=' + encodeURIComponent(body);
+    
+    window.open(gmailUrl, '_blank');
+    
+    // Also copy email to clipboard as backup
     copyToClipboard(email).then(function() {
-        showToast('<i class="fas fa-check-circle me-2"></i>Email <strong>' + email + '</strong> copied to clipboard!', 'success');
+        showToast('<i class="fas fa-envelope me-2"></i>Opening Gmail... Email <strong>' + email + '</strong> also copied to clipboard!', 'success');
     });
-    
-    // Try opening email client
-    window.location.href = mailtoUrl;
 }
 
 // === COPY EMAIL ===
