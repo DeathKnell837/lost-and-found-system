@@ -120,7 +120,7 @@ exports.updateSettings = async (req, res) => {
 // Update profile
 exports.updateProfile = async (req, res) => {
     try {
-        const { username, email } = req.body;
+        const { username, email, phoneNumber } = req.body;
         const userId = req.session.user._id;
 
         // Check if username/email already taken
@@ -136,12 +136,14 @@ exports.updateProfile = async (req, res) => {
 
         const user = await User.findByIdAndUpdate(userId, {
             username,
-            email
+            email,
+            phoneNumber: phoneNumber || ''
         }, { new: true });
 
         // Update session
         req.session.user.username = user.username;
         req.session.user.email = user.email;
+        req.session.user.phoneNumber = user.phoneNumber;
 
         req.flash('success', 'Profile updated successfully');
         res.redirect('/user/settings');

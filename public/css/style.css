@@ -1376,6 +1376,37 @@ body.dark-mode {
     --text-muted: #94a3b8;
     --border-color: #334155;
     
+    /* Bootstrap 5.3 CSS variable overrides */
+    --bs-body-bg: #0f172a;
+    --bs-body-color: #f1f5f9;
+    --bs-body-color-rgb: 241, 245, 249;
+    --bs-body-bg-rgb: 15, 23, 42;
+    --bs-secondary-bg: #1e293b;
+    --bs-secondary-bg-rgb: 30, 41, 59;
+    --bs-tertiary-bg: #334155;
+    --bs-tertiary-bg-rgb: 51, 65, 85;
+    --bs-emphasis-color: #f1f5f9;
+    --bs-emphasis-color-rgb: 241, 245, 249;
+    --bs-border-color: #334155;
+    --bs-border-color-translucent: rgba(51, 65, 85, 0.75);
+    --bs-card-bg: #1e293b;
+    --bs-card-color: #cbd5e1;
+    --bs-card-border-color: #334155;
+    --bs-card-cap-bg: #334155;
+    --bs-light-rgb: 30, 41, 59;
+    --bs-dark-rgb: 241, 245, 249;
+    --bs-white-rgb: 30, 41, 59;
+    --bs-table-bg: transparent;
+    --bs-table-color: #cbd5e1;
+    --bs-table-border-color: #334155;
+    --bs-table-striped-bg: rgba(51, 65, 85, 0.5);
+    --bs-table-hover-bg: rgba(51, 65, 85, 0.7);
+    --bs-table-active-bg: rgba(51, 65, 85, 0.9);
+    --bs-heading-color: #f1f5f9;
+    --bs-link-color-rgb: 129, 140, 248;
+    --bs-link-hover-color-rgb: 165, 180, 252;
+    --bs-code-color: #f472b6;
+    
     background: var(--bg-primary);
     color: var(--text-primary);
 }
@@ -1717,9 +1748,152 @@ body.dark-mode .border {
     border-color: var(--border-color) !important;
 }
 
-/* Dark Mode - Item Details */
-body.dark-mode .item-details-image {
+body.dark-mode .border-bottom {
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .border-top {
+    border-color: var(--border-color) !important;
+}
+
+body.dark-mode .shadow,
+body.dark-mode .shadow-sm,
+body.dark-mode .shadow-lg {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Dark Mode - bg-opacity utilities */
+body.dark-mode .bg-danger.bg-opacity-10 {
+    background: rgba(239, 68, 68, 0.15) !important;
+}
+
+body.dark-mode .bg-success.bg-opacity-10 {
+    background: rgba(16, 185, 129, 0.15) !important;
+}
+
+body.dark-mode .bg-primary.bg-opacity-10 {
+    background: rgba(99, 102, 241, 0.15) !important;
+}
+
+body.dark-mode .bg-warning.bg-opacity-10 {
+    background: rgba(245, 158, 11, 0.15) !important;
+}
+
+body.dark-mode .bg-info.bg-opacity-10 {
+    background: rgba(6, 182, 212, 0.15) !important;
+}
+
+/* Dark Mode - Hero Section */
+body.dark-mode .hero-section {
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+    color: var(--text-primary);
+}
+
+body.dark-mode .hero-section p {
+    color: var(--text-secondary);
+}
+
+body.dark-mode .hero-illustration {
+    color: var(--text-muted);
+}
+
+/* Dark Mode - Stat Cards */
+body.dark-mode .stat-card {
+    background: var(--bg-secondary) !important;
+    border-color: var(--border-color);
+}
+
+body.dark-mode .stat-card .stat-number {
+    color: var(--text-primary);
+}
+
+body.dark-mode .stat-card .stat-label {
+    color: var(--text-muted);
+}
+
+/* Dark Mode - Search Box */
+body.dark-mode .search-box {
+    background: var(--bg-secondary) !important;
+    border-color: var(--primary);
+}
+
+body.dark-mode .search-box .form-control {
     background: var(--bg-tertiary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Dark Mode - Transparent card headers */
+body.dark-mode .card-header.bg-transparent {
+    background: transparent !important;
+    border-bottom-color: var(--border-color);
+}
+
+/* Dark Mode - Button outlines */
+body.dark-mode .btn-outline-primary {
+    color: var(--primary-light, #818cf8);
+    border-color: var(--primary-light, #818cf8);
+}
+
+body.dark-mode .btn-outline-primary:hover {
+    background: var(--primary);
+    color: #fff;
+}
+
+body.dark-mode .btn-outline-secondary {
+    color: var(--text-secondary);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .btn-outline-secondary:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+body.dark-mode .btn-outline-info {
+    color: #22d3ee;
+    border-color: #22d3ee;
+}
+
+body.dark-mode .btn-outline-success {
+    color: #34d399;
+    border-color: #34d399;
+}
+
+/* Dark Mode - Rounded section backgrounds */
+body.dark-mode .rounded {
+    border-color: var(--border-color);
+}
+
+/* Dark Mode - Main content */
+body.dark-mode .main-content {
+    background: var(--bg-primary);
+}
+
+/* Dark Mode - Container backgrounds that use bg-body */
+body.dark-mode .bg-body {
+    background: var(--bg-primary) !important;
+}
+
+body.dark-mode .bg-body-secondary {
+    background: var(--bg-secondary) !important;
+}
+
+body.dark-mode .bg-body-tertiary {
+    background: var(--bg-tertiary) !important;
+}
+
+/* Dark Mode - Text color fixes */
+body.dark-mode .text-body {
+    color: var(--text-primary) !important;
+}
+
+body.dark-mode a:not(.btn):not(.nav-link):not(.badge):not(.dropdown-item):not(.text-decoration-none) {
+    color: #818cf8;
+}
+
+body.dark-mode a:not(.btn):not(.nav-link):not(.badge):not(.dropdown-item):not(.text-decoration-none):hover {
+    color: #a5b4fc;
 }
 
 /* Dark Mode - Breadcrumb */

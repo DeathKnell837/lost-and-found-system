@@ -85,6 +85,13 @@ const userSchema = new mongoose.Schema({
     emailVerificationToken: String,      // Token sent to email
     emailVerificationExpires: Date,      // When token expires
     
+    // Phone Number - optional contact number
+    phoneNumber: {
+        type: String,
+        trim: true,
+        maxlength: [20, 'Phone number cannot exceed 20 characters']
+    },
+    
     // Password Reset Fields
     passwordResetToken: String,
     passwordResetExpires: Date,
