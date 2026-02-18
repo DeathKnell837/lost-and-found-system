@@ -66,10 +66,10 @@ exports.submitContact = async (req, res) => {
         }
 
         // Send the contact message via email to admin
-        await emailService.sendEmail({
-            to: process.env.EMAIL_USER || 'rogiebacanto2002@gmail.com',
-            subject: `[Contact Form] ${subject} - from ${name}`,
-            html: `
+        await emailService.sendEmail(
+            process.env.EMAIL_USER || 'rogiebacanto2002@gmail.com',
+            `[Contact Form] ${subject} - from ${name}`,
+            `
                 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                     <h2 style="color: #0d6efd;">New Contact Form Submission</h2>
                     <table style="width: 100%; border-collapse: collapse;">
@@ -92,13 +92,13 @@ exports.submitContact = async (req, res) => {
                     </div>
                 </div>
             `
-        });
+        );
 
         req.flash('success', 'Your message has been sent successfully! We will get back to you soon.');
         res.redirect('/contact');
     } catch (error) {
         console.error('Error submitting contact form:', error);
-        req.flash('success', 'Your message has been received! We will get back to you soon.');
+        req.flash('error', 'Something went wrong. Please try again later.');
         res.redirect('/contact');
     }
 };

@@ -319,7 +319,7 @@ exports.adminUpdateClaimStatus = async (req, res) => {
 
         claim.status = status;
         claim.adminNotes = adminNotes || claim.adminNotes;
-        claim.reviewedBy = req.session.user._id;
+        claim.reviewedBy = req.session.admin?.id || req.session.user?._id;
         claim.reviewedAt = new Date();
 
         if (status === 'rejected' && rejectionReason) {
@@ -328,7 +328,7 @@ exports.adminUpdateClaimStatus = async (req, res) => {
 
         claim.timeline.push({
             action: `Status updated to ${status}`,
-            performedBy: req.session.user._id,
+            performedBy: req.session.admin?.id || req.session.user?._id,
             note: adminNotes || '',
             timestamp: new Date()
         });
@@ -337,20 +337,25 @@ exports.adminUpdateClaimStatus = async (req, res) => {
 
         // If approved, update item status to claimed
         if (status === 'approved') {
+            const claimerInfo = {
+                name: claim.claimant.username,
+                email: claim.claimant.email,
+                phone: claim.contactPhone || '',
+                date: new Date()
+            };
+
             await Item.findByIdAndUpdate(claim.item._id, {
                 status: 'claimed',
-                claimedBy: claim.claimant._id,
-                claimedAt: new Date()
+                claimedBy: claimerInfo
             });
 
-            // Send email to claimant
-            if (claim.claimant.email) {
+            // Send email to item reporter about the claim
+            if (claim.item.reportedBy) {
                 try {
-                    await emailService.sendItemClaimedEmail(
-                        claim.claimant.email,
-                        claim.claimant.username,
-                        claim.item
-                    );
+                    const reporter = await User.findById(claim.item.reportedBy);
+                    if (reporter) {
+                        await emailService.sendItemClaimedEmail(reporter, claim.item, claimerInfo);
+                    }
                 } catch (emailError) {
                     console.error('Failed to send claim approval email:', emailError);
                 }

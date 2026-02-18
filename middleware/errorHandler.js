@@ -18,6 +18,12 @@ const errorHandler = (err, req, res, next) => {
         console.error(err.stack);
     }
 
+    // CRITICAL: If headers already sent, delegate to Express default handler
+    // This prevents ERR_HTTP_HEADERS_SENT crashes
+    if (res.headersSent) {
+        return next(err);
+    }
+
     // Check if it's an API/JSON request
     const isApiRequest = req.xhr || 
         req.headers.accept?.includes('application/json') ||

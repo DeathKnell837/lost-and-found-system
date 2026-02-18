@@ -45,15 +45,25 @@ const nodemailer = require('nodemailer');
  * SMTP = Simple Mail Transfer Protocol
  * This is the standard protocol for sending emails.
  */
-const transporter = nodemailer.createTransport({
-    service: 'gmail',  // Use Gmail's SMTP configuration
-    auth: {
-        // Email address to send from (stored in environment variable)
-        user: process.env.EMAIL_USER || 'your-email@gmail.com',
-        // App password (NOT regular Gmail password)
-        pass: process.env.EMAIL_PASS || 'your-app-password'
+/**
+ * CREATE EMAIL TRANSPORTER
+ * Created lazily - only when email is actually configured.
+ * Falls back gracefully if credentials are missing or invalid.
+ */
+let transporter = null;
+
+const getTransporter = () => {
+    if (!transporter && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            }
+        });
     }
-});
+    return transporter;
+};
 
 /**
  * EMAIL TEMPLATE GENERATOR
@@ -120,8 +130,8 @@ const getEmailTemplate = (content, title = 'Lost & Found Notification') => `
 const sendEmail = async (to, subject, htmlContent) => {
     try {
         // Check if email is configured
-        // If not configured, log but don't throw error
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        const emailTransporter = getTransporter();
+        if (!emailTransporter) {
             console.log('Email not configured. Skipping email send to:', to);
             console.log('Subject:', subject);
             return { success: false, message: 'Email not configured' };
@@ -132,15 +142,16 @@ const sendEmail = async (to, subject, htmlContent) => {
             from: `"Campus Lost & Found" <${process.env.EMAIL_USER}>`,
             to: to,
             subject: subject,
-            html: getEmailTemplate(htmlContent, subject)  // Wrap content in template
+            html: getEmailTemplate(htmlContent, subject)
         };
 
         // Send email using transporter
-        const info = await transporter.sendMail(mailOptions);
+        const info = await emailTransporter.sendMail(mailOptions);
         console.log('Email sent:', info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        console.error('Email send error:', error);
+        // Never throw - always return gracefully so email failures don't crash the app
+        console.error('Email send error:', error.message || error);
         return { success: false, error: error.message };
     }
 };

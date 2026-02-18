@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const itemController = require('../controllers/itemController');
-const upload = require('../config/multer');
 const { validateObjectIdParams } = require('../middleware/security');
 
 // Lost items listing
