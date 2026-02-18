@@ -31,6 +31,19 @@
 // This contains sensitive data like database passwords
 require('dotenv').config();
 
+// ============================================================
+// GLOBAL ERROR HANDLERS — prevent unhandled crashes
+// ============================================================
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    // Don't exit — let the server keep running
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+    // Don't exit — let the server keep running
+});
+
 // Import required packages (npm modules)
 const express = require('express');           // Web framework
 const path = require('path');                 // For file paths
@@ -68,7 +81,7 @@ if (process.env.NODE_ENV === 'production') {
 // ============================================================
 // Connect to MongoDB Atlas (cloud database)
 // This is non-blocking so the server can start even if DB is slow
-connectDB();
+connectDB().catch(err => console.error('DB connect failed:', err.message));
 
 // ============================================================
 // VIEW ENGINE SETUP
@@ -137,7 +150,10 @@ app.use(session({
     store: MongoStore.create({
         mongoUrl: process.env.MONGODB_URI,  // Store sessions in MongoDB
         collectionName: 'sessions',
-        ttl: 24 * 60 * 60  // Session expires after 1 day
+        ttl: 24 * 60 * 60,  // Session expires after 1 day
+        autoRemove: 'native',
+        touchAfter: 24 * 3600,  // Only update session once per day
+        crypto: { secret: process.env.SESSION_SECRET || 'lost-and-found-secret-key' }
     }),
     cookie: {
         secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
