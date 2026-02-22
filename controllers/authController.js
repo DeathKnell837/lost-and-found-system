@@ -272,7 +272,11 @@ exports.login = async (req, res) => {
                 role: user.role
             };
             req.flash('success', 'Welcome back, Admin ' + user.username + '!');
-            return res.redirect('/admin/dashboard');
+            // Explicitly save session before redirect to ensure it persists
+            return req.session.save((err) => {
+                if (err) console.error('Session save error:', err);
+                res.redirect('/admin/dashboard');
+            });
         }
 
         req.flash('success', 'Welcome back, ' + user.username + '!');

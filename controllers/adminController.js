@@ -44,7 +44,11 @@ exports.login = async (req, res) => {
         };
 
         req.flash('success', 'Welcome to Admin Dashboard');
-        res.redirect('/admin/dashboard');
+        // Explicitly save session before redirect to ensure it persists
+        req.session.save((err) => {
+            if (err) console.error('Session save error:', err);
+            res.redirect('/admin/dashboard');
+        });
     } catch (error) {
         console.error('Admin login error:', error);
         req.flash('error', 'Login failed');
@@ -268,7 +272,7 @@ exports.updateItem = async (req, res) => {
 exports.approveItem = async (req, res) => {
     try {
         const item = await Item.findByIdAndUpdate(req.params.id, { status: 'approved' }, { new: true });
-        
+
         // Send email notification if user exists
         if (item.reportedBy) {
             const user = await User.findById(item.reportedBy);
@@ -276,12 +280,12 @@ exports.approveItem = async (req, res) => {
                 emailService.sendItemApprovedEmail(user, item);
             }
         }
-        
+
         // Run matching algorithm to find potential matches
         matchingService.processMatchesAndNotify(item).catch(err => {
             console.error('Matching error:', err);
         });
-        
+
         req.flash('success', 'Item approved successfully');
         res.redirect('back');
     } catch (error) {
@@ -295,11 +299,11 @@ exports.approveItem = async (req, res) => {
 exports.rejectItem = async (req, res) => {
     try {
         const reason = req.body.reason || 'Rejected by admin';
-        const item = await Item.findByIdAndUpdate(req.params.id, { 
+        const item = await Item.findByIdAndUpdate(req.params.id, {
             status: 'rejected',
             adminNotes: reason
         }, { new: true });
-        
+
         // Send email notification if user exists
         if (item.reportedBy) {
             const user = await User.findById(item.reportedBy);
@@ -307,7 +311,7 @@ exports.rejectItem = async (req, res) => {
                 emailService.sendItemRejectedEmail(user, item, reason);
             }
         }
-        
+
         req.flash('success', 'Item rejected');
         res.redirect('back');
     } catch (error) {
@@ -376,7 +380,7 @@ exports.deleteItem = async (req, res) => {
 exports.getCategories = async (req, res) => {
     try {
         const categories = await Category.find().sort({ name: 1 });
-        
+
         // Get item count for each category
         const categoriesWithCount = await Promise.all(
             categories.map(async (cat) => {
@@ -796,9 +800,9 @@ exports.getStatistics = async (req, res) => {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
         const recentItems = await Item.countDocuments({ dateReported: { $gte: weekAgo } });
-        const recentClaims = await Item.countDocuments({ 
-            status: 'claimed', 
-            'claimedBy.date': { $gte: weekAgo } 
+        const recentClaims = await Item.countDocuments({
+            status: 'claimed',
+            'claimedBy.date': { $gte: weekAgo }
         });
 
         // Top locations
@@ -856,18 +860,18 @@ exports.getMatchingPage = async (req, res) => {
             status: 'approved',
             'potentialMatches.0': { $exists: true }
         })
-        .populate('category')
-        .populate({
-            path: 'potentialMatches.item',
-            populate: { path: 'category' }
-        })
-        .sort({ updatedAt: -1 })
-        .limit(50);
+            .populate('category')
+            .populate({
+                path: 'potentialMatches.item',
+                populate: { path: 'category' }
+            })
+            .sort({ updatedAt: -1 })
+            .limit(50);
 
         // Get counts
         const totalLost = await Item.countDocuments({ type: 'lost', status: 'approved' });
         const totalFound = await Item.countDocuments({ type: 'found', status: 'approved' });
-        const withMatches = await Item.countDocuments({ 
+        const withMatches = await Item.countDocuments({
             status: 'approved',
             'potentialMatches.0': { $exists: true }
         });
@@ -911,7 +915,7 @@ exports.getLocations = async (req, res) => {
         const pendingLocations = await Location.find({ status: 'pending' })
             .populate('suggestedBy', 'username email')
             .sort({ createdAt: -1 });
-        
+
         // Count items using each pending location name
         const pendingWithCounts = await Promise.all(pendingLocations.map(async (loc) => {
             const itemCount = await Item.countDocuments({ location: loc.name });
@@ -935,19 +939,19 @@ exports.getLocations = async (req, res) => {
 exports.createLocation = async (req, res) => {
     try {
         const { name, description } = req.body;
-        
+
         // Check if location already exists
         const existing = await Location.findOne({ name: { $regex: new RegExp(`^${name}$`, 'i') } });
         if (existing) {
             req.flash('error', 'A location with this name already exists');
             return res.redirect('/admin/locations');
         }
-        
+
         const location = new Location({
             name: name.trim(),
             description: description ? description.trim() : ''
         });
-        
+
         await location.save();
         req.flash('success', `Location "${name}" created successfully`);
         res.redirect('/admin/locations');
@@ -962,17 +966,17 @@ exports.createLocation = async (req, res) => {
 exports.updateLocation = async (req, res) => {
     try {
         const { name, description, isActive } = req.body;
-        
+
         const location = await Location.findById(req.params.id);
         if (!location) {
             req.flash('error', 'Location not found');
             return res.redirect('/admin/locations');
         }
-        
+
         location.name = name.trim();
         location.description = description ? description.trim() : '';
         location.isActive = isActive === 'on' || isActive === 'true';
-        
+
         await location.save();
         req.flash('success', `Location "${name}" updated successfully`);
         res.redirect('/admin/locations');
@@ -991,10 +995,10 @@ exports.deleteLocation = async (req, res) => {
             req.flash('error', 'Location not found');
             return res.redirect('/admin/locations');
         }
-        
+
         const locationName = location.name;
         await Location.findByIdAndDelete(req.params.id);
-        
+
         req.flash('success', `Location "${locationName}" deleted successfully`);
         res.redirect('/admin/locations');
     } catch (error) {
@@ -1060,7 +1064,7 @@ exports.exportItemsCSV = async (req, res) => {
 
         // Build CSV content
         const headers = ['ID', 'Item Name', 'Type', 'Category', 'Location', 'Status', 'Reporter Name', 'Reporter Email', 'Contact Info', 'Date Lost/Found', 'Date Reported', 'Description'];
-        
+
         const escapeCSV = (str) => {
             if (!str) return '';
             const s = String(str);
@@ -1071,7 +1075,7 @@ exports.exportItemsCSV = async (req, res) => {
         };
 
         let csv = headers.join(',') + '\n';
-        
+
         items.forEach(item => {
             const row = [
                 item._id,
@@ -1111,7 +1115,7 @@ exports.exportClaimsCSV = async (req, res) => {
             .sort({ createdAt: -1 });
 
         const headers = ['Claim ID', 'Item Name', 'Claimant', 'Claimant Email', 'Status', 'Priority', 'Date Submitted', 'Description'];
-        
+
         const escapeCSV = (str) => {
             if (!str) return '';
             const s = String(str);
@@ -1122,7 +1126,7 @@ exports.exportClaimsCSV = async (req, res) => {
         };
 
         let csv = headers.join(',') + '\n';
-        
+
         claims.forEach(claim => {
             const row = [
                 claim._id,
@@ -1179,7 +1183,7 @@ exports.exportStatisticsCSV = async (req, res) => {
 
         let csv = 'LOST & FOUND SYSTEM - STATISTICS REPORT\n';
         csv += `Generated: ${new Date().toLocaleString()}\n\n`;
-        
+
         csv += 'SUMMARY\n';
         csv += 'Metric,Value\n';
         csv += `Total Items,${totalItems}\n`;
@@ -1191,14 +1195,14 @@ exports.exportStatisticsCSV = async (req, res) => {
         csv += `Rejected Items,${rejectedItems}\n`;
         csv += `Total Users,${totalUsers}\n`;
         csv += `Success Rate,${successRate}%\n\n`;
-        
+
         csv += 'ITEMS BY CATEGORY\n';
         csv += 'Category,Count\n';
         itemsByCategory.forEach(cat => {
             csv += `${cat.name},${cat.count}\n`;
         });
         csv += '\n';
-        
+
         csv += 'TOP LOCATIONS\n';
         csv += 'Location,Count\n';
         topLocations.forEach(loc => {
