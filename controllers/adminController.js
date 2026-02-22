@@ -855,7 +855,7 @@ exports.getStatistics = async (req, res) => {
 // Item Matching Page
 exports.getMatchingPage = async (req, res) => {
     try {
-        // Get items with matches
+        // Get items with stored matches
         const itemsWithMatches = await Item.find({
             status: 'approved',
             'potentialMatches.0': { $exists: true }
@@ -868,9 +868,32 @@ exports.getMatchingPage = async (req, res) => {
             .sort({ updatedAt: -1 })
             .limit(50);
 
+        // Compute live match pairs with detailed breakdowns
+        const lostItems = await Item.find({ type: 'lost', status: 'approved' }).populate('category');
+        const foundItems = await Item.find({ type: 'found', status: 'approved' }).populate('category');
+
+        const matchPairs = [];
+        for (const lostItem of lostItems) {
+            for (const foundItem of foundItems) {
+                const result = matchingService.calculateMatchScore(lostItem, foundItem);
+                if (result.total >= 30) {
+                    matchPairs.push({
+                        lostItem,
+                        foundItem,
+                        score: result.total,
+                        breakdown: result.breakdown,
+                        highlights: result.highlights
+                    });
+                }
+            }
+        }
+        // Sort by score descending and take top 50
+        matchPairs.sort((a, b) => b.score - a.score);
+        const topMatchPairs = matchPairs.slice(0, 50);
+
         // Get counts
-        const totalLost = await Item.countDocuments({ type: 'lost', status: 'approved' });
-        const totalFound = await Item.countDocuments({ type: 'found', status: 'approved' });
+        const totalLost = lostItems.length;
+        const totalFound = foundItems.length;
         const withMatches = await Item.countDocuments({
             status: 'approved',
             'potentialMatches.0': { $exists: true }
@@ -880,10 +903,12 @@ exports.getMatchingPage = async (req, res) => {
             title: 'Item Matching - Admin',
             layout: 'layouts/admin',
             itemsWithMatches,
+            matchPairs: topMatchPairs,
             stats: {
                 totalLost,
                 totalFound,
-                withMatches
+                withMatches,
+                totalPairs: matchPairs.length
             }
         });
     } catch (error) {

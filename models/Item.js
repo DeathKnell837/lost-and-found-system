@@ -44,7 +44,7 @@ const itemSchema = new mongoose.Schema({
         trim: true,
         maxlength: [100, 'Item name cannot exceed 100 characters']
     },
-    
+
     // Category - reference to Category collection
     // ObjectId is MongoDB's unique identifier type
     category: {
@@ -52,7 +52,7 @@ const itemSchema = new mongoose.Schema({
         ref: 'Category',  // References the Category model
         required: [true, 'Category is required']
     },
-    
+
     // Description - detailed info about the item
     description: {
         type: String,
@@ -60,7 +60,7 @@ const itemSchema = new mongoose.Schema({
         trim: true,
         maxlength: [1000, 'Description cannot exceed 1000 characters']
     },
-    
+
     // Location - where item was lost or found
     location: {
         type: String,
@@ -68,33 +68,33 @@ const itemSchema = new mongoose.Schema({
         trim: true,
         maxlength: [200, 'Location cannot exceed 200 characters']
     },
-    
+
     // Location ID - if user selected from dropdown
     locationId: {
         type: String,
         default: null
     },
-    
+
     // Custom Location - if user typed their own location
     customLocation: {
         type: String,
         default: null
     },
-    
+
     // Image Path - URL to image stored in Cloudinary
     imagePath: {
         type: String,
         default: null
     },
-    
-    // Contact Info - how to reach the reporter
+
+    // Contact Info - how to reach the reporter (optional)
     contactInfo: {
         type: String,
-        required: [true, 'Contact information is required'],
         trim: true,
+        default: '',
         maxlength: [200, 'Contact info cannot exceed 200 characters']
     },
-    
+
     // Reported By - reference to User who submitted report
     // Can be null for guest reports
     reportedBy: {
@@ -102,7 +102,7 @@ const itemSchema = new mongoose.Schema({
         ref: 'User',
         default: null
     },
-    
+
     // Reporter Name - name of person who reported
     reporterName: {
         type: String,
@@ -110,7 +110,7 @@ const itemSchema = new mongoose.Schema({
         trim: true,
         maxlength: [100, 'Reporter name cannot exceed 100 characters']
     },
-    
+
     // Reporter Email - email of person who reported
     reporterEmail: {
         type: String,
@@ -119,14 +119,14 @@ const itemSchema = new mongoose.Schema({
         lowercase: true,
         match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
     },
-    
+
     // Type - is this a lost or found item?
     type: {
         type: String,
         enum: ['lost', 'found'],  // Only these values allowed
         required: [true, 'Item type is required']
     },
-    
+
     // Status - current state of the item report
     // pending: waiting for admin review
     // approved: published on website
@@ -137,19 +137,19 @@ const itemSchema = new mongoose.Schema({
         enum: ['pending', 'approved', 'claimed', 'rejected'],
         default: 'pending'
     },
-    
+
     // Date Reported - when the report was submitted
     dateReported: {
         type: Date,
         default: Date.now
     },
-    
+
     // Date Lost/Found - when the item was actually lost or found
     dateLostFound: {
         type: Date,
         required: [true, 'Date lost/found is required']
     },
-    
+
     // Claimed By - info about who claimed the item
     claimedBy: {
         name: String,
@@ -157,13 +157,13 @@ const itemSchema = new mongoose.Schema({
         phone: String,
         date: Date
     },
-    
+
     // Admin Notes - internal notes from admin
     adminNotes: {
         type: String,
         default: ''
     },
-    
+
     // Potential Matches - array of similar items
     // Used to suggest matches between lost and found items
     potentialMatches: [{
@@ -188,7 +188,7 @@ itemSchema.index({ itemName: 'text', description: 'text', location: 'text' });
  * These are computed fields that aren't stored in the database
  * They format dates nicely for display
  */
-itemSchema.virtual('formattedDateReported').get(function() {
+itemSchema.virtual('formattedDateReported').get(function () {
     return this.dateReported.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',
@@ -196,7 +196,7 @@ itemSchema.virtual('formattedDateReported').get(function() {
     });
 });
 
-itemSchema.virtual('formattedDateLostFound').get(function() {
+itemSchema.virtual('formattedDateLostFound').get(function () {
     return this.dateLostFound.toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'long',

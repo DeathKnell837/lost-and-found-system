@@ -6,112 +6,126 @@
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="/">Home</a></li>
                     <li class="breadcrumb-item">
-                        <a href="/items/<%= item.type %>"><%= item.type === 'lost' ? 'Lost Items' : 'Found Items' %></a>
+                        <a href="/items/<%= item.type %>">
+                            <%= item.type==='lost' ? 'Lost Items' : 'Found Items' %>
+                        </a>
                     </li>
-                    <li class="breadcrumb-item active"><%= item.itemName %></li>
+                    <li class="breadcrumb-item active">
+                        <%= item.itemName %>
+                    </li>
                 </ol>
             </nav>
-            
+
             <div class="card shadow">
                 <!-- Image -->
                 <% if (item.imagePath) { %>
                     <img src="<%= item.imagePath %>" class="card-img-top item-detail-image" alt="<%= item.itemName %>">
-                <% } else { %>
-                    <div class="item-detail-placeholder <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
-                        <div class="placeholder-pattern"></div>
-                        <div class="placeholder-icon-wrap placeholder-icon-lg">
-                            <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
+                    <% } else { %>
+                        <div
+                            class="item-detail-placeholder <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
+                            <div class="placeholder-pattern"></div>
+                            <div class="placeholder-icon-wrap placeholder-icon-lg">
+                                <i
+                                    class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
+                            </div>
+                            <span class="placeholder-label">
+                                <%= (item.category && item.category.name) ? item.category.name : 'No Image' %>
+                            </span>
                         </div>
-                        <span class="placeholder-label"><%= (item.category && item.category.name) ? item.category.name : 'No Image' %></span>
-                    </div>
-                <% } %>
-                
-                <div class="card-body">
-                    <!-- Status Badges -->
-                    <div class="d-flex gap-2 mb-3">
-                        <span class="badge bg-<%= item.type === 'lost' ? 'danger' : 'success' %> fs-6">
-                            <i class="fas fa-<%= item.type === 'lost' ? 'exclamation-triangle' : 'hand-holding-heart' %> me-1"></i>
-                            <%= item.type.charAt(0).toUpperCase() + item.type.slice(1) %>
-                        </span>
-                        <span class="badge bg-<%= 
+                        <% } %>
+
+                            <div class="card-body">
+                                <!-- Status Badges -->
+                                <div class="d-flex gap-2 mb-3">
+                                    <span class="badge bg-<%= item.type === 'lost' ? 'danger' : 'success' %> fs-6">
+                                        <i
+                                            class="fas fa-<%= item.type === 'lost' ? 'exclamation-triangle' : 'hand-holding-heart' %> me-1"></i>
+                                        <%= item.type.charAt(0).toUpperCase() + item.type.slice(1) %>
+                                    </span>
+                                    <span class="badge bg-<%= 
                             item.status === 'approved' ? 'primary' : 
                             item.status === 'pending' ? 'warning' : 
                             item.status === 'claimed' ? 'info' : 'secondary' 
                         %> fs-6">
-                            <%= item.status.charAt(0).toUpperCase() + item.status.slice(1) %>
-                        </span>
-                        <% if (item.category) { %>
-                            <span class="badge bg-secondary fs-6">
-                                <i class="fas <%= item.category.icon || 'fa-box' %> me-1"></i>
-                                <%= item.category.name %>
-                            </span>
-                        <% } %>
-                    </div>
-                    
-                    <h2 class="card-title mb-3"><%= item.itemName %></h2>
-                    
-                    <!-- Info Grid -->
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center text-muted">
-                                <i class="fas fa-map-marker-alt fa-fw me-2 text-danger"></i>
-                                <div>
-                                    <small class="d-block text-uppercase">Location</small>
-                                    <strong class="item-value"><%= item.location %></strong>
+                                        <%= item.status.charAt(0).toUpperCase() + item.status.slice(1) %>
+                                    </span>
+                                    <% if (item.category) { %>
+                                        <span class="badge bg-secondary fs-6">
+                                            <i class="fas <%= item.category.icon || 'fa-box' %> me-1"></i>
+                                            <%= item.category.name %>
+                                        </span>
+                                        <% } %>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center text-muted">
-                                <i class="fas fa-calendar fa-fw me-2 text-primary"></i>
-                                <div>
-                                    <small class="d-block text-uppercase">Date <%= item.type === 'lost' ? 'Lost' : 'Found' %></small>
-                                    <strong class="item-value">
-                                        <%= new Date(item.dateLostFound).toLocaleDateString('en-US', { 
-                                            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
-                                        }) %>
-                                    </strong>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-center text-muted">
-                                <i class="fas fa-clock fa-fw me-2 text-info"></i>
-                                <div>
-                                    <small class="d-block text-uppercase">Date Reported</small>
-                                    <strong class="item-value">
-                                        <%= new Date(item.dateReported).toLocaleDateString('en-US', { 
-                                            year: 'numeric', month: 'long', day: 'numeric' 
-                                        }) %>
-                                    </strong>
-                                </div>
-                            </div>
-                        </div>
-                        <% if (item.status === 'claimed' && item.claimedBy) { %>
-                            <div class="col-md-6">
-                                <div class="d-flex align-items-center text-muted">
-                                    <i class="fas fa-handshake fa-fw me-2 text-success"></i>
-                                    <div>
-                                        <small class="d-block text-uppercase">Claimed On</small>
-                                        <strong class="item-value">
-                                            <%= new Date(item.claimedBy.date).toLocaleDateString('en-US', { 
-                                                year: 'numeric', month: 'long', day: 'numeric' 
-                                            }) %>
-                                        </strong>
+
+                                <h2 class="card-title mb-3">
+                                    <%= item.itemName %>
+                                </h2>
+
+                                <!-- Info Grid -->
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center text-muted">
+                                            <i class="fas fa-map-marker-alt fa-fw me-2 text-danger"></i>
+                                            <div>
+                                                <small class="d-block text-uppercase">Location</small>
+                                                <strong class="item-value">
+                                                    <%= item.location %>
+                                                </strong>
+                                            </div>
+                                        </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center text-muted">
+                                            <i class="fas fa-calendar fa-fw me-2 text-primary"></i>
+                                            <div>
+                                                <small class="d-block text-uppercase">Date <%= item.type==='lost'
+                                                        ? 'Lost' : 'Found' %></small>
+                                                <strong class="item-value">
+                                                    <%= new Date(item.dateLostFound).toLocaleDateString('en-US', {
+                                                        weekday: 'long' , year: 'numeric' , month: 'long' ,
+                                                        day: 'numeric' }) %>
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center text-muted">
+                                            <i class="fas fa-clock fa-fw me-2 text-info"></i>
+                                            <div>
+                                                <small class="d-block text-uppercase">Date Reported</small>
+                                                <strong class="item-value">
+                                                    <%= new Date(item.dateReported).toLocaleDateString('en-US', {
+                                                        year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% if (item.status==='claimed' && item.claimedBy) { %>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center text-muted">
+                                                <i class="fas fa-handshake fa-fw me-2 text-success"></i>
+                                                <div>
+                                                    <small class="d-block text-uppercase">Claimed On</small>
+                                                    <strong class="item-value">
+                                                        <%= new Date(item.claimedBy.date).toLocaleDateString('en-US', {
+                                                            year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% } %>
                                 </div>
+
+                                <!-- Description -->
+                                <h5><i class="fas fa-align-left me-2"></i> Description</h5>
+                                <p class="lead">
+                                    <%= item.description %>
+                                </p>
+
                             </div>
-                        <% } %>
-                    </div>
-                    
-                    <!-- Description -->
-                    <h5><i class="fas fa-align-left me-2"></i> Description</h5>
-                    <p class="lead"><%= item.description %></p>
-                    
-                </div>
             </div>
         </div>
-        
+
         <!-- Sidebar -->
         <div class="col-lg-4">
             <!-- Contact Information -->
@@ -120,38 +134,44 @@
                     <h5 class="mb-0"><i class="fas fa-address-card me-2"></i> Contact Information</h5>
                 </div>
                 <div class="card-body">
-                    <% if (item.status !== 'claimed') { %>
+                    <% if (item.status !=='claimed' ) { %>
                         <div class="mb-3">
                             <label class="text-muted small">Reported By</label>
-                            <p class="mb-0 fw-bold contact-value"><%= item.reporterName %></p>
+                            <p class="mb-0 fw-bold contact-value">
+                                <%= item.reporterName %>
+                            </p>
                         </div>
                         <div class="mb-3">
                             <label class="text-muted small">Email</label>
                             <p class="mb-0">
-                                <a href="mailto:<%= item.reporterEmail %>" class="text-decoration-none"><%= item.reporterEmail %></a>
-                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2 copy-email-btn" 
-                                        onclick="copyEmail('<%= item.reporterEmail %>')" title="Copy email">
+                                <a href="mailto:<%= item.reporterEmail %>" class="text-decoration-none">
+                                    <%= item.reporterEmail %>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-secondary ms-2 copy-email-btn"
+                                    onclick="copyEmail('<%= item.reporterEmail %>')" title="Copy email">
                                     <i class="fas fa-copy"></i>
                                 </button>
                             </p>
                         </div>
                         <div class="mb-3">
                             <label class="text-muted small">Contact Info</label>
-                            <p class="mb-0 contact-value"><%= item.contactInfo %></p>
+                            <p class="mb-0 contact-value">
+                                <%= item.contactInfo %>
+                            </p>
                         </div>
                         <hr>
                         <button type="button" class="btn btn-primary w-100" onclick="contactReporter()">
                             <i class="fas fa-envelope me-2"></i> Contact Reporter
                         </button>
-                    <% } else { %>
-                        <div class="text-center text-muted">
-                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-                            <p>This item has been claimed and returned to its owner.</p>
-                        </div>
-                    <% } %>
+                        <% } else { %>
+                            <div class="text-center text-muted">
+                                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                                <p>This item has been claimed and returned to its owner.</p>
+                            </div>
+                            <% } %>
                 </div>
             </div>
-            
+
             <!-- Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header bg-white">
@@ -174,7 +194,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <!-- Potential Matches -->
             <div class="card shadow mb-4" id="matchesCard" style="display: none;">
                 <div class="card-header bg-info text-white">
@@ -184,26 +204,30 @@
                     <!-- Matches loaded via JS -->
                 </div>
             </div>
-            
+
             <!-- Quick Actions -->
             <div class="card shadow mb-4">
                 <div class="card-header bg-white">
                     <h5 class="mb-0"><i class="fas fa-bolt me-2"></i> Quick Actions</h5>
                 </div>
                 <div class="card-body">
-                    <% if (item.type === 'found' && item.status === 'approved') { %>
+                    <% if (item.type==='found' && item.status==='approved' ) { %>
                         <a href="/claims/form/<%= item._id %>" class="btn btn-success w-100 mb-2">
                             <i class="fas fa-hand-holding me-2"></i> Claim This Item
                         </a>
-                    <% } %>
-                    <button type="button" class="btn btn-outline-primary w-100" onclick="contactReporter()">
-                        <i class="fas fa-envelope me-2"></i> Contact Reporter
-                    </button>
+                        <% } %>
+                            <button type="button" class="btn btn-outline-primary w-100 mb-2"
+                                onclick="contactReporter()">
+                                <i class="fas fa-envelope me-2"></i> Contact Reporter
+                            </button>
+                            <button type="button" class="btn btn-outline-warning w-100" onclick="printPoster()">
+                                <i class="fas fa-print me-2"></i> Print Poster
+                            </button>
                 </div>
             </div>
-            
+
             <!-- Related Items -->
-            <% if (relatedItems && relatedItems.length > 0) { %>
+            <% if (relatedItems && relatedItems.length> 0) { %>
                 <div class="card shadow">
                     <div class="card-header bg-white">
                         <h5 class="mb-0"><i class="fas fa-th-large me-2"></i> Similar Items</h5>
@@ -212,118 +236,123 @@
                         <% relatedItems.forEach(function(related) { %>
                             <div class="d-flex mb-3 pb-3 border-bottom">
                                 <% if (related.imagePath) { %>
-                                    <img src="<%= related.imagePath %>" class="related-item-img me-3" alt="<%= related.itemName %>">
-                                <% } else { %>
-                                    <div class="related-item-placeholder me-3 <%= related.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
-                                        <div class="placeholder-icon-wrap placeholder-icon-xs">
-                                            <i class="fas <%= (related.category && related.category.icon) ? related.category.icon : 'fa-box' %>"></i>
+                                    <img src="<%= related.imagePath %>" class="related-item-img me-3"
+                                        alt="<%= related.itemName %>">
+                                    <% } else { %>
+                                        <div
+                                            class="related-item-placeholder me-3 <%= related.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
+                                            <div class="placeholder-icon-wrap placeholder-icon-xs">
+                                                <i
+                                                    class="fas <%= (related.category && related.category.icon) ? related.category.icon : 'fa-box' %>"></i>
+                                            </div>
                                         </div>
-                                    </div>
-                                <% } %>
-                                <div>
-                                    <h6 class="mb-1">
-                                        <a href="/items/<%= related._id %>" class="text-decoration-none">
-                                            <%= related.itemName %>
-                                        </a>
-                                    </h6>
-                                    <small class="text-muted">
-                                        <span class="badge bg-<%= related.type === 'lost' ? 'danger' : 'success' %> me-1">
-                                            <%= related.type %>
-                                        </span>
-                                        <%= related.location %>
-                                    </small>
-                                </div>
+                                        <% } %>
+                                            <div>
+                                                <h6 class="mb-1">
+                                                    <a href="/items/<%= related._id %>" class="text-decoration-none">
+                                                        <%= related.itemName %>
+                                                    </a>
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <span
+                                                        class="badge bg-<%= related.type === 'lost' ? 'danger' : 'success' %> me-1">
+                                                        <%= related.type %>
+                                                    </span>
+                                                    <%= related.location %>
+                                                </small>
+                                            </div>
                             </div>
-                        <% }); %>
+                            <% }); %>
                     </div>
                 </div>
-            <% } %>
+                <% } %>
         </div>
     </div>
 </div>
 
 <!-- Toast notification container -->
-<div id="toastContainer" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99999;pointer-events:none;"></div>
+<div id="toastContainer"
+    style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99999;pointer-events:none;"></div>
 
 <script>
-// === TOAST NOTIFICATION ===
-function showToast(message, type) {
-    type = type || 'success';
-    var container = document.getElementById('toastContainer');
-    var toast = document.createElement('div');
-    toast.className = 'alert alert-' + type + ' shadow-lg px-4 py-3';
-    toast.style.cssText = 'pointer-events:auto;animation:slideUp 0.3s ease;min-width:280px;text-align:center;font-weight:500;';
-    toast.innerHTML = message;
-    container.appendChild(toast);
-    setTimeout(function() {
-        toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.3s';
-        setTimeout(function() { toast.remove(); }, 300);
-    }, 3000);
-}
-
-// === COPY TO CLIPBOARD HELPER ===
-function copyToClipboard(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-        return navigator.clipboard.writeText(text).then(function() {
-            return true;
-        }).catch(function() {
-            return fallbackCopy(text);
-        });
-    } else {
-        return Promise.resolve(fallbackCopy(text));
+    // === TOAST NOTIFICATION ===
+    function showToast(message, type) {
+        type = type || 'success';
+        var container = document.getElementById('toastContainer');
+        var toast = document.createElement('div');
+        toast.className = 'alert alert-' + type + ' shadow-lg px-4 py-3';
+        toast.style.cssText = 'pointer-events:auto;animation:slideUp 0.3s ease;min-width:280px;text-align:center;font-weight:500;';
+        toast.innerHTML = message;
+        container.appendChild(toast);
+        setTimeout(function () {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.3s';
+            setTimeout(function () { toast.remove(); }, 300);
+        }, 3000);
     }
-}
-function fallbackCopy(text) {
-    var ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-    var ok = false;
-    try { ok = document.execCommand('copy'); } catch(e) {}
-    document.body.removeChild(ta);
-    return ok;
-}
 
-// === CONTACT REPORTER ===
-function contactReporter() {
-    var email = '<%= item.reporterEmail %>';
-    var subject = 'Regarding: <%= item.itemName.replace(/'/g, "\\'") %>';
-    var body = 'Hi, I am reaching out about your <%= item.type %> item "<%= item.itemName.replace(/'/g, "\\'") %>" posted on the Lost & Found system.';
-    
-    // Open Gmail compose directly in a new tab
-    var gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
-        + '&to=' + encodeURIComponent(email)
-        + '&su=' + encodeURIComponent(subject)
-        + '&body=' + encodeURIComponent(body);
-    
-    window.open(gmailUrl, '_blank');
-    
-    // Also copy email to clipboard as backup
-    copyToClipboard(email).then(function() {
-        showToast('<i class="fas fa-envelope me-2"></i>Opening Gmail... Email <strong>' + email + '</strong> also copied to clipboard!', 'success');
-    });
-}
-
-// === COPY EMAIL ===
-function copyEmail(email) {
-    copyToClipboard(email).then(function(ok) {
-        if (ok !== false) {
-            showToast('<i class="fas fa-check-circle me-2"></i>Email copied: <strong>' + email + '</strong>', 'success');
+    // === COPY TO CLIPBOARD HELPER ===
+    function copyToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text).then(function () {
+                return true;
+            }).catch(function () {
+                return fallbackCopy(text);
+            });
         } else {
-            prompt('Copy this email address:', email);
+            return Promise.resolve(fallbackCopy(text));
         }
-    });
-}
+    }
+    function fallbackCopy(text) {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;';
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        var ok = false;
+        try { ok = document.execCommand('copy'); } catch (e) { }
+        document.body.removeChild(ta);
+        return ok;
+    }
 
-// === SHARE FUNCTIONS ===
-function shareOnFacebook() {
-    var shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href);
-    // Try native share first on mobile
-    if (navigator.share) {
-        navigator.share({ title: '<%= item.itemName.replace(/'/g, "\\'") %>', url: window.location.href }).catch(function() {
+    // === CONTACT REPORTER ===
+    function contactReporter() {
+        var email = '<%= item.reporterEmail %>';
+        var subject = 'Regarding: <%= item.itemName.replace(/' / g, "\\'") %> ';
+        var body = 'Hi, I am reaching out about your <%= item.type %> item "<%= item.itemName.replace(/' / g, "\\'") %> " posted on the Lost & Found system.';
+
+        // Open Gmail compose directly in a new tab
+        var gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
+            + '&to=' + encodeURIComponent(email)
+            + '&su=' + encodeURIComponent(subject)
+            + '&body=' + encodeURIComponent(body);
+
+        window.open(gmailUrl, '_blank');
+
+        // Also copy email to clipboard as backup
+        copyToClipboard(email).then(function () {
+            showToast('<i class="fas fa-envelope me-2"></i>Opening Gmail... Email <strong>' + email + '</strong> also copied to clipboard!', 'success');
+        });
+    }
+
+    // === COPY EMAIL ===
+    function copyEmail(email) {
+        copyToClipboard(email).then(function (ok) {
+            if (ok !== false) {
+                showToast('<i class="fas fa-check-circle me-2"></i>Email copied: <strong>' + email + '</strong>', 'success');
+            } else {
+                prompt('Copy this email address:', email);
+            }
+        });
+    }
+
+    // === SHARE FUNCTIONS ===
+    function shareOnFacebook() {
+        var shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href);
+        // Try native share first on mobile
+        if (navigator.share) {
+            navigator.share({ title: '<%= item.itemName.replace(/' / g, "\\'") %> ', url: window.location.href }).catch(function() {
             window.open(shareUrl, 'fb', 'width=600,height=400');
         });
     } else {
@@ -332,26 +361,378 @@ function shareOnFacebook() {
     showToast('<i class="fab fa-facebook me-2"></i>Opening Facebook share...', 'primary');
 }
 
-function shareOnTwitter() {
-    var shareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.itemName.replace(/'/g, "\\'") %>');
-    window.open(shareUrl, 'tw', 'width=600,height=400');
-    showToast('<i class="fab fa-twitter me-2"></i>Opening Twitter share...', 'info');
-}
+    function shareOnTwitter() {
+        var shareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.itemName.replace(/' / g, "\\'") %> ');
+        window.open(shareUrl, 'tw', 'width=600,height=400');
+        showToast('<i class="fab fa-twitter me-2"></i>Opening Twitter share...', 'info');
+    }
 
-function shareOnWhatsApp() {
-    var text = '<%= item.itemName.replace(/'/g, "\\'") %> - ' + window.location.href;
-    // Use direct WhatsApp URL
-    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-    showToast('<i class="fab fa-whatsapp me-2"></i>Opening WhatsApp...', 'success');
-}
+    function shareOnWhatsApp() {
+        var text = '<%= item.itemName.replace(/' / g, "\\'") %> - ' + window.location.href;
+        // Use direct WhatsApp URL
+        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+        showToast('<i class="fab fa-whatsapp me-2"></i>Opening WhatsApp...', 'success');
+    }
 
-function copyLink() {
-    copyToClipboard(window.location.href).then(function(ok) {
-        if (ok !== false) {
-            showToast('<i class="fas fa-link me-2"></i>Link copied to clipboard!', 'success');
-        } else {
-            prompt('Copy this link:', window.location.href);
+    function copyLink() {
+        copyToClipboard(window.location.href).then(function (ok) {
+            if (ok !== false) {
+                showToast('<i class="fas fa-link me-2"></i>Link copied to clipboard!', 'success');
+            } else {
+                prompt('Copy this link:', window.location.href);
+            }
         }
-    });
-}
+
+    // === PRINT POSTER ===
+    function printPoster() {
+                document.body.classList.add('printing-poster');
+                window.print();
+                setTimeout(function () {
+                    document.body.classList.remove('printing-poster');
+                }, 1000);
+            }
 </script>
+
+<!-- ===== PRINTABLE POSTER (Hidden on screen, visible when printing) ===== -->
+<div id="posterPrintArea" class="poster-container">
+    <div class="poster-page">
+        <!-- Header -->
+        <div class="poster-header poster-header-<%= item.type %>">
+            <div class="poster-header-icon">
+                <i class="fas fa-<%= item.type === 'lost' ? 'exclamation-triangle' : 'hand-holding-heart' %>"></i>
+            </div>
+            <h1 class="poster-title">
+                <%= item.type==='lost' ? 'LOST' : 'FOUND' %>
+            </h1>
+            <p class="poster-subtitle">
+                <%= item.type==='lost' ? 'Have you seen this item?' : 'Is this yours?' %>
+            </p>
+        </div>
+
+        <!-- Item Image -->
+        <div class="poster-image-section">
+            <% if (item.imagePath) { %>
+                <img src="<%= item.imagePath %>" alt="<%= item.itemName %>" class="poster-image">
+                <% } else { %>
+                    <div class="poster-no-image">
+                        <i
+                            class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %> poster-no-image-icon"></i>
+                        <p>No Photo Available</p>
+                    </div>
+                    <% } %>
+        </div>
+
+        <!-- Item Details -->
+        <div class="poster-details">
+            <h2 class="poster-item-name">
+                <%= item.itemName %>
+            </h2>
+            <% if (item.category) { %>
+                <p class="poster-category"><i class="fas <%= item.category.icon || 'fa-box' %>"></i>
+                    <%= item.category.name %>
+                </p>
+                <% } %>
+                    <p class="poster-description">
+                        <%= item.description %>
+                    </p>
+                    <div class="poster-info-row">
+                        <div class="poster-info-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <strong>Location:</strong>
+                            <%= item.location %>
+                        </div>
+                        <div class="poster-info-item">
+                            <i class="fas fa-calendar"></i>
+                            <strong>Date:</strong>
+                            <%= new Date(item.dateLostFound).toLocaleDateString('en-US', { year: 'numeric' ,
+                                month: 'long' , day: 'numeric' }) %>
+                        </div>
+                    </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="poster-contact">
+            <h3>Contact Information</h3>
+            <p class="poster-contact-name"><i class="fas fa-user"></i>
+                <%= item.reporterName %>
+            </p>
+            <p class="poster-contact-email"><i class="fas fa-envelope"></i>
+                <%= item.reporterEmail %>
+            </p>
+            <% if (item.contactInfo) { %>
+                <p class="poster-contact-phone"><i class="fas fa-phone"></i>
+                    <%= item.contactInfo %>
+                </p>
+                <% } %>
+        </div>
+
+        <!-- QR Code / URL -->
+        <div class="poster-url">
+            <small>View online: lost-and-found-system-7ro8.onrender.com/items/<%= item._id %></small>
+        </div>
+
+        <!-- Tear-off strips -->
+        <div class="poster-tearoffs">
+            <% for (var i=0; i < 8; i++) { %>
+                <div class="poster-tearoff-strip">
+                    <span class="tearoff-text">
+                        <%= item.reporterEmail %>
+                    </span>
+                    <span class="tearoff-label">
+                        <%= item.type==='lost' ? 'LOST' : 'FOUND' %>: <%= item.itemName.substring(0, 20) %>
+                    </span>
+                </div>
+                <% } %>
+        </div>
+
+        <!-- Footer -->
+        <div class="poster-footer">
+            <p>Campus Lost & Found Management System</p>
+        </div>
+    </div>
+</div>
+
+<!-- Poster Print Styles -->
+<style>
+    /* === POSTER - HIDDEN ON SCREEN === */
+    .poster-container {
+        display: none;
+    }
+
+    /* === POSTER PRINT STYLES === */
+    @media print {
+
+        /* Hide everything on the page */
+        body.printing-poster * {
+            visibility: hidden !important;
+        }
+
+        /* Show only the poster */
+        body.printing-poster .poster-container,
+        body.printing-poster .poster-container * {
+            visibility: visible !important;
+        }
+
+        body.printing-poster .poster-container {
+            display: block !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 999999;
+            background: white;
+        }
+
+        .poster-page {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 10px 20px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #000;
+            background: #fff;
+        }
+
+        /* Header */
+        .poster-header {
+            text-align: center;
+            padding: 15px 10px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .poster-header-lost {
+            background: #dc3545 !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .poster-header-found {
+            background: #198754 !important;
+            color: white !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .poster-header-icon {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+
+        .poster-title {
+            font-size: 52px !important;
+            font-weight: 900 !important;
+            letter-spacing: 8px;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .poster-subtitle {
+            font-size: 16px;
+            margin: 5px 0 0;
+            font-style: italic;
+            opacity: 0.9;
+        }
+
+        /* Image */
+        .poster-image-section {
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .poster-image {
+            max-width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            border: 3px solid #333;
+            border-radius: 8px;
+        }
+
+        .poster-no-image {
+            border: 3px dashed #999;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            color: #666;
+        }
+
+        .poster-no-image-icon {
+            font-size: 50px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Details */
+        .poster-details {
+            text-align: center;
+            margin: 8px 0;
+        }
+
+        .poster-item-name {
+            font-size: 28px !important;
+            font-weight: 800 !important;
+            margin: 0 0 5px;
+            color: #000;
+        }
+
+        .poster-category {
+            font-size: 15px;
+            color: #555;
+            margin: 0 0 8px;
+        }
+
+        .poster-description {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #333;
+            margin: 0 0 10px;
+            padding: 0 20px;
+        }
+
+        .poster-info-row {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 5px;
+        }
+
+        .poster-info-item {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .poster-info-item i {
+            color: #555;
+            margin-right: 4px;
+        }
+
+        /* Contact */
+        .poster-contact {
+            background: #f8f9fa !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .poster-contact h3 {
+            font-size: 18px !important;
+            margin: 0 0 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .poster-contact p {
+            font-size: 15px;
+            margin: 4px 0;
+            color: #000;
+        }
+
+        .poster-contact i {
+            width: 20px;
+            text-align: center;
+            margin-right: 6px;
+        }
+
+        /* URL */
+        .poster-url {
+            text-align: center;
+            margin: 6px 0;
+            font-size: 10px;
+            color: #777;
+            word-break: break-all;
+        }
+
+        /* Tear-off strips */
+        .poster-tearoffs {
+            display: flex;
+            border-top: 2px dashed #000;
+            margin-top: 8px;
+            padding-top: 2px;
+        }
+
+        .poster-tearoff-strip {
+            flex: 1;
+            border-right: 1px dashed #999;
+            padding: 4px 2px;
+            text-align: center;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-size: 9px;
+            min-height: 80px;
+        }
+
+        .poster-tearoff-strip:last-child {
+            border-right: none;
+        }
+
+        .tearoff-text {
+            display: block;
+            font-weight: bold;
+            font-size: 9px;
+            color: #000;
+        }
+
+        .tearoff-label {
+            display: block;
+            font-size: 7px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* Footer */
+        .poster-footer {
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            margin-top: 5px;
+        }
+    }
+</style>

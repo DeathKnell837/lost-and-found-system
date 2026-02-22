@@ -2,7 +2,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2><i class="fas fa-magic me-2"></i>Item Matching</h2>
-            <p class="text-muted mb-0">Automatically find potential matches between lost and found items</p>
+            <p class="text-muted mb-0">Find potential matches between lost and found items</p>
         </div>
         <form action="/admin/matching/run" method="POST" class="d-inline">
             <button type="submit" class="btn btn-primary">
@@ -10,176 +10,334 @@
             </button>
         </form>
     </div>
-    
+
     <!-- Stats Cards -->
     <div class="row g-3 mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-danger text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-white-50">Lost Items</h6>
-                            <h3 class="mb-0"><%= stats.totalLost %></h3>
+                            <h6 class="text-white-50 mb-1">Lost Items</h6>
+                            <h3 class="mb-0">
+                                <%= stats.totalLost %>
+                            </h3>
                         </div>
                         <i class="fas fa-exclamation-triangle fa-2x opacity-50"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-success text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-white-50">Found Items</h6>
-                            <h3 class="mb-0"><%= stats.totalFound %></h3>
+                            <h6 class="text-white-50 mb-1">Found Items</h6>
+                            <h3 class="mb-0">
+                                <%= stats.totalFound %>
+                            </h3>
                         </div>
                         <i class="fas fa-hand-holding-heart fa-2x opacity-50"></i>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-info text-white">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="text-white-50">Items with Matches</h6>
-                            <h3 class="mb-0"><%= stats.withMatches %></h3>
+                            <h6 class="text-white-50 mb-1">Stored Matches</h6>
+                            <h3 class="mb-0">
+                                <%= stats.withMatches %>
+                            </h3>
                         </div>
                         <i class="fas fa-link fa-2x opacity-50"></i>
                     </div>
                 </div>
             </div>
         </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-dark-50 mb-1">Match Pairs</h6>
+                            <h3 class="mb-0">
+                                <%= stats.totalPairs %>
+                            </h3>
+                        </div>
+                        <i class="fas fa-exchange-alt fa-2x opacity-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    
-    <!-- How it Works -->
+
+    <!-- Scoring Legend -->
     <div class="card mb-4">
-        <div class="card-header bg-light">
-            <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>How Matching Works</h5>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-3 text-center">
-                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                        <i class="fas fa-tags"></i>
-                    </div>
-                    <h6 class="mt-2">Category</h6>
-                    <small class="text-muted">25 points if same category</small>
-                </div>
-                <div class="col-md-3 text-center">
-                    <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <h6 class="mt-2">Location</h6>
-                    <small class="text-muted">Up to 20 points for similar locations</small>
-                </div>
-                <div class="col-md-3 text-center">
-                    <div class="rounded-circle bg-warning text-white d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                        <i class="fas fa-calendar"></i>
-                    </div>
-                    <h6 class="mt-2">Date</h6>
-                    <small class="text-muted">Up to 20 points for close dates</small>
-                </div>
-                <div class="col-md-3 text-center">
-                    <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <h6 class="mt-2">Description</h6>
-                    <small class="text-muted">Up to 35 points for matching keywords</small>
-                </div>
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Score Breakdown</h5>
+            <div>
+                <span class="badge bg-success">70%+ Strong</span>
+                <span class="badge bg-warning text-dark ms-1">40-69% Moderate</span>
+                <span class="badge bg-secondary ms-1">30-39% Weak</span>
             </div>
-            <div class="text-center mt-3">
-                <span class="badge bg-success">60%+ = Good Match</span>
-                <span class="badge bg-warning text-dark ms-2">40-59% = Possible Match</span>
-                <span class="badge bg-secondary ms-2">&lt;40% = Low Match</span>
+        </div>
+        <div class="card-body py-2">
+            <div class="row text-center small">
+                <div class="col"><span class="badge bg-primary">Category</span> 25pts</div>
+                <div class="col"><span class="badge bg-success">Location</span> 20pts</div>
+                <div class="col"><span class="badge bg-warning text-dark">Date</span> 20pts</div>
+                <div class="col"><span class="badge bg-info">Name</span> 20pts</div>
+                <div class="col"><span class="badge bg-secondary">Description</span> 15pts</div>
+                <div class="col"><span class="badge bg-dark">Color/Brand</span> +10 bonus</div>
             </div>
         </div>
     </div>
-    
-    <!-- Items with Matches -->
+
+    <!-- Filter Controls -->
+    <div class="card mb-4">
+        <div class="card-body py-2">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <label class="form-label mb-0 fw-bold"><i class="fas fa-filter me-1"></i> Min Score:</label>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select form-select-sm" id="minScoreFilter" onchange="filterMatches()">
+                        <option value="30">30%+ (All)</option>
+                        <option value="40">40%+ (Moderate)</option>
+                        <option value="50" selected>50%+ (Good)</option>
+                        <option value="60">60%+ (Strong)</option>
+                        <option value="70">70%+ (Very Strong)</option>
+                    </select>
+                </div>
+                <div class="col-auto ms-auto">
+                    <span class="text-muted" id="visibleCount">
+                        <%= matchPairs.length %> pairs shown
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Live Match Pairs -->
     <div class="card">
         <div class="card-header bg-transparent">
-            <h5 class="mb-0"><i class="fas fa-link me-2"></i>Items with Potential Matches</h5>
+            <h5 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Match Pairs (Lost ↔ Found)</h5>
         </div>
         <div class="card-body">
-            <% if (itemsWithMatches.length === 0) { %>
+            <% if (matchPairs.length===0) { %>
                 <div class="text-center py-5">
                     <i class="fas fa-search fa-4x text-muted mb-3"></i>
-                    <h5>No Matches Found Yet</h5>
-                    <p class="text-muted">Click "Run Matching Algorithm" to find potential matches between lost and found items.</p>
+                    <h5>No Match Pairs Found</h5>
+                    <p class="text-muted">Click "Run Matching Algorithm" or add items to find matches.</p>
                 </div>
-            <% } else { %>
-                <div class="accordion" id="matchesAccordion">
-                    <% itemsWithMatches.forEach(function(item, index) { %>
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button <%= index > 0 ? 'collapsed' : '' %>" type="button" 
-                                        data-bs-toggle="collapse" data-bs-target="#match<%= index %>">
-                                    <span class="badge bg-<%= item.type === 'lost' ? 'danger' : 'success' %> me-2">
-                                        <%= item.type.toUpperCase() %>
-                                    </span>
-                                    <strong><%= item.itemName %></strong>
-                                    <span class="ms-auto me-3">
-                                        <span class="badge bg-info"><%= item.potentialMatches.length %> matches</span>
-                                    </span>
-                                </button>
-                            </h2>
-                            <div id="match<%= index %>" class="accordion-collapse collapse <%= index === 0 ? 'show' : '' %>"
-                                 data-bs-parent="#matchesAccordion">
-                                <div class="accordion-body">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <div class="card border-<%= item.type === 'lost' ? 'danger' : 'success' %>">
-                                                <div class="card-header bg-<%= item.type === 'lost' ? 'danger' : 'success' %> text-white">
-                                                    Original Item
+                <% } else { %>
+                    <div id="matchPairsContainer">
+                        <% matchPairs.forEach(function(pair, index) { %>
+                            <div class="match-pair-card mb-4 border rounded-3 overflow-hidden"
+                                data-score="<%= pair.score %>">
+                                <!-- Score Header Bar -->
+                                <div class="px-3 py-2 d-flex justify-content-between align-items-center"
+                                    style="background: <%= pair.score >= 70 ? 'linear-gradient(135deg, #198754, #20c997)' : pair.score >= 40 ? 'linear-gradient(135deg, #ffc107, #fd7e14)' : 'linear-gradient(135deg, #6c757d, #adb5bd)' %>; color: white;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="fw-bold fs-5">
+                                            <%= pair.score %>%
+                                        </span>
+                                        <span class="small opacity-75">match score</span>
+                                    </div>
+                                    <div class="d-flex gap-1 flex-wrap">
+                                        <% pair.highlights.forEach(function(h) { %>
+                                            <span class="badge bg-white text-dark" style="font-size: 0.7rem;">
+                                                <%= h %>
+                                            </span>
+                                            <% }); %>
+                                    </div>
+                                </div>
+
+                                <div class="row g-0">
+                                    <!-- Lost Item (Left) -->
+                                    <div class="col-md-5 p-3 border-end" style="background: rgba(220, 53, 69, 0.03);">
+                                        <div class="d-flex align-items-start gap-2">
+                                            <span class="badge bg-danger">LOST</span>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">
+                                                    <%= pair.lostItem.itemName %>
+                                                </h6>
+                                                <div class="small text-muted">
+                                                    <% if (pair.lostItem.category) { %>
+                                                        <span><i
+                                                                class="fas <%= pair.lostItem.category.icon || 'fa-box' %> me-1"></i>
+                                                            <%= pair.lostItem.category.name %>
+                                                        </span><br>
+                                                        <% } %>
+                                                            <span><i class="fas fa-map-marker-alt me-1"></i>
+                                                                <%= pair.lostItem.location %>
+                                                            </span><br>
+                                                            <span><i class="fas fa-calendar me-1"></i>
+                                                                <%= new
+                                                                    Date(pair.lostItem.dateLostFound).toLocaleDateString()
+                                                                    %>
+                                                            </span>
                                                 </div>
-                                                <div class="card-body">
-                                                    <% if (item.imagePath) { %>
-                                                        <img src="<%= item.imagePath %>" class="img-fluid rounded mb-2" style="max-height: 150px;">
+                                                <% if (pair.lostItem.imagePath) { %>
+                                                    <img src="<%= pair.lostItem.imagePath %>"
+                                                        class="img-fluid rounded mt-2"
+                                                        style="max-height: 100px; object-fit: cover;">
                                                     <% } %>
-                                                    <h6><%= item.itemName %></h6>
-                                                    <small class="text-muted d-block"><i class="fas fa-map-marker-alt me-1"></i><%= item.location %></small>
-                                                    <small class="text-muted d-block"><i class="fas fa-calendar me-1"></i><%= new Date(item.dateLostFound).toLocaleDateString() %></small>
-                                                    <a href="/items/<%= item._id %>" target="_blank" class="btn btn-sm btn-outline-primary mt-2">
-                                                        <i class="fas fa-external-link-alt"></i> View
-                                                    </a>
-                                                </div>
+                                                        <div class="mt-2">
+                                                            <a href="/items/<%= pair.lostItem._id %>" target="_blank"
+                                                                class="btn btn-sm btn-outline-danger">
+                                                                <i class="fas fa-external-link-alt me-1"></i>View
+                                                            </a>
+                                                        </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-8">
-                                            <h6>Potential Matches:</h6>
-                                            <div class="row g-2">
-                                                <% item.potentialMatches.filter(m => m.item).slice(0, 4).forEach(function(match) { %>
-                                                    <div class="col-md-6">
-                                                        <div class="card h-100">
-                                                            <div class="card-body p-2">
-                                                                <div class="d-flex justify-content-between align-items-start">
-                                                                    <div>
-                                                                        <strong><%= match.item.itemName %></strong>
-                                                                        <small class="text-muted d-block"><%= match.item.location %></small>
-                                                                    </div>
-                                                                    <span class="badge bg-<%= match.score >= 60 ? 'success' : match.score >= 40 ? 'warning' : 'secondary' %>">
-                                                                        <%= match.score %>%
-                                                                    </span>
-                                                                </div>
-                                                                <a href="/items/<%= match.item._id %>" target="_blank" class="btn btn-sm btn-link p-0">
-                                                                    View Item <i class="fas fa-arrow-right"></i>
-                                                                </a>
-                                                            </div>
+                                    </div>
+
+                                    <!-- Score Breakdown (Center) -->
+                                    <div class="col-md-2 p-2 d-flex flex-column justify-content-center align-items-center"
+                                        style="background: rgba(0,0,0,0.02);">
+                                        <div class="w-100 px-1">
+                                            <div class="mb-1">
+                                                <div class="d-flex justify-content-between" style="font-size: 0.65rem;">
+                                                    <span>Category</span><span>
+                                                        <%= pair.breakdown.category %>
+                                                    </span>
+                                                </div>
+                                                <div class="progress" style="height: 4px;">
+                                                    <div class="progress-bar bg-primary"
+                                                        style="width: <%= (pair.breakdown.category / 25) * 100 %>%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1">
+                                                <div class="d-flex justify-content-between" style="font-size: 0.65rem;">
+                                                    <span>Location</span><span>
+                                                        <%= pair.breakdown.location %>
+                                                    </span>
+                                                </div>
+                                                <div class="progress" style="height: 4px;">
+                                                    <div class="progress-bar bg-success"
+                                                        style="width: <%= (pair.breakdown.location / 20) * 100 %>%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1">
+                                                <div class="d-flex justify-content-between" style="font-size: 0.65rem;">
+                                                    <span>Date</span><span>
+                                                        <%= pair.breakdown.date %>
+                                                    </span>
+                                                </div>
+                                                <div class="progress" style="height: 4px;">
+                                                    <div class="progress-bar bg-warning"
+                                                        style="width: <%= (pair.breakdown.date / 20) * 100 %>%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1">
+                                                <div class="d-flex justify-content-between" style="font-size: 0.65rem;">
+                                                    <span>Name</span><span>
+                                                        <%= pair.breakdown.name %>
+                                                    </span>
+                                                </div>
+                                                <div class="progress" style="height: 4px;">
+                                                    <div class="progress-bar bg-info"
+                                                        style="width: <%= (pair.breakdown.name / 20) * 100 %>%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-1">
+                                                <div class="d-flex justify-content-between" style="font-size: 0.65rem;">
+                                                    <span>Desc</span><span>
+                                                        <%= pair.breakdown.description %>
+                                                    </span>
+                                                </div>
+                                                <div class="progress" style="height: 4px;">
+                                                    <div class="progress-bar bg-secondary"
+                                                        style="width: <%= (pair.breakdown.description / 15) * 100 %>%">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <% if (pair.breakdown.keywords> 0) { %>
+                                                <div class="mb-1">
+                                                    <div class="d-flex justify-content-between"
+                                                        style="font-size: 0.65rem;">
+                                                        <span>Bonus</span><span>+<%= pair.breakdown.keywords %></span>
+                                                    </div>
+                                                    <div class="progress" style="height: 4px;">
+                                                        <div class="progress-bar bg-dark"
+                                                            style="width: <%= (pair.breakdown.keywords / 10) * 100 %>%">
                                                         </div>
                                                     </div>
-                                                <% }); %>
+                                                </div>
+                                                <% } %>
+                                        </div>
+                                    </div>
+
+                                    <!-- Found Item (Right) -->
+                                    <div class="col-md-5 p-3" style="background: rgba(25, 135, 84, 0.03);">
+                                        <div class="d-flex align-items-start gap-2">
+                                            <span class="badge bg-success">FOUND</span>
+                                            <div class="flex-grow-1">
+                                                <h6 class="mb-1">
+                                                    <%= pair.foundItem.itemName %>
+                                                </h6>
+                                                <div class="small text-muted">
+                                                    <% if (pair.foundItem.category) { %>
+                                                        <span><i
+                                                                class="fas <%= pair.foundItem.category.icon || 'fa-box' %> me-1"></i>
+                                                            <%= pair.foundItem.category.name %>
+                                                        </span><br>
+                                                        <% } %>
+                                                            <span><i class="fas fa-map-marker-alt me-1"></i>
+                                                                <%= pair.foundItem.location %>
+                                                            </span><br>
+                                                            <span><i class="fas fa-calendar me-1"></i>
+                                                                <%= new
+                                                                    Date(pair.foundItem.dateLostFound).toLocaleDateString()
+                                                                    %>
+                                                            </span>
+                                                </div>
+                                                <% if (pair.foundItem.imagePath) { %>
+                                                    <img src="<%= pair.foundItem.imagePath %>"
+                                                        class="img-fluid rounded mt-2"
+                                                        style="max-height: 100px; object-fit: cover;">
+                                                    <% } %>
+                                                        <div class="mt-2">
+                                                            <a href="/items/<%= pair.foundItem._id %>" target="_blank"
+                                                                class="btn btn-sm btn-outline-success">
+                                                                <i class="fas fa-external-link-alt me-1"></i>View
+                                                            </a>
+                                                        </div>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    <% }); %>
-                </div>
-            <% } %>
+                            <% }); %>
+                    </div>
+                    <% } %>
         </div>
     </div>
 </div>
+
+<script>
+    function filterMatches() {
+        var minScore = parseInt(document.getElementById('minScoreFilter').value);
+        var cards = document.querySelectorAll('.match-pair-card');
+        var visibleCount = 0;
+        cards.forEach(function (card) {
+            var score = parseInt(card.getAttribute('data-score'));
+            if (score >= minScore) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        document.getElementById('visibleCount').textContent = visibleCount + ' pairs shown';
+    }
+    // Apply default filter on page load
+    document.addEventListener('DOMContentLoaded', filterMatches);
+</script>
