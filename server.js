@@ -58,8 +58,8 @@ const connectDB = require('./config/database');  // Database connection
 const routes = require('./routes');              // All URL routes
 const { setLocals } = require('./middleware/auth');  // Authentication middleware
 const { errorHandler } = require('./middleware/errorHandler');  // Error handling
-const { 
-    securityHeaders, 
+const {
+    securityHeaders,
     sanitizeInput,
     preventNoSQLInjection,
     slowRequestLogger
@@ -143,18 +143,25 @@ app.get('/favicon.ico', (req, res) => {
 // ============================================================
 // Sessions keep users logged in across page requests
 // Session data is stored in MongoDB (persists across server restarts)
+// Create session store with error handling
+const sessionStore = MongoStore.create({
+    mongoUrl: process.env.MONGODB_URI,  // Store sessions in MongoDB
+    collectionName: 'sessions',
+    ttl: 24 * 60 * 60,  // Session expires after 1 day
+    autoRemove: 'native',
+    touchAfter: 24 * 3600  // Only update session once per day
+});
+
+// Handle session store errors gracefully (don't crash the server)
+sessionStore.on('error', function (error) {
+    console.error('Session store error:', error.message);
+});
+
 app.use(session({
     secret: process.env.SESSION_SECRET || 'lost-and-found-secret-key',  // Encryption key
     resave: false,  // Don't save session if nothing changed
     saveUninitialized: false,  // Don't create session until something stored
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI,  // Store sessions in MongoDB
-        collectionName: 'sessions',
-        ttl: 24 * 60 * 60,  // Session expires after 1 day
-        autoRemove: 'native',
-        touchAfter: 24 * 3600,  // Only update session once per day
-        crypto: { secret: process.env.SESSION_SECRET || 'lost-and-found-secret-key' }
-    }),
+    store: sessionStore,
     cookie: {
         secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
         httpOnly: true,  // Prevent JavaScript access to cookie
