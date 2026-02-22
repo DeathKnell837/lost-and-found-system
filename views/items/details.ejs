@@ -381,16 +381,17 @@
             } else {
                 prompt('Copy this link:', window.location.href);
             }
-        }
+        });
+    }
 
     // === PRINT POSTER ===
     function printPoster() {
-                document.body.classList.add('printing-poster');
-                window.print();
-                setTimeout(function () {
-                    document.body.classList.remove('printing-poster');
-                }, 1000);
-            }
+        document.body.classList.add('printing-poster');
+        window.print();
+        setTimeout(function () {
+            document.body.classList.remove('printing-poster');
+        }, 1000);
+    }
 </script>
 
 <!-- ===== PRINTABLE POSTER (Hidden on screen, visible when printing) ===== -->
