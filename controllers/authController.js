@@ -137,10 +137,10 @@ exports.register = async (req, res) => {
 exports.verifyEmail = async (req, res) => {
     try {
         const { token } = req.params;
-        
+
         // Hash the token to compare with stored hash (security measure)
         const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
-        
+
         // Find user with matching token that hasn't expired
         const user = await User.findOne({
             emailVerificationToken: hashedToken,
@@ -179,10 +179,10 @@ exports.verifyEmail = async (req, res) => {
 exports.resendVerification = async (req, res) => {
     try {
         const { email } = req.body;
-        
+
         // Find unverified user with this email
         const user = await User.findOne({ email, isEmailVerified: false });
-        
+
         if (!user) {
             req.flash('error', 'No unverified account found with this email.');
             return res.redirect('/auth/login');
@@ -262,8 +262,21 @@ exports.login = async (req, res) => {
             role: user.role        // 'user' or 'admin'
         };
 
+        // If user is admin, also create admin session
+        // This allows admin to access /admin/* routes
+        if (user.role === 'admin') {
+            req.session.admin = {
+                id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role
+            };
+            req.flash('success', 'Welcome back, Admin ' + user.username + '!');
+            return res.redirect('/admin/dashboard');
+        }
+
         req.flash('success', 'Welcome back, ' + user.username + '!');
-        
+
         // Redirect to page user was trying to access, or home
         const returnTo = req.session.returnTo || '/';
         delete req.session.returnTo;
@@ -424,7 +437,7 @@ exports.getProfile = async (req, res) => {
         // Get full user data from database
         const user = await User.findById(req.session.user.id);
         const { Item } = require('../models');
-        
+
         // Get all items reported by this user
         const myItems = await Item.find({ reportedBy: user._id })
             .populate('category')
