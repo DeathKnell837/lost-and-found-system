@@ -319,8 +319,8 @@
     // === CONTACT REPORTER ===
     function contactReporter() {
         var email = '<%= item.reporterEmail %>';
-        var subject = 'Regarding: <%= item.itemName.replace(/' / g, "\\'") %> ';
-        var body = 'Hi, I am reaching out about your <%= item.type %> item "<%= item.itemName.replace(/' / g, "\\'") %> " posted on the Lost & Found system.';
+        var subject = 'Regarding: <%= item.itemName.split("'").join("\\'") %> ';
+        var body = 'Hi, I am reaching out about your <%= item.type %> item "<%= item.itemName.split("'").join("\\'") %> " posted on the Lost & Found system.';
 
         // Open Gmail compose directly in a new tab
         var gmailUrl = 'https://mail.google.com/mail/?view=cm&fs=1'
@@ -352,7 +352,7 @@
         var shareUrl = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href);
         // Try native share first on mobile
         if (navigator.share) {
-            navigator.share({ title: '<%= item.itemName.replace(/' / g, "\\'") %> ', url: window.location.href }).catch(function() {
+            navigator.share({ title: '<%= item.itemName.split("'").join("\\'") %> ', url: window.location.href }).catch(function() {
             window.open(shareUrl, 'fb', 'width=600,height=400');
         });
     } else {
@@ -362,13 +362,13 @@
 }
 
     function shareOnTwitter() {
-        var shareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.itemName.replace(/' / g, "\\'") %> ');
+        var shareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.itemName.split("'").join("\\'") %> ');
         window.open(shareUrl, 'tw', 'width=600,height=400');
         showToast('<i class="fab fa-twitter me-2"></i>Opening Twitter share...', 'info');
     }
 
     function shareOnWhatsApp() {
-        var text = '<%= item.itemName.replace(/' / g, "\\'") %> - ' + window.location.href;
+        var text = '<%= item.itemName.split("'").join("\\'") %> - ' + window.location.href;
         // Use direct WhatsApp URL
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
         showToast('<i class="fab fa-whatsapp me-2"></i>Opening WhatsApp...', 'success');
