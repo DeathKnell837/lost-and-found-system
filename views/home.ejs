@@ -1,3 +1,19 @@
+<!-- JSON-LD Structured Data for SEO -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Campus Lost & Found Management System",
+  "url": "https://lost-and-found-system-7ro8.onrender.com",
+  "description": "Campus Lost & Found Management System - Report and find lost items on campus. Simple, fast, and effective.",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://lost-and-found-system-7ro8.onrender.com/search?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
@@ -5,7 +21,7 @@
             <div class="col-lg-6">
                 <h1 class="display-4 fw-bold mb-4">Lost Something? Found Something?</h1>
                 <p class="lead mb-4">
-                    Our campus lost and found system helps you report lost items or 
+                    Our campus lost and found system helps you report lost items or
                     help reunite found items with their owners. Simple, fast, and effective.
                 </p>
                 <div class="d-flex gap-3 flex-wrap">
@@ -35,7 +51,9 @@
                     <div class="stat-icon text-danger mb-3">
                         <i class="fas fa-exclamation-circle fa-3x"></i>
                     </div>
-                    <h2 class="stat-number"><%= stats.totalLost %></h2>
+                    <h2 class="stat-number">
+                        <%= stats.totalLost %>
+                    </h2>
                     <p class="stat-label text-muted mb-0">Lost Items Reported</p>
                 </div>
             </div>
@@ -44,7 +62,9 @@
                     <div class="stat-icon text-success mb-3">
                         <i class="fas fa-check-circle fa-3x"></i>
                     </div>
-                    <h2 class="stat-number"><%= stats.totalFound %></h2>
+                    <h2 class="stat-number">
+                        <%= stats.totalFound %>
+                    </h2>
                     <p class="stat-label text-muted mb-0">Found Items Reported</p>
                 </div>
             </div>
@@ -53,7 +73,9 @@
                     <div class="stat-icon text-primary mb-3">
                         <i class="fas fa-handshake fa-3x"></i>
                     </div>
-                    <h2 class="stat-number"><%= stats.totalClaimed %></h2>
+                    <h2 class="stat-number">
+                        <%= stats.totalClaimed %>
+                    </h2>
                     <p class="stat-label text-muted mb-0">Items Successfully Claimed</p>
                 </div>
             </div>
@@ -73,8 +95,8 @@
                     <form action="/search" method="GET">
                         <div class="row g-3">
                             <div class="col-md-8">
-                                <input type="text" class="form-control form-control-lg" 
-                                       name="q" placeholder="Search by item name, description, or location...">
+                                <input type="text" class="form-control form-control-lg" name="q"
+                                    placeholder="Search by item name, description, or location...">
                             </div>
                             <div class="col-md-4">
                                 <button type="submit" class="btn btn-primary btn-lg w-100">
@@ -100,21 +122,21 @@
                 View All <i class="fas fa-arrow-right ms-1"></i>
             </a>
         </div>
-        
-        <% if (recentLost.length > 0) { %>
+
+        <% if (recentLost.length> 0) { %>
             <div class="row g-4">
                 <% recentLost.forEach(function(item) { %>
                     <div class="col-md-6 col-lg-4">
                         <%- include('partials/item-card', { item: item }) %>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
-        <% } else { %>
-            <div class="text-center py-5">
-                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-                <p class="text-muted">No lost items reported yet.</p>
-            </div>
-        <% } %>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                    <p class="text-muted">No lost items reported yet.</p>
+                </div>
+                <% } %>
     </div>
 </section>
 
@@ -129,21 +151,21 @@
                 View All <i class="fas fa-arrow-right ms-1"></i>
             </a>
         </div>
-        
-        <% if (recentFound.length > 0) { %>
+
+        <% if (recentFound.length> 0) { %>
             <div class="row g-4">
                 <% recentFound.forEach(function(item) { %>
                     <div class="col-md-6 col-lg-4">
                         <%- include('partials/item-card', { item: item }) %>
                     </div>
-                <% }); %>
+                    <% }); %>
             </div>
-        <% } else { %>
-            <div class="text-center py-5">
-                <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
-                <p class="text-muted">No found items reported yet.</p>
-            </div>
-        <% } %>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                    <p class="text-muted">No found items reported yet.</p>
+                </div>
+                <% } %>
     </div>
 </section>
 

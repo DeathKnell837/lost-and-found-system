@@ -1,0 +1,13 @@
+# Robots.txt for Campus Lost & Found Management System
+# https://lost-and-found-system-7ro8.onrender.com
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /user/
+Disallow: /auth/
+Disallow: /claims/
+Disallow: /report/
+
+# Sitemap location
+Sitemap: https://lost-and-found-system-7ro8.onrender.com/sitemap.xml
