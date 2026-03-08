@@ -55,14 +55,19 @@ let transporter = null;
 const getTransporter = () => {
     if (!transporter && process.env.EMAIL_USER && process.env.EMAIL_PASS) {
         transporter = nodemailer.createTransport({
-            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 587,
+            secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             },
-            connectionTimeout: 5000,
-            greetingTimeout: 5000,
-            socketTimeout: 10000
+            tls: {
+                rejectUnauthorized: false
+            },
+            connectionTimeout: 10000,
+            greetingTimeout: 10000,
+            socketTimeout: 15000
         });
     }
     return transporter;
@@ -155,6 +160,12 @@ const sendEmail = async (to, subject, htmlContent) => {
     } catch (error) {
         // Never throw - always return gracefully so email failures don't crash the app
         console.error('Email send error:', error.message || error);
+        console.error('Email error code:', error.code);
+        console.error('Email error command:', error.command);
+        // Reset transporter on connection errors so next attempt creates a fresh one
+        if (error.code === 'ESOCKET' || error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
+            transporter = null;
+        }
         return { success: false, error: error.message };
     }
 };
