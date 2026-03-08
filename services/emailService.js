@@ -39,16 +39,11 @@ const nodemailer = require('nodemailer');
 /**
  * CREATE EMAIL TRANSPORTER
  * 
- * The transporter is configured to use Gmail's SMTP server.
- * It handles the actual sending of emails.
+ * Uses Resend HTTP API (works on cloud platforms like Render)
+ * Falls back to Gmail SMTP for local development.
  * 
- * SMTP = Simple Mail Transfer Protocol
- * This is the standard protocol for sending emails.
- */
-/**
- * CREATE EMAIL TRANSPORTER
- * Created lazily - only when email is actually configured.
- * Falls back gracefully if credentials are missing or invalid.
+ * Resend is free (100 emails/day) and uses HTTPS (port 443)
+ * which is never blocked by cloud hosting providers.
  */
 let transporter = null;
 
@@ -136,33 +131,57 @@ const getEmailTemplate = (content, title = 'Lost & Found Notification') => `
  * @returns {Object} Result with success status and message/error
  */
 const sendEmail = async (to, subject, htmlContent) => {
+    const fullHtml = getEmailTemplate(htmlContent, subject);
+
+    // Try Resend HTTP API first (works on cloud platforms where SMTP is blocked)
+    if (process.env.RESEND_API_KEY) {
+        try {
+            const response = await fetch('https://api.resend.com/emails', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    from: process.env.RESEND_FROM || 'Campus Lost & Found <onboarding@resend.dev>',
+                    to: [to],
+                    subject: subject,
+                    html: fullHtml
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                console.log('Email sent via Resend:', data.id);
+                return { success: true, messageId: data.id };
+            }
+            console.error('Resend API error:', data);
+            return { success: false, error: data.message || 'Resend API error' };
+        } catch (error) {
+            console.error('Resend fetch error:', error.message);
+            return { success: false, error: error.message };
+        }
+    }
+
+    // Fallback: Gmail SMTP (works locally, blocked on some cloud platforms)
     try {
-        // Check if email is configured
         const emailTransporter = getTransporter();
         if (!emailTransporter) {
             console.log('Email not configured. Skipping email send to:', to);
-            console.log('Subject:', subject);
             return { success: false, message: 'Email not configured' };
         }
 
-        // Prepare email options
         const mailOptions = {
             from: `"Campus Lost & Found" <${process.env.EMAIL_USER}>`,
             to: to,
             subject: subject,
-            html: getEmailTemplate(htmlContent, subject)
+            html: fullHtml
         };
 
-        // Send email using transporter
         const info = await emailTransporter.sendMail(mailOptions);
-        console.log('Email sent:', info.messageId);
+        console.log('Email sent via SMTP:', info.messageId);
         return { success: true, messageId: info.messageId };
     } catch (error) {
-        // Never throw - always return gracefully so email failures don't crash the app
-        console.error('Email send error:', error.message || error);
-        console.error('Email error code:', error.code);
-        console.error('Email error command:', error.command);
-        // Reset transporter on connection errors so next attempt creates a fresh one
+        console.error('SMTP email error:', error.message, '| code:', error.code);
         if (error.code === 'ESOCKET' || error.code === 'ECONNECTION' || error.code === 'ETIMEDOUT') {
             transporter = null;
         }
