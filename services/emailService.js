@@ -39,11 +39,12 @@ const nodemailer = require('nodemailer');
 /**
  * CREATE EMAIL TRANSPORTER
  * 
- * Uses Resend HTTP API (works on cloud platforms like Render)
+ * Uses Brevo HTTP API (works on cloud platforms like Render where SMTP is blocked)
  * Falls back to Gmail SMTP for local development.
  * 
- * Resend is free (100 emails/day) and uses HTTPS (port 443)
+ * Brevo is free (300 emails/day) and uses HTTPS (port 443)
  * which is never blocked by cloud hosting providers.
+ * Unlike Resend, Brevo allows sending to ANY email on the free plan.
  */
 let transporter = null;
 
@@ -133,31 +134,32 @@ const getEmailTemplate = (content, title = 'Lost & Found Notification') => `
 const sendEmail = async (to, subject, htmlContent) => {
     const fullHtml = getEmailTemplate(htmlContent, subject);
 
-    // Try Resend HTTP API first (works on cloud platforms where SMTP is blocked)
-    if (process.env.RESEND_API_KEY) {
+    // Try Brevo HTTP API first (works on cloud platforms where SMTP is blocked)
+    if (process.env.BREVO_API_KEY) {
         try {
-            const response = await fetch('https://api.resend.com/emails', {
+            const senderEmail = process.env.EMAIL_USER || 'noreply@campus-lostfound.com';
+            const response = await fetch('https://api.brevo.com/v3/smtp/email', {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                    'api-key': process.env.BREVO_API_KEY,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    from: process.env.RESEND_FROM || 'Campus Lost & Found <onboarding@resend.dev>',
-                    to: [to],
+                    sender: { name: 'Campus Lost & Found', email: senderEmail },
+                    to: [{ email: to }],
                     subject: subject,
-                    html: fullHtml
+                    htmlContent: fullHtml
                 })
             });
             const data = await response.json();
             if (response.ok) {
-                console.log('Email sent via Resend:', data.id);
-                return { success: true, messageId: data.id };
+                console.log('Email sent via Brevo:', data.messageId);
+                return { success: true, messageId: data.messageId };
             }
-            console.error('Resend API error:', data);
-            return { success: false, error: data.message || 'Resend API error' };
+            console.error('Brevo API error:', JSON.stringify(data));
+            return { success: false, error: data.message || 'Brevo API error' };
         } catch (error) {
-            console.error('Resend fetch error:', error.message);
+            console.error('Brevo fetch error:', error.message);
             return { success: false, error: error.message };
         }
     }
