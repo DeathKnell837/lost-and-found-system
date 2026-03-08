@@ -158,8 +158,10 @@ exports.verifyEmail = async (req, res) => {
         user.emailVerificationExpires = undefined;
         await user.save();
 
-        // Send confirmation email
-        await emailService.sendEmailVerifiedEmail(user);
+        // Send confirmation email (non-blocking)
+        emailService.sendEmailVerifiedEmail(user).catch(err => {
+            console.error('Failed to send email verified notification:', err.message);
+        });
 
         req.flash('success', 'Email verified successfully! You can now log in.');
         res.redirect('/auth/login');
@@ -192,8 +194,10 @@ exports.resendVerification = async (req, res) => {
         const verificationToken = user.generateEmailVerificationToken();
         await user.save();
 
-        // Send verification email
-        await emailService.sendEmailVerificationEmail(user, verificationToken);
+        // Send verification email (non-blocking)
+        emailService.sendEmailVerificationEmail(user, verificationToken).catch(err => {
+            console.error('Failed to send verification email:', err.message);
+        });
 
         req.flash('success', 'Verification email sent! Please check your inbox.');
         res.redirect('/auth/login');
@@ -322,7 +326,7 @@ exports.forgotPassword = async (req, res) => {
         const resetToken = user.generatePasswordResetToken();
         await user.save();
 
-        // Send reset email
+        // Send reset email (don't await - send in background so user isn't stuck waiting)
         const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${resetToken}`;
         const subject = '🔑 Password Reset Request';
         const content = `
@@ -334,7 +338,10 @@ exports.forgotPassword = async (req, res) => {
             <p>If you didn't request this, you can safely ignore this email.</p>
         `;
 
-        await emailService.sendEmail(user.email, subject, content);
+        // Fire and forget - don't block the response
+        emailService.sendEmail(user.email, subject, content).catch(err => {
+            console.error('Failed to send password reset email:', err.message);
+        });
 
         req.flash('success', 'If an account with that email exists, a reset link has been sent.');
         res.redirect('/auth/forgot-password');
