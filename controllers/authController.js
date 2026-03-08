@@ -326,8 +326,9 @@ exports.forgotPassword = async (req, res) => {
         const resetToken = user.generatePasswordResetToken();
         await user.save();
 
-        // Send reset email (don't await - send in background so user isn't stuck waiting)
-        const resetUrl = `${req.protocol}://${req.get('host')}/auth/reset-password/${resetToken}`;
+        // Build reset URL - use BASE_URL for production or construct from request
+        const baseUrl = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+        const resetUrl = `${baseUrl}/auth/reset-password/${resetToken}`;
         const subject = '🔑 Password Reset Request';
         const content = `
             <h2>Password Reset</h2>
@@ -338,12 +339,16 @@ exports.forgotPassword = async (req, res) => {
             <p>If you didn't request this, you can safely ignore this email.</p>
         `;
 
-        // Fire and forget - don't block the response
-        emailService.sendEmail(user.email, subject, content).catch(err => {
-            console.error('Failed to send password reset email:', err.message);
-        });
+        // Send email and check result (timeouts prevent hanging)
+        const result = await emailService.sendEmail(user.email, subject, content);
+        console.log('Password reset email result:', JSON.stringify(result));
 
-        req.flash('success', 'If an account with that email exists, a reset link has been sent.');
+        if (result.success) {
+            req.flash('success', 'Password reset link has been sent to your email!');
+        } else {
+            console.error('Password reset email failed for:', user.email, 'Error:', result.error || result.message);
+            req.flash('error', 'Failed to send reset email. Please try again later.');
+        }
         res.redirect('/auth/forgot-password');
     } catch (error) {
         console.error('Forgot password error:', error);
