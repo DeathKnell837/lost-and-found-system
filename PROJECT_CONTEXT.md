@@ -21,7 +21,7 @@ I'm building a **Campus Lost & Found Management System** using Node.js, Express.
 
 ## Admin Credentials
 - **Username**: `admin`
-- **Password**: `admin123`
+- **Password**: `Siladan2026`
 
 ---
 

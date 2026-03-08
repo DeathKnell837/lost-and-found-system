@@ -538,7 +538,7 @@ lost-and-found-system/
 
 ### Admin Account
 - **Username**: admin
-- **Password**: admin123
+- **Password**: Siladan2026
 
 ### GitHub Repository
 - **URL**: https://github.com/DeathKnell837/lost-and-found-system

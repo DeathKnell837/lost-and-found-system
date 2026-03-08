@@ -8,28 +8,34 @@ A comprehensive web-based Lost and Found Item Management System designed for cam
 
 **Admin Login:**
 - Username: `admin`
-- Password: ``
+- Password: `Siladan2026`
 
 ## ✨ Features
 
 ### 👤 User Features
-- Register and login with email verification
+- Register and login
 - Report lost items with details, location, and images
 - Report found items with details, location, and images
 - Search and filter items by keyword, category, and date
 - Submit claims on items with proof of ownership
 - Track claim status
+- Password reset via email
+- User dashboard with personal stats
 - Receive email notifications
 - Dark mode support
+- PWA (Progressive Web App) - installable on mobile
 
 ### 🔧 Admin Features
-- Secure admin dashboard with statistics
+- Secure admin dashboard with statistics and analytics
 - Approve/reject pending item reports
 - Review and manage claim requests
+- Item matching algorithm (finds potential matches between lost & found items)
 - Manage item categories
-- Manage campus locations
-- User management
-- View system statistics
+- Manage campus locations (70+ predefined + user-suggested)
+- User management (activate/deactivate accounts)
+- Statistics with charts (monthly trends, category breakdown)
+- Export data as CSV (items, claims, statistics)
+- QR code and poster generation for items
 
 ## 🛠 Technology Stack
 
@@ -46,45 +52,47 @@ A comprehensive web-based Lost and Found Item Management System designed for cam
 ## 📁 Project Structure
 
 ```
-├── config/             # Configuration files
-│   ├── cloudinary.js   # Cloudinary setup
-│   ├── database.js     # MongoDB connection
-│   └── multer.js       # File upload config
-├── controllers/        # Route controllers
+├── config/              # Configuration files
+│   ├── cloudinary.js    # Cloudinary + Multer setup
+│   └── database.js      # MongoDB connection
+├── controllers/         # Route controllers
 │   ├── adminController.js
 │   ├── authController.js
 │   ├── claimController.js
-│   ├── itemController.js
-│   └── userController.js
-├── middleware/         # Custom middleware
-│   ├── auth.js         # Authentication
-│   ├── errorHandler.js # Error handling
-│   └── security.js     # Security middleware
-├── models/             # Mongoose models
+│   ├── homeController.js
+│   └── itemController.js
+├── middleware/          # Custom middleware
+│   ├── auth.js          # Authentication & authorization
+│   ├── deviceTracker.js # Device fingerprint tracking
+│   ├── errorHandler.js  # Error handling
+│   └── security.js      # Security headers & sanitization
+├── models/              # Mongoose models
 │   ├── Category.js
 │   ├── ClaimRequest.js
 │   ├── Item.js
 │   ├── Location.js
 │   └── User.js
-├── public/             # Static assets
+├── public/              # Static assets
 │   ├── css/
 │   ├── js/
-│   └── images/
-├── routes/             # Express routes
-├── services/           # Business logic
-│   ├── emailService.js
-│   └── matchingService.js
-├── views/              # EJS templates
+│   ├── manifest.json    # PWA manifest
+│   ├── sw.js            # Service worker
+│   ├── robots.txt       # SEO crawler rules
+│   └── sitemap.xml      # SEO sitemap
+├── routes/              # Express routes
+├── services/            # Business logic
+│   ├── emailService.js  # Gmail SMTP notifications
+│   └── matchingService.js # Item matching algorithm
+├── views/               # EJS templates
 │   ├── admin/
 │   ├── auth/
 │   ├── claims/
 │   ├── items/
 │   ├── layouts/
+│   ├── user/
 │   └── partials/
-├── .env                # Environment variables
-├── package.json
-├── server.js           # Application entry point
-└── README.md
+├── server.js            # Application entry point
+└── package.json
 ```
 
 ## 🚀 Installation
@@ -187,18 +195,26 @@ A comprehensive web-based Lost and Found Item Management System designed for cam
 
 ## 🔒 Security Features
 
-- Password hashing with bcrypt
-- Session-based authentication
-- CSRF protection
-- XSS prevention
-- Rate limiting
-- Input validation and sanitization
+- Password hashing with bcrypt (10 salt rounds)
+- Session-based authentication (MongoDB session store)
+- Security headers (X-Frame-Options, XSS protection)
+- NoSQL injection prevention
+- Input sanitization
+- Separate admin authentication session
 
 ## 📱 Responsive Design
 
 - Mobile-friendly interface
 - Dark mode support
-- PWA capabilities
+- PWA capabilities (installable, offline support)
+- Service Worker for caching
+
+## 🔍 SEO
+
+- robots.txt and sitemap.xml
+- Open Graph and Twitter Card meta tags
+- JSON-LD structured data
+- Google Search Console integration
 
 ## 👥 Target Users
 

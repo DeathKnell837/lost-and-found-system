@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Theme Demos - Lost & Found</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== THEME SWITCHER ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, sans-serif; transition: none; }
+        .theme-switcher {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 99999;
+            background: #111; padding: 10px 20px;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            overflow-x: auto;
+        }
+        .theme-switcher h6 { color: #fff; margin: 0; font-size: 0.8rem; white-space: nowrap; }
+        .theme-btn {
+            padding: 6px 14px; border: 2px solid transparent; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .theme-btn:hover { transform: scale(1.05); }
+        .theme-btn.active { transform: scale(1.08); box-shadow: 0 0 12px rgba(255,255,255,0.25); }
+
+        .tb-0 { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; border-color: #fff; }
+        .tb-1 { background: #1a2332; color: #f0a500; border-color: #f0a500; }
+        .tb-2 { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; border-color: #fff; }
+        .tb-3 { background: #fafaf9; color: #10b981; border-color: #10b981; }
+        .tb-4 { background: #1e1e2e; color: #ff6b35; border-color: #ff6b35; }
+
+        .demo-wrapper { padding-top: 56px; }
+        .theme-content { display: none; min-height: 100vh; }
+        .theme-content.active { display: block; }
+
+        /* Shared layout helpers */
+        .demo-navbar { padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; }
+        .demo-navbar .brand { font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .demo-navbar .nav-links { display: flex; gap: 16px; align-items: center; }
+        .demo-navbar .nav-links a { text-decoration: none; font-size: 0.82rem; font-weight: 500; transition: all 0.2s; }
+        .demo-navbar .search-box { border-radius: 20px; padding: 5px 14px; font-size: 0.8rem; outline: none; width: 150px; }
+        .demo-hero { padding: 40px 24px; text-align: center; }
+        .demo-hero h1 { font-family: 'Space Grotesk', sans-serif; font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+        .demo-hero p { font-size: 0.92rem; max-width: 480px; margin: 0 auto 18px; }
+        .hero-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+        .hero-btns button { padding: 8px 20px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.25s; border: none; }
+        .demo-stats { display: flex; gap: 14px; padding: 20px 24px; justify-content: center; flex-wrap: wrap; }
+        .stat-box { border-radius: 10px; padding: 16px 28px; text-align: center; min-width: 150px; transition: all 0.25s; }
+        .stat-box:hover { transform: translateY(-3px); }
+        .stat-box h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.6rem; font-weight: 800; margin: 0; }
+        .stat-box p { margin: 2px 0 0; font-size: 0.78rem; }
+        .demo-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; padding: 10px 24px 30px; }
+        .item-card { border-radius: 10px; overflow: hidden; transition: all 0.25s; }
+        .item-card:hover { transform: translateY(-3px); }
+        .card-placeholder { height: 130px; display: flex; align-items: center; justify-content: center; font-size: 2.4rem; }
+        .card-info { padding: 12px 14px; }
+        .card-info h6 { font-weight: 600; margin-bottom: 4px; font-size: 0.88rem; }
+        .card-info p { font-size: 0.78rem; margin-bottom: 3px; }
+        .card-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; }
+        .card-foot small { font-size: 0.72rem; }
+        .card-foot a { padding: 4px 12px; border-radius: 6px; font-size: 0.74rem; text-decoration: none; font-weight: 600; }
+        .section-title { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; padding: 16px 24px 0; display: flex; align-items: center; gap: 8px; }
+
+        /* ============================================
+           THEME 0: CURRENT IMPROVED (Indigo/Purple)
+           ============================================ */
+        .theme-0 { background: #f9fafb; color: #1f2937; }
+
+        .theme-0 .demo-navbar {
+            background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+            border-bottom: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .theme-0 .brand { color: #6366f1; }
+        .theme-0 .nav-links a { color: #6b7280; }
+        .theme-0 .nav-links a:hover { color: #6366f1; background: rgba(99,102,241,0.06); padding: 4px 10px; border-radius: 6px; }
+        .theme-0 .search-box { background: #f3f4f6; border: 1px solid #e5e7eb; color: #374151; }
+
+        .theme-0 .demo-hero {
+            background: linear-gradient(135deg, #312e81 0%, #4f46e5 40%, #6366f1 70%, #818cf8 100%);
+            color: #fff; padding: 44px 24px;
+        }
+        .theme-0 .demo-hero p { color: rgba(255,255,255,0.75); }
+        .theme-0 .btn-primary-t0 { background: #fff; color: #4f46e5; }
+        .theme-0 .btn-primary-t0:hover { background: #eef2ff; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .theme-0 .btn-outline-t0 { background: transparent; color: #fff; border: 1.5px solid rgba(255,255,255,0.5); }
+        .theme-0 .btn-outline-t0:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+
+        .theme-0 .stat-box {
+            background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+            border: 1px solid #f3f4f6;
+        }
+        .theme-0 .stat-box:hover { box-shadow: 0 4px 12px rgba(99,102,241,0.1); border-color: #c7d2fe; }
+        .theme-0 .stat-box h3 { color: #4f46e5; }
+        .theme-0 .stat-box p { color: #9ca3af; }
+        .theme-0 .stat-box .stat-icon { font-size: 1.2rem; margin-bottom: 4px; }
+        .theme-0 .stat-box .stat-icon.text-danger { color: #ef4444; }
+        .theme-0 .stat-box .stat-icon.text-success { color: #10b981; }
+        .theme-0 .stat-box .stat-icon.text-primary { color: #6366f1; }
+
+        .theme-0 .section-title { color: #111827; }
+
+        .theme-0 .item-card {
+            background: #fff; border: 1px solid #f3f4f6;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .theme-0 .item-card:hover { box-shadow: 0 6px 20px rgba(99,102,241,0.12); border-color: #c7d2fe; }
+        .theme-0 .card-placeholder.lost { background: linear-gradient(145deg, #fef2f2, #ffe4e6); color: #ef4444; }
+        .theme-0 .card-placeholder.found { background: linear-gradient(145deg, #ecfdf5, #d1fae5); color: #10b981; }
+        .theme-0 .card-info h6 { color: #111827; }
+        .theme-0 .card-info p { color: #9ca3af; }
+        .theme-0 .card-foot { border-top: 1px solid #f3f4f6; }
+        .theme-0 .card-foot small { color: #d1d5db; }
+        .theme-0 .card-foot a { background: #6366f1; color: #fff; }
+        .theme-0 .card-foot a:hover { background: #4f46e5; }
+
+        /* Dark mode preview for Theme 0 */
+        .theme-0 .dark-preview { background: #0f172a; padding: 20px 24px; margin-top: 10px; border-radius: 0; }
+        .theme-0 .dark-preview .section-title { color: #f1f5f9; }
+        .theme-0 .dark-preview .item-card { background: #1e293b; border-color: #334155; }
+        .theme-0 .dark-preview .item-card:hover { border-color: #818cf8; box-shadow: 0 6px 20px rgba(99,102,241,0.15); }
+        .theme-0 .dark-preview .card-placeholder.lost { background: linear-gradient(145deg, #1a0505, #450a0a); color: #fca5a5; }
+        .theme-0 .dark-preview .card-placeholder.found { background: linear-gradient(145deg, #021a09, #14532d); color: #86efac; }
+        .theme-0 .dark-preview .card-info h6 { color: #f1f5f9; }
+        .theme-0 .dark-preview .card-info p { color: #94a3b8; }
+        .theme-0 .dark-preview .card-foot { border-top-color: #334155; }
+        .theme-0 .dark-preview .card-foot small { color: #64748b; }
+
+        /* ============================================
+           THEME 1: CAMPUS MODERN
+           ============================================ */
+        .theme-1 { background: #f0f2f5; color: #1a2332; }
+        .theme-1 .demo-navbar { background: #1a2332; }
+        .theme-1 .brand { color: #f0a500; }
+        .theme-1 .nav-links a { color: rgba(255,255,255,0.75); }
+        .theme-1 .nav-links a:hover { color: #f0a500; }
+        .theme-1 .search-box { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); color: #fff; }
+        .theme-1 .demo-hero { background: linear-gradient(135deg, #1a2332 0%, #2c3e50 50%, #1a2332 100%); color: #fff; }
+        .theme-1 .demo-hero h1 span { color: #f0a500; }
+        .theme-1 .demo-hero p { color: rgba(255,255,255,0.65); }
+        .theme-1 .btn-t1a { background: #f0a500; color: #1a2332; }
+        .theme-1 .btn-t1a:hover { background: #d4920a; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(240,165,0,0.35); }
+        .theme-1 .btn-t1b { background: transparent; color: #fff; border: 1.5px solid #f0a500; }
+        .theme-1 .btn-t1b:hover { background: #f0a500; color: #1a2332; }
+        .theme-1 .stat-box { background: #fff; border-left: 3px solid #f0a500; box-shadow: 0 1px 6px rgba(0,0,0,0.05); }
+        .theme-1 .stat-box h3 { color: #1a2332; }
+        .theme-1 .stat-box p { color: #888; }
+        .theme-1 .item-card { background: #fff; box-shadow: 0 1px 6px rgba(0,0,0,0.05); border: 1px solid #e8e8e8; }
+        .theme-1 .item-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-color: #f0a500; }
+        .theme-1 .card-placeholder.lost { background: linear-gradient(135deg,#fff5f5,#ffe0e0); color: #dc3545; }
+        .theme-1 .card-placeholder.found { background: linear-gradient(135deg,#f0fdf4,#dcfce7); color: #198754; }
+        .theme-1 .card-info h6 { color: #1a2332; }
+        .theme-1 .card-info p { color: #888; }
+        .theme-1 .card-foot { border-top: 1px solid #eee; }
+        .theme-1 .card-foot small { color: #bbb; }
+        .theme-1 .card-foot a { background: #1a2332; color: #f0a500; }
+
+        /* ============================================
+           THEME 2: GLASSMORPHISM
+           ============================================ */
+        .theme-2 {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff; position: relative;
+        }
+        .theme-2::before {
+            content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle at 20% 80%, rgba(120,100,255,0.25) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255,100,200,0.15) 0%, transparent 50%);
+            z-index: 0; pointer-events: none;
+        }
+        .theme-2 > * { position: relative; z-index: 1; }
+        .theme-2 .demo-navbar { background: rgba(255,255,255,0.06); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .theme-2 .brand { background: linear-gradient(135deg,#a78bfa,#6dd5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-2 .nav-links a { color: rgba(255,255,255,0.65); }
+        .theme-2 .nav-links a:hover { color: #a78bfa; }
+        .theme-2 .search-box { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #fff; backdrop-filter: blur(10px); }
+        .theme-2 .demo-hero h1 span { background: linear-gradient(135deg,#a78bfa,#f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-2 .demo-hero p { color: rgba(255,255,255,0.55); }
+        .theme-2 .btn-t2a { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; box-shadow: 0 4px 15px rgba(102,126,234,0.35); }
+        .theme-2 .btn-t2a:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(102,126,234,0.5); }
+        .theme-2 .btn-t2b { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+        .theme-2 .btn-t2b:hover { background: rgba(255,255,255,0.15); border-color: #a78bfa; }
+        .theme-2 .stat-box { background: rgba(255,255,255,0.06); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+        .theme-2 .stat-box:hover { background: rgba(255,255,255,0.1); border-color: rgba(167,139,250,0.4); }
+        .theme-2 .stat-box h3 { background: linear-gradient(135deg,#a78bfa,#6dd5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-2 .stat-box p { color: rgba(255,255,255,0.5); }
+        .theme-2 .item-card { background: rgba(255,255,255,0.06); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+        .theme-2 .item-card:hover { background: rgba(255,255,255,0.1); border-color: rgba(167,139,250,0.35); box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+        .theme-2 .card-placeholder.lost { background: rgba(220,53,69,0.12); color: #f87171; }
+        .theme-2 .card-placeholder.found { background: rgba(16,185,129,0.12); color: #34d399; }
+        .theme-2 .card-info h6 { color: #fff; }
+        .theme-2 .card-info p { color: rgba(255,255,255,0.45); }
+        .theme-2 .card-foot { border-top: 1px solid rgba(255,255,255,0.06); }
+        .theme-2 .card-foot small { color: rgba(255,255,255,0.3); }
+        .theme-2 .card-foot a { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; border-radius: 16px; }
+
+        /* ============================================
+           THEME 3: SOFT & MINIMAL
+           ============================================ */
+        .theme-3 { background: #fafaf9; color: #374151; }
+        .theme-3 .demo-navbar { background: #fff; border-bottom: 1px solid #e5e7eb; }
+        .theme-3 .brand { color: #10b981; }
+        .theme-3 .nav-links a { color: #6b7280; padding-bottom: 2px; border-bottom: 2px solid transparent; }
+        .theme-3 .nav-links a:hover { color: #10b981; border-bottom-color: #10b981; }
+        .theme-3 .search-box { background: #f9fafb; border: 1px solid #e5e7eb; color: #374151; border-radius: 8px; }
+        .theme-3 .demo-hero { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 48px 24px; }
+        .theme-3 .demo-hero h1 { color: #111827; }
+        .theme-3 .demo-hero h1 span { color: #10b981; }
+        .theme-3 .demo-hero p { color: #6b7280; }
+        .theme-3 .btn-t3a { background: #10b981; color: #fff; }
+        .theme-3 .btn-t3a:hover { background: #059669; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(16,185,129,0.25); }
+        .theme-3 .btn-t3b { background: #fff; color: #10b981; border: 1.5px solid #10b981; }
+        .theme-3 .btn-t3b:hover { background: #ecfdf5; }
+        .theme-3 .stat-box { background: #fff; border: 1px solid #e5e7eb; }
+        .theme-3 .stat-box:hover { border-color: #10b981; box-shadow: 0 3px 10px rgba(0,0,0,0.03); }
+        .theme-3 .stat-box h3 { color: #111827; }
+        .theme-3 .stat-box p { color: #9ca3af; }
+        .theme-3 .item-card { background: #fff; border: 1px solid #e5e7eb; }
+        .theme-3 .item-card:hover { border-color: #10b981; box-shadow: 0 4px 14px rgba(0,0,0,0.04); }
+        .theme-3 .card-placeholder.lost { background: #fef2f2; color: #ef4444; }
+        .theme-3 .card-placeholder.found { background: #ecfdf5; color: #10b981; }
+        .theme-3 .card-info h6 { color: #111827; }
+        .theme-3 .card-info p { color: #9ca3af; }
+        .theme-3 .card-foot { border-top: 1px solid #f3f4f6; }
+        .theme-3 .card-foot small { color: #d1d5db; }
+        .theme-3 .card-foot a { background: #10b981; color: #fff; }
+
+        /* ============================================
+           THEME 4: BOLD & VIBRANT
+           ============================================ */
+        .theme-4 { background: #13111c; color: #e2e0ea; }
+        .theme-4 .demo-navbar { background: #1e1e2e; border-bottom: 3px solid; border-image: linear-gradient(90deg,#ff6b35,#00d4ff) 1; }
+        .theme-4 .brand { color: #ff6b35; }
+        .theme-4 .nav-links a { color: rgba(255,255,255,0.6); }
+        .theme-4 .nav-links a:hover { color: #00d4ff; }
+        .theme-4 .search-box { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #fff; border-radius: 8px; }
+        .theme-4 .demo-hero { background: linear-gradient(135deg, #13111c, #1e1e2e, #13111c); position: relative; overflow: hidden; }
+        .theme-4 .demo-hero::before {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            width: 350px; height: 350px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,107,53,0.1) 0%, transparent 65%); pointer-events: none;
+        }
+        .theme-4 .demo-hero h1, .theme-4 .demo-hero p, .theme-4 .hero-btns { position: relative; }
+        .theme-4 .demo-hero h1 span { background: linear-gradient(135deg,#ff6b35,#00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-4 .demo-hero p { color: rgba(255,255,255,0.5); }
+        .theme-4 .btn-t4a { background: linear-gradient(135deg,#ff6b35,#ff8c42); color: #fff; box-shadow: 0 4px 15px rgba(255,107,53,0.3); }
+        .theme-4 .btn-t4a:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 6px 25px rgba(255,107,53,0.45); }
+        .theme-4 .btn-t4b { background: transparent; color: #00d4ff; border: 1.5px solid #00d4ff; }
+        .theme-4 .btn-t4b:hover { background: #00d4ff; color: #13111c; box-shadow: 0 4px 15px rgba(0,212,255,0.25); }
+        .theme-4 .stat-box { background: #1e1e2e; border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden; }
+        .theme-4 .stat-box::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,#ff6b35,#00d4ff); opacity: 0; transition: opacity 0.3s; }
+        .theme-4 .stat-box:hover { border-color: rgba(255,107,53,0.25); }
+        .theme-4 .stat-box:hover::after { opacity: 1; }
+        .theme-4 .stat-box h3 { background: linear-gradient(135deg,#ff6b35,#00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .theme-4 .stat-box p { color: rgba(255,255,255,0.4); }
+        .theme-4 .item-card { background: #1e1e2e; border: 1px solid rgba(255,255,255,0.05); }
+        .theme-4 .item-card:hover { border-color: rgba(255,107,53,0.35); box-shadow: 0 8px 25px rgba(255,107,53,0.08); }
+        .theme-4 .card-placeholder.lost { background: rgba(255,107,53,0.08); color: #ff6b35; }
+        .theme-4 .card-placeholder.found { background: rgba(0,212,255,0.08); color: #00d4ff; }
+        .theme-4 .card-info h6 { color: #fff; }
+        .theme-4 .card-info p { color: rgba(255,255,255,0.4); }
+        .theme-4 .card-foot { border-top: 1px solid rgba(255,255,255,0.05); }
+        .theme-4 .card-foot small { color: rgba(255,255,255,0.25); }
+        .theme-4 .card-foot a { background: linear-gradient(135deg,#ff6b35,#ff8c42); color: #fff; }
+
+        /* Theme label */
+        .theme-label { text-align: center; padding: 14px; font-size: 0.75rem; color: #999; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* ===== HOW IT WORKS — shared ===== */
+        .how-section { padding: 36px 24px; }
+        .how-section h3 { font-family: 'Space Grotesk', sans-serif; font-size: 1.15rem; font-weight: 700; text-align: center; margin-bottom: 24px; }
+        .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-width: 800px; margin: 0 auto; position: relative; }
+        /* connector line behind circles */
+        .how-grid::before { content:''; position: absolute; top: 28px; left: 15%; right: 15%; height: 2px; z-index: 0; }
+        .how-step { text-align: center; position: relative; z-index: 1; }
+        .step-num {
+            width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 10px; font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 800;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .step-num:hover { transform: scale(1.1); }
+        .how-step h5 { font-family: 'Space Grotesk', sans-serif; font-size: 0.88rem; font-weight: 700; margin-bottom: 4px; }
+        .how-step p { font-size: 0.76rem; line-height: 1.45; max-width: 220px; margin: 0 auto; }
+
+        /* ===== SEARCH SECTION — shared ===== */
+        .search-section { padding: 28px 24px; }
+        .search-section h4 { font-family: 'Space Grotesk', sans-serif; font-size: 1rem; font-weight: 700; text-align: center; margin-bottom: 14px; }
+        .search-row { display: flex; gap: 10px; max-width: 600px; margin: 0 auto; }
+        .search-row input { flex: 1; padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; outline: none; }
+        .search-row button { padding: 10px 22px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; border: none; cursor: pointer; transition: all 0.25s; white-space: nowrap; }
+
+        /* ===== FOOTER — shared ===== */
+        .demo-footer { padding: 30px 24px 14px; }
+        .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1.5fr; gap: 24px; margin-bottom: 18px; }
+        .footer-grid h6 { font-family: 'Space Grotesk', sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+        .footer-grid p, .footer-grid li { font-size: 0.76rem; line-height: 1.7; }
+        .footer-grid ul { list-style: none; padding: 0; margin: 0; }
+        .footer-grid ul li a { text-decoration: none; transition: all 0.2s; }
+        .footer-bottom { border-top: 1px solid; padding-top: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .footer-bottom p { font-size: 0.72rem; margin: 0; }
+        .footer-bottom .socials { display: flex; gap: 12px; }
+        .footer-bottom .socials a { font-size: 0.9rem; text-decoration: none; transition: all 0.2s; }
+
+        /* T0 — How It Works */
+        .theme-0 .how-section { background: linear-gradient(135deg, #312e81, #4f46e5, #6366f1); color: #fff; }
+        .theme-0 .how-grid::before { background: rgba(255,255,255,0.2); }
+        .theme-0 .step-num { background: #fff; color: #4f46e5; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .theme-0 .step-num:hover { box-shadow: 0 6px 30px rgba(0,0,0,0.25); }
+        .theme-0 .how-step p { color: rgba(255,255,255,0.7); }
+        /* T0 — Search */
+        .theme-0 .search-section { background: #f9fafb; }
+        .theme-0 .search-section h4 { color: #111827; }
+        .theme-0 .search-row input { background: #fff; border: 2px solid #6366f1; color: #374151; }
+        .theme-0 .search-row input:focus { box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+        .theme-0 .search-row button { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+        .theme-0 .search-row button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,0.4); }
+        /* T0 — Footer */
+        .theme-0 .demo-footer { background: #0f172a; color: #94a3b8; }
+        .theme-0 .demo-footer h6 { color: #f1f5f9; }
+        .theme-0 .demo-footer .brand-foot { color: #818cf8; font-family: 'Space Grotesk',sans-serif; font-weight: 700; font-size: 1rem; }
+        .theme-0 .footer-grid ul li a { color: #94a3b8; }
+        .theme-0 .footer-grid ul li a:hover { color: #818cf8; padding-left: 4px; }
+        .theme-0 .footer-bottom { border-color: #1e293b; color: #64748b; }
+        .theme-0 .footer-bottom .socials a { color: #64748b; }
+        .theme-0 .footer-bottom .socials a:hover { color: #818cf8; }
+
+        /* T1 — How It Works */
+        .theme-1 .how-section { background: linear-gradient(135deg, #1a2332, #2c3e50); color: #fff; }
+        .theme-1 .how-grid::before { background: rgba(240,165,0,0.3); }
+        .theme-1 .step-num { background: #f0a500; color: #1a2332; box-shadow: 0 4px 20px rgba(240,165,0,0.3); }
+        .theme-1 .how-step p { color: rgba(255,255,255,0.6); }
+        .theme-1 .search-section { background: #f0f2f5; }
+        .theme-1 .search-section h4 { color: #1a2332; }
+        .theme-1 .search-row input { background: #fff; border: 2px solid #f0a500; color: #1a2332; }
+        .theme-1 .search-row button { background: #f0a500; color: #1a2332; }
+        .theme-1 .search-row button:hover { background: #d4920a; transform: translateY(-2px); }
+        .theme-1 .demo-footer { background: #1a2332; color: rgba(255,255,255,0.5); }
+        .theme-1 .demo-footer h6 { color: #f0a500; }
+        .theme-1 .demo-footer .brand-foot { color: #f0a500; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1rem; }
+        .theme-1 .footer-grid ul li a { color: rgba(255,255,255,0.5); }
+        .theme-1 .footer-grid ul li a:hover { color: #f0a500; padding-left: 4px; }
+        .theme-1 .footer-bottom { border-color: rgba(255,255,255,0.08); }
+        .theme-1 .footer-bottom .socials a { color: rgba(255,255,255,0.4); }
+        .theme-1 .footer-bottom .socials a:hover { color: #f0a500; }
+
+        /* T2 — How It Works */
+        .theme-2 .how-section { background: rgba(255,255,255,0.03); backdrop-filter: blur(10px); }
+        .theme-2 .how-grid::before { background: linear-gradient(90deg,rgba(167,139,250,0.3),rgba(109,213,250,0.3)); }
+        .theme-2 .step-num { background: rgba(255,255,255,0.1); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.15); color: #a78bfa; }
+        .theme-2 .step-num:hover { background: rgba(255,255,255,0.18); border-color: #a78bfa; }
+        .theme-2 .how-step h5 { color: #fff; }
+        .theme-2 .how-step p { color: rgba(255,255,255,0.5); }
+        .theme-2 .search-section { background: rgba(255,255,255,0.03); }
+        .theme-2 .search-section h4 { color: rgba(255,255,255,0.8); }
+        .theme-2 .search-row input { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #fff; backdrop-filter: blur(10px); }
+        .theme-2 .search-row button { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; box-shadow: 0 4px 15px rgba(102,126,234,0.35); }
+        .theme-2 .search-row button:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(102,126,234,0.5); }
+        .theme-2 .demo-footer { background: rgba(0,0,0,0.2); backdrop-filter: blur(10px); color: rgba(255,255,255,0.4); }
+        .theme-2 .demo-footer h6 { color: rgba(255,255,255,0.7); }
+        .theme-2 .demo-footer .brand-foot { background: linear-gradient(135deg,#a78bfa,#6dd5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1rem; }
+        .theme-2 .footer-grid ul li a { color: rgba(255,255,255,0.4); }
+        .theme-2 .footer-grid ul li a:hover { color: #a78bfa; }
+        .theme-2 .footer-bottom { border-color: rgba(255,255,255,0.06); }
+        .theme-2 .footer-bottom .socials a { color: rgba(255,255,255,0.3); }
+        .theme-2 .footer-bottom .socials a:hover { color: #a78bfa; }
+
+        /* T3 — How It Works */
+        .theme-3 .how-section { background: #fff; border-top: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; }
+        .theme-3 .how-section h3 { color: #111827; }
+        .theme-3 .how-grid::before { background: #e5e7eb; }
+        .theme-3 .step-num { background: #10b981; color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.25); }
+        .theme-3 .how-step h5 { color: #111827; }
+        .theme-3 .how-step p { color: #9ca3af; }
+        .theme-3 .search-section { background: #fafaf9; }
+        .theme-3 .search-section h4 { color: #111827; }
+        .theme-3 .search-row input { background: #fff; border: 1.5px solid #e5e7eb; color: #374151; }
+        .theme-3 .search-row input:focus { border-color: #10b981; }
+        .theme-3 .search-row button { background: #10b981; color: #fff; }
+        .theme-3 .search-row button:hover { background: #059669; transform: translateY(-2px); }
+        .theme-3 .demo-footer { background: #111827; color: #9ca3af; }
+        .theme-3 .demo-footer h6 { color: #f9fafb; }
+        .theme-3 .demo-footer .brand-foot { color: #10b981; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1rem; }
+        .theme-3 .footer-grid ul li a { color: #9ca3af; }
+        .theme-3 .footer-grid ul li a:hover { color: #10b981; padding-left: 4px; }
+        .theme-3 .footer-bottom { border-color: #1f2937; }
+        .theme-3 .footer-bottom .socials a { color: #6b7280; }
+        .theme-3 .footer-bottom .socials a:hover { color: #10b981; }
+
+        /* T4 — How It Works */
+        .theme-4 .how-section { background: #1e1e2e; position: relative; overflow: hidden; }
+        .theme-4 .how-section::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,#ff6b35,#00d4ff); }
+        .theme-4 .how-grid::before { background: linear-gradient(90deg,rgba(255,107,53,0.2),rgba(0,212,255,0.2)); }
+        .theme-4 .step-num { background: linear-gradient(135deg,#ff6b35,#ff8c42); color: #fff; box-shadow: 0 4px 15px rgba(255,107,53,0.3); }
+        .theme-4 .step-num:hover { box-shadow: 0 6px 25px rgba(255,107,53,0.45); }
+        .theme-4 .how-step h5 { color: #fff; }
+        .theme-4 .how-step p { color: rgba(255,255,255,0.45); }
+        .theme-4 .search-section { background: #13111c; }
+        .theme-4 .search-section h4 { color: rgba(255,255,255,0.8); }
+        .theme-4 .search-row input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #fff; }
+        .theme-4 .search-row input:focus { border-color: #ff6b35; }
+        .theme-4 .search-row button { background: linear-gradient(135deg,#ff6b35,#ff8c42); color: #fff; box-shadow: 0 4px 15px rgba(255,107,53,0.3); }
+        .theme-4 .search-row button:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba(255,107,53,0.45); }
+        .theme-4 .demo-footer { background: #0d0b14; color: rgba(255,255,255,0.35); }
+        .theme-4 .demo-footer h6 { color: rgba(255,255,255,0.7); }
+        .theme-4 .demo-footer .brand-foot { background:linear-gradient(135deg,#ff6b35,#00d4ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1rem; }
+        .theme-4 .footer-grid ul li a { color: rgba(255,255,255,0.35); }
+        .theme-4 .footer-grid ul li a:hover { color: #00d4ff; padding-left: 4px; }
+        .theme-4 .footer-bottom { border-color: rgba(255,255,255,0.05); }
+        .theme-4 .footer-bottom .socials a { color: rgba(255,255,255,0.25); }
+        .theme-4 .footer-bottom .socials a:hover { color: #ff6b35; }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Switcher Bar -->
+    <div class="theme-switcher">
+        <h6><i class="fas fa-palette me-1"></i>Theme:</h6>
+        <button class="theme-btn tb-0 active" onclick="switchTheme(0)">✨ Current Improved</button>
+        <button class="theme-btn tb-1" onclick="switchTheme(1)">🎓 Campus Modern</button>
+        <button class="theme-btn tb-2" onclick="switchTheme(2)">🌊 Glassmorphism</button>
+        <button class="theme-btn tb-3" onclick="switchTheme(3)">🌿 Soft Minimal</button>
+        <button class="theme-btn tb-4" onclick="switchTheme(4)">🔥 Bold Vibrant</button>
+    </div>
+
+    <div class="demo-wrapper">
+
+        <!-- ==================== THEME 0: CURRENT IMPROVED ==================== -->
+        <div id="theme0" class="theme-content theme-0 active">
+            <div class="demo-navbar">
+                <div class="brand"><i class="fas fa-search-location"></i> Lost & Found</div>
+                <div class="nav-links">
+                    <a href="#"><i class="fas fa-home me-1"></i>Home</a>
+                    <a href="#"><i class="fas fa-exclamation-circle me-1"></i>Lost Items</a>
+                    <a href="#"><i class="fas fa-check-circle me-1"></i>Found Items</a>
+                    <a href="#"><i class="fas fa-handshake me-1"></i>Claimed</a>
+                    <input class="search-box" placeholder="Search items...">
+                </div>
+            </div>
+            <div class="demo-hero">
+                <h1>Lost Something? <span style="background:linear-gradient(135deg,#818cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Found Something?</span></h1>
+                <p>Our campus lost and found system helps reunite people with their belongings. Simple, fast, and effective.</p>
+                <div class="hero-btns">
+                    <button class="btn-primary-t0"><i class="fas fa-exclamation-triangle me-1"></i>Report Lost Item</button>
+                    <button class="btn-outline-t0"><i class="fas fa-hand-holding-heart me-1"></i>Report Found Item</button>
+                </div>
+            </div>
+            <div class="demo-stats">
+                <div class="stat-box">
+                    <div class="stat-icon text-danger"><i class="fas fa-exclamation-circle"></i></div>
+                    <h3>47</h3><p>Lost Items</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon text-success"><i class="fas fa-check-circle"></i></div>
+                    <h3>32</h3><p>Found Items</p>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-icon text-primary"><i class="fas fa-handshake"></i></div>
+                    <h3>28</h3><p>Successfully Claimed</p>
+                </div>
+            </div>
+            <div class="section-title"><i class="fas fa-exclamation-circle text-danger"></i> Recent Lost Items</div>
+            <div class="demo-cards">
+                <div class="item-card">
+                    <div class="card-placeholder lost"><i class="fas fa-mobile-alt"></i></div>
+                    <div class="card-info">
+                        <span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span>
+                        <h6>iPhone 15 Pro Max</h6>
+                        <p><i class="fas fa-map-marker-alt me-1"></i>Library 2nd Floor</p>
+                        <p>Black iPhone with clear case, lost near study area...</p>
+                        <div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 10, 2026</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <div class="card-placeholder found"><i class="fas fa-wallet"></i></div>
+                    <div class="card-info">
+                        <span class="badge bg-success mb-1" style="font-size:0.68rem">Found</span>
+                        <h6>Brown Leather Wallet</h6>
+                        <p><i class="fas fa-map-marker-alt me-1"></i>Cafeteria</p>
+                        <p>Found a brown wallet with ID cards inside...</p>
+                        <div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 11, 2026</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div>
+                    </div>
+                </div>
+                <div class="item-card">
+                    <div class="card-placeholder lost"><i class="fas fa-key"></i></div>
+                    <div class="card-info">
+                        <span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span>
+                        <h6>Car Keys with Keychain</h6>
+                        <p><i class="fas fa-map-marker-alt me-1"></i>Parking Lot B</p>
+                        <p>Honda car keys with blue dolphin keychain...</p>
+                        <div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 12, 2026</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Dark Mode Preview -->
+            <div class="dark-preview">
+                <div class="section-title" style="padding-left:0"><i class="fas fa-moon me-1" style="color:#818cf8"></i> Dark Mode Preview</div>
+                <div class="demo-cards" style="padding:10px 0 0">
+                    <div class="item-card">
+                        <div class="card-placeholder lost"><i class="fas fa-laptop"></i></div>
+                        <div class="card-info">
+                            <span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span>
+                            <h6>MacBook Air M2</h6>
+                            <p><i class="fas fa-map-marker-alt me-1"></i>Computer Lab</p>
+                            <p>Silver MacBook with stickers on cover...</p>
+                            <div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 9, 2026</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="card-placeholder found"><i class="fas fa-glasses"></i></div>
+                        <div class="card-info">
+                            <span class="badge bg-success mb-1" style="font-size:0.68rem">Found</span>
+                            <h6>Reading Glasses</h6>
+                            <p><i class="fas fa-map-marker-alt me-1"></i>Hallway Building C</p>
+                            <p>Black frame prescription glasses in red case...</p>
+                            <div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 8, 2026</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div>
+                        </div>
+                    </div>
+                    <div class="item-card">
+                        <div class="card-placeholder lost"><i class="fas fa-headphones"></i></div>
+                        <div class="card-info">
+                            <span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span>
+                            <h6>AirPods Pro</h6>
+                            <p><i class="fas fa-map-marker-alt me-1"></i>Gym Locker Room</p>
+                            <p>White AirPods Pro in charging case...</p>
+                            <div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 7, 2026</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- How It Works -->
+            <div class="how-section">
+                <h3><i class="fas fa-cogs me-2"></i>How It Works</h3>
+                <div class="how-grid">
+                    <div class="how-step">
+                        <div class="step-num">1</div>
+                        <h5>Report</h5>
+                        <p>Submit a detailed report of your lost or found item with photos and description.</p>
+                    </div>
+                    <div class="how-step">
+                        <div class="step-num">2</div>
+                        <h5>Review</h5>
+                        <p>Our admin team reviews and approves your report for public listing.</p>
+                    </div>
+                    <div class="how-step">
+                        <div class="step-num">3</div>
+                        <h5>Connect</h5>
+                        <p>Get connected with the finder or owner and claim your item.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Search -->
+            <div class="search-section">
+                <h4><i class="fas fa-search me-2"></i>Search for Items</h4>
+                <div class="search-row">
+                    <input type="text" placeholder="Search by item name, description, or location...">
+                    <button><i class="fas fa-search me-1"></i>Search</button>
+                </div>
+            </div>
+            <!-- Footer -->
+            <div class="demo-footer">
+                <div class="footer-grid">
+                    <div>
+                        <div class="brand-foot"><i class="fas fa-search-location me-1"></i>Lost & Found</div>
+                        <p style="margin-top:8px">A campus-wide lost and found management system designed to help reunite people with their belongings.</p>
+                    </div>
+                    <div>
+                        <h6>Quick Links</h6>
+                        <ul>
+                            <li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Home</a></li>
+                            <li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Lost Items</a></li>
+                            <li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Found Items</a></li>
+                            <li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Search</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h6>Report Items</h6>
+                        <ul>
+                            <li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Lost</a></li>
+                            <li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Found</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h6>Contact</h6>
+                        <ul style="list-style:none;padding:0">
+                            <li><i class="fas fa-map-marker-alt me-2" style="width:14px"></i>Campus Security Office</li>
+                            <li><i class="fas fa-phone me-2" style="width:14px"></i>0956-932-7442</li>
+                            <li><i class="fas fa-envelope me-2" style="width:14px"></i>lostandfound@campus.edu</li>
+                            <li><i class="fas fa-clock me-2" style="width:14px"></i>Mon-Fri: 8AM - 6PM</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2026 Lost & Found Management System. All rights reserved.</p>
+                    <div class="socials">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="theme-label">Theme 0 &mdash; Current Improved (Indigo / Purple)</div>
+        </div>
+
+        <!-- ==================== THEME 1: CAMPUS MODERN ==================== -->
+        <div id="theme1" class="theme-content theme-1">
+            <div class="demo-navbar">
+                <div class="brand"><i class="fas fa-search-location"></i> Lost & Found</div>
+                <div class="nav-links">
+                    <a href="#"><i class="fas fa-home me-1"></i>Home</a>
+                    <a href="#"><i class="fas fa-exclamation-circle me-1"></i>Lost Items</a>
+                    <a href="#"><i class="fas fa-check-circle me-1"></i>Found Items</a>
+                    <a href="#"><i class="fas fa-handshake me-1"></i>Claimed</a>
+                    <input class="search-box" placeholder="Search items...">
+                </div>
+            </div>
+            <div class="demo-hero">
+                <h1>Lost Something? <span>Found Something?</span></h1>
+                <p>Our campus lost and found system helps reunite people with their belongings.</p>
+                <div class="hero-btns">
+                    <button class="btn-t1a"><i class="fas fa-exclamation-triangle me-1"></i>Report Lost</button>
+                    <button class="btn-t1b"><i class="fas fa-hand-holding-heart me-1"></i>Report Found</button>
+                </div>
+            </div>
+            <div class="demo-stats">
+                <div class="stat-box"><h3>47</h3><p>Lost Items</p></div>
+                <div class="stat-box"><h3>32</h3><p>Found Items</p></div>
+                <div class="stat-box"><h3>28</h3><p>Claimed</p></div>
+            </div>
+            <div class="section-title" style="color:#1a2332"><i class="fas fa-exclamation-circle text-danger"></i> Recent Items</div>
+            <div class="demo-cards">
+                <div class="item-card"><div class="card-placeholder lost"><i class="fas fa-mobile-alt"></i></div><div class="card-info"><span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span><h6>iPhone 15 Pro Max</h6><p><i class="fas fa-map-marker-alt me-1"></i>Library 2nd Floor</p><p>Black iPhone with clear case...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 10</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+                <div class="item-card"><div class="card-placeholder found"><i class="fas fa-wallet"></i></div><div class="card-info"><span class="badge bg-success mb-1" style="font-size:0.68rem">Found</span><h6>Brown Leather Wallet</h6><p><i class="fas fa-map-marker-alt me-1"></i>Cafeteria</p><p>Brown wallet with ID cards...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 11</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+                <div class="item-card"><div class="card-placeholder lost"><i class="fas fa-key"></i></div><div class="card-info"><span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span><h6>Car Keys with Keychain</h6><p><i class="fas fa-map-marker-alt me-1"></i>Parking Lot B</p><p>Honda car keys with dolphin keychain...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 12</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+            </div>
+            <div class="how-section">
+                <h3><i class="fas fa-cogs me-2"></i>How It Works</h3>
+                <div class="how-grid">
+                    <div class="how-step"><div class="step-num">1</div><h5>Report</h5><p>Submit a detailed report with photos and description.</p></div>
+                    <div class="how-step"><div class="step-num">2</div><h5>Review</h5><p>Admin reviews and approves for public listing.</p></div>
+                    <div class="how-step"><div class="step-num">3</div><h5>Connect</h5><p>Connect with the finder/owner and claim.</p></div>
+                </div>
+            </div>
+            <div class="search-section">
+                <h4><i class="fas fa-search me-2"></i>Search for Items</h4>
+                <div class="search-row"><input type="text" placeholder="Search by item name, description, or location..."><button><i class="fas fa-search me-1"></i>Search</button></div>
+            </div>
+            <div class="demo-footer">
+                <div class="footer-grid">
+                    <div><div class="brand-foot"><i class="fas fa-search-location me-1"></i>Lost & Found</div><p style="margin-top:8px">A campus-wide lost and found management system.</p></div>
+                    <div><h6>Quick Links</h6><ul><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Home</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Lost Items</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Found Items</a></li></ul></div>
+                    <div><h6>Report Items</h6><ul><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Lost</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Found</a></li></ul></div>
+                    <div><h6>Contact</h6><ul style="list-style:none;padding:0"><li><i class="fas fa-map-marker-alt me-2" style="width:14px"></i>Campus Security</li><li><i class="fas fa-phone me-2" style="width:14px"></i>0956-932-7442</li><li><i class="fas fa-envelope me-2" style="width:14px"></i>lostandfound@campus.edu</li></ul></div>
+                </div>
+                <div class="footer-bottom"><p>&copy; 2026 Lost & Found. All rights reserved.</p><div class="socials"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a></div></div>
+            </div>
+            <div class="theme-label">Theme 1 &mdash; Campus Modern (Navy / Gold)</div>
+        </div>
+
+        <!-- ==================== THEME 2: GLASSMORPHISM ==================== -->
+        <div id="theme2" class="theme-content theme-2">
+            <div class="demo-navbar">
+                <div class="brand"><i class="fas fa-search-location me-1"></i>Lost & Found</div>
+                <div class="nav-links">
+                    <a href="#"><i class="fas fa-home me-1"></i>Home</a>
+                    <a href="#"><i class="fas fa-exclamation-circle me-1"></i>Lost Items</a>
+                    <a href="#"><i class="fas fa-check-circle me-1"></i>Found Items</a>
+                    <a href="#"><i class="fas fa-handshake me-1"></i>Claimed</a>
+                    <input class="search-box" placeholder="Search items...">
+                </div>
+            </div>
+            <div class="demo-hero">
+                <h1>Lost Something? <span>Found Something?</span></h1>
+                <p>Our campus lost and found system helps reunite people with their belongings.</p>
+                <div class="hero-btns">
+                    <button class="btn-t2a"><i class="fas fa-exclamation-triangle me-1"></i>Report Lost</button>
+                    <button class="btn-t2b"><i class="fas fa-hand-holding-heart me-1"></i>Report Found</button>
+                </div>
+            </div>
+            <div class="demo-stats">
+                <div class="stat-box"><h3>47</h3><p>Lost Items</p></div>
+                <div class="stat-box"><h3>32</h3><p>Found Items</p></div>
+                <div class="stat-box"><h3>28</h3><p>Claimed</p></div>
+            </div>
+            <div class="section-title" style="color:rgba(255,255,255,0.8)"><i class="fas fa-exclamation-circle" style="color:#f87171"></i> Recent Items</div>
+            <div class="demo-cards">
+                <div class="item-card"><div class="card-placeholder lost"><i class="fas fa-mobile-alt"></i></div><div class="card-info"><span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span><h6>iPhone 15 Pro Max</h6><p><i class="fas fa-map-marker-alt me-1"></i>Library 2nd Floor</p><p>Black iPhone with clear case...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 10</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+                <div class="item-card"><div class="card-placeholder found"><i class="fas fa-wallet"></i></div><div class="card-info"><span class="badge bg-success mb-1" style="font-size:0.68rem">Found</span><h6>Brown Leather Wallet</h6><p><i class="fas fa-map-marker-alt me-1"></i>Cafeteria</p><p>Brown wallet with ID cards...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 11</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+                <div class="item-card"><div class="card-placeholder lost"><i class="fas fa-key"></i></div><div class="card-info"><span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span><h6>Car Keys with Keychain</h6><p><i class="fas fa-map-marker-alt me-1"></i>Parking Lot B</p><p>Honda car keys with dolphin keychain...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 12</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+            </div>
+            <div class="how-section">
+                <h3 style="color:rgba(255,255,255,0.85)"><i class="fas fa-cogs me-2"></i>How It Works</h3>
+                <div class="how-grid">
+                    <div class="how-step"><div class="step-num">1</div><h5>Report</h5><p>Submit a detailed report with photos and description.</p></div>
+                    <div class="how-step"><div class="step-num">2</div><h5>Review</h5><p>Admin reviews and approves for public listing.</p></div>
+                    <div class="how-step"><div class="step-num">3</div><h5>Connect</h5><p>Connect with the finder/owner and claim.</p></div>
+                </div>
+            </div>
+            <div class="search-section">
+                <h4><i class="fas fa-search me-2"></i>Search for Items</h4>
+                <div class="search-row"><input type="text" placeholder="Search by item name, description, or location..."><button><i class="fas fa-search me-1"></i>Search</button></div>
+            </div>
+            <div class="demo-footer">
+                <div class="footer-grid">
+                    <div><div class="brand-foot"><i class="fas fa-search-location me-1"></i>Lost & Found</div><p style="margin-top:8px">A campus-wide lost and found management system.</p></div>
+                    <div><h6>Quick Links</h6><ul><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Home</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Lost Items</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Found Items</a></li></ul></div>
+                    <div><h6>Report Items</h6><ul><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Lost</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Found</a></li></ul></div>
+                    <div><h6>Contact</h6><ul style="list-style:none;padding:0"><li><i class="fas fa-map-marker-alt me-2" style="width:14px"></i>Campus Security</li><li><i class="fas fa-phone me-2" style="width:14px"></i>0956-932-7442</li><li><i class="fas fa-envelope me-2" style="width:14px"></i>lostandfound@campus.edu</li></ul></div>
+                </div>
+                <div class="footer-bottom"><p>&copy; 2026 Lost & Found. All rights reserved.</p><div class="socials"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a></div></div>
+            </div>
+            <div class="theme-label" style="color:rgba(255,255,255,0.35)">Theme 2 &mdash; Glassmorphism (Purple / Glass)</div>
+        </div>
+
+        <!-- ==================== THEME 3: SOFT MINIMAL ==================== -->
+        <div id="theme3" class="theme-content theme-3">
+            <div class="demo-navbar">
+                <div class="brand"><i class="fas fa-search-location me-1"></i>Lost & Found</div>
+                <div class="nav-links">
+                    <a href="#"><i class="fas fa-home me-1"></i>Home</a>
+                    <a href="#"><i class="fas fa-exclamation-circle me-1"></i>Lost Items</a>
+                    <a href="#"><i class="fas fa-check-circle me-1"></i>Found Items</a>
+                    <a href="#"><i class="fas fa-handshake me-1"></i>Claimed</a>
+                    <input class="search-box" placeholder="Search items...">
+                </div>
+            </div>
+            <div class="demo-hero">
+                <h1>Lost Something? <span>Found Something?</span></h1>
+                <p>Our campus lost and found system helps reunite people with their belongings.</p>
+                <div class="hero-btns">
+                    <button class="btn-t3a"><i class="fas fa-exclamation-triangle me-1"></i>Report Lost</button>
+                    <button class="btn-t3b"><i class="fas fa-hand-holding-heart me-1"></i>Report Found</button>
+                </div>
+            </div>
+            <div class="demo-stats">
+                <div class="stat-box"><h3>47</h3><p>Lost Items</p></div>
+                <div class="stat-box"><h3>32</h3><p>Found Items</p></div>
+                <div class="stat-box"><h3>28</h3><p>Claimed</p></div>
+            </div>
+            <div class="section-title" style="color:#111827"><i class="fas fa-exclamation-circle text-danger"></i> Recent Items</div>
+            <div class="demo-cards">
+                <div class="item-card"><div class="card-placeholder lost"><i class="fas fa-mobile-alt"></i></div><div class="card-info"><span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span><h6>iPhone 15 Pro Max</h6><p><i class="fas fa-map-marker-alt me-1"></i>Library 2nd Floor</p><p>Black iPhone with clear case...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 10</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+                <div class="item-card"><div class="card-placeholder found"><i class="fas fa-wallet"></i></div><div class="card-info"><span class="badge bg-success mb-1" style="font-size:0.68rem">Found</span><h6>Brown Leather Wallet</h6><p><i class="fas fa-map-marker-alt me-1"></i>Cafeteria</p><p>Brown wallet with ID cards...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 11</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+                <div class="item-card"><div class="card-placeholder lost"><i class="fas fa-key"></i></div><div class="card-info"><span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span><h6>Car Keys with Keychain</h6><p><i class="fas fa-map-marker-alt me-1"></i>Parking Lot B</p><p>Honda car keys with dolphin keychain...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 12</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+            </div>
+            <div class="how-section">
+                <h3><i class="fas fa-cogs me-2"></i>How It Works</h3>
+                <div class="how-grid">
+                    <div class="how-step"><div class="step-num">1</div><h5>Report</h5><p>Submit a detailed report with photos and description.</p></div>
+                    <div class="how-step"><div class="step-num">2</div><h5>Review</h5><p>Admin reviews and approves for public listing.</p></div>
+                    <div class="how-step"><div class="step-num">3</div><h5>Connect</h5><p>Connect with the finder/owner and claim.</p></div>
+                </div>
+            </div>
+            <div class="search-section">
+                <h4><i class="fas fa-search me-2"></i>Search for Items</h4>
+                <div class="search-row"><input type="text" placeholder="Search by item name, description, or location..."><button><i class="fas fa-search me-1"></i>Search</button></div>
+            </div>
+            <div class="demo-footer">
+                <div class="footer-grid">
+                    <div><div class="brand-foot"><i class="fas fa-search-location me-1"></i>Lost & Found</div><p style="margin-top:8px">A campus-wide lost and found management system.</p></div>
+                    <div><h6>Quick Links</h6><ul><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Home</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Lost Items</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Found Items</a></li></ul></div>
+                    <div><h6>Report Items</h6><ul><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Lost</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Found</a></li></ul></div>
+                    <div><h6>Contact</h6><ul style="list-style:none;padding:0"><li><i class="fas fa-map-marker-alt me-2" style="width:14px"></i>Campus Security</li><li><i class="fas fa-phone me-2" style="width:14px"></i>0956-932-7442</li><li><i class="fas fa-envelope me-2" style="width:14px"></i>lostandfound@campus.edu</li></ul></div>
+                </div>
+                <div class="footer-bottom"><p>&copy; 2026 Lost & Found. All rights reserved.</p><div class="socials"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a></div></div>
+            </div>
+            <div class="theme-label">Theme 3 &mdash; Soft Minimal (Teal / White)</div>
+        </div>
+
+        <!-- ==================== THEME 4: BOLD VIBRANT ==================== -->
+        <div id="theme4" class="theme-content theme-4">
+            <div class="demo-navbar">
+                <div class="brand"><i class="fas fa-search-location me-1"></i>Lost & Found</div>
+                <div class="nav-links">
+                    <a href="#"><i class="fas fa-home me-1"></i>Home</a>
+                    <a href="#"><i class="fas fa-exclamation-circle me-1"></i>Lost Items</a>
+                    <a href="#"><i class="fas fa-check-circle me-1"></i>Found Items</a>
+                    <a href="#"><i class="fas fa-handshake me-1"></i>Claimed</a>
+                    <input class="search-box" placeholder="Search items...">
+                </div>
+            </div>
+            <div class="demo-hero">
+                <h1>Lost Something? <span>Found Something?</span></h1>
+                <p>Our campus lost and found system helps reunite people with their belongings.</p>
+                <div class="hero-btns">
+                    <button class="btn-t4a"><i class="fas fa-exclamation-triangle me-1"></i>Report Lost</button>
+                    <button class="btn-t4b"><i class="fas fa-hand-holding-heart me-1"></i>Report Found</button>
+                </div>
+            </div>
+            <div class="demo-stats">
+                <div class="stat-box"><h3>47</h3><p>Lost Items</p></div>
+                <div class="stat-box"><h3>32</h3><p>Found Items</p></div>
+                <div class="stat-box"><h3>28</h3><p>Claimed</p></div>
+            </div>
+            <div class="section-title" style="color:rgba(255,255,255,0.8)"><i class="fas fa-exclamation-circle" style="color:#ff6b35"></i> Recent Items</div>
+            <div class="demo-cards">
+                <div class="item-card"><div class="card-placeholder lost"><i class="fas fa-mobile-alt"></i></div><div class="card-info"><span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span><h6>iPhone 15 Pro Max</h6><p><i class="fas fa-map-marker-alt me-1"></i>Library 2nd Floor</p><p>Black iPhone with clear case...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 10</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+                <div class="item-card"><div class="card-placeholder found"><i class="fas fa-wallet"></i></div><div class="card-info"><span class="badge bg-success mb-1" style="font-size:0.68rem">Found</span><h6>Brown Leather Wallet</h6><p><i class="fas fa-map-marker-alt me-1"></i>Cafeteria</p><p>Brown wallet with ID cards...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 11</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+                <div class="item-card"><div class="card-placeholder lost"><i class="fas fa-key"></i></div><div class="card-info"><span class="badge bg-danger mb-1" style="font-size:0.68rem">Lost</span><h6>Car Keys with Keychain</h6><p><i class="fas fa-map-marker-alt me-1"></i>Parking Lot B</p><p>Honda car keys with dolphin keychain...</p><div class="card-foot"><small><i class="fas fa-calendar me-1"></i>Feb 12</small><a href="#">View <i class="fas fa-arrow-right ms-1"></i></a></div></div></div>
+            </div>
+            <div class="how-section">
+                <h3 style="color:rgba(255,255,255,0.85)"><i class="fas fa-cogs me-2"></i>How It Works</h3>
+                <div class="how-grid">
+                    <div class="how-step"><div class="step-num">1</div><h5>Report</h5><p>Submit a detailed report with photos and description.</p></div>
+                    <div class="how-step"><div class="step-num">2</div><h5>Review</h5><p>Admin reviews and approves for public listing.</p></div>
+                    <div class="how-step"><div class="step-num">3</div><h5>Connect</h5><p>Connect with the finder/owner and claim.</p></div>
+                </div>
+            </div>
+            <div class="search-section">
+                <h4><i class="fas fa-search me-2"></i>Search for Items</h4>
+                <div class="search-row"><input type="text" placeholder="Search by item name, description, or location..."><button><i class="fas fa-search me-1"></i>Search</button></div>
+            </div>
+            <div class="demo-footer">
+                <div class="footer-grid">
+                    <div><div class="brand-foot"><i class="fas fa-search-location me-1"></i>Lost & Found</div><p style="margin-top:8px">A campus-wide lost and found management system.</p></div>
+                    <div><h6>Quick Links</h6><ul><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Home</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Lost Items</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Found Items</a></li></ul></div>
+                    <div><h6>Report Items</h6><ul><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Lost</a></li><li><a href="#"><i class="fas fa-chevron-right me-1" style="font-size:0.6rem"></i>Report Found</a></li></ul></div>
+                    <div><h6>Contact</h6><ul style="list-style:none;padding:0"><li><i class="fas fa-map-marker-alt me-2" style="width:14px"></i>Campus Security</li><li><i class="fas fa-phone me-2" style="width:14px"></i>0956-932-7442</li><li><i class="fas fa-envelope me-2" style="width:14px"></i>lostandfound@campus.edu</li></ul></div>
+                </div>
+                <div class="footer-bottom"><p>&copy; 2026 Lost & Found. All rights reserved.</p><div class="socials"><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-twitter"></i></a><a href="#"><i class="fab fa-instagram"></i></a></div></div>
+            </div>
+            <div class="theme-label" style="color:rgba(255,255,255,0.25)">Theme 4 &mdash; Bold Vibrant (Coral / Cyan)</div>
+        </div>
+
+    </div>
+
+    <script>
+        function switchTheme(num) {
+            document.querySelectorAll('.theme-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.theme-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('theme' + num).classList.add('active');
+            document.querySelector('.tb-' + num).classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
