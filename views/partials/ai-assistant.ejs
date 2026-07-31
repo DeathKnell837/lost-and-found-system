@@ -468,10 +468,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (previewBar) previewBar.classList.add('d-none');
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
-        // Render typing indicator
+        // Render dynamic typing indicator
+        const isImageOrItemSearch = fileToSend || /lost|found|wallet|keys|phone|bag|jacket|airpod|laptop|umbrella|id|card|book|badge/i.test(userText);
+        const loadingText = fileToSend 
+            ? '<i class="fas fa-camera fa-spin me-2 text-cyan"></i>Analyzing photo with Gemini Vision AI...' 
+            : (isImageOrItemSearch 
+                ? '<i class="fas fa-search-location fa-spin me-2 text-cyan"></i>Scanning campus database for matches...' 
+                : '<i class="fas fa-sparkles fa-spin me-2 text-cyan"></i>Gemini AI is thinking...');
+
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'ai-message bot-message loading-msg';
-        loadingDiv.innerHTML = `<div class="message-content"><i class="fas fa-robot fa-spin me-2 text-cyan"></i>Analyzing item with Gemini 2.0 AI...</div>`;
+        loadingDiv.innerHTML = `<div class="message-content">${loadingText}</div>`;
         messagesContainer.appendChild(loadingDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 

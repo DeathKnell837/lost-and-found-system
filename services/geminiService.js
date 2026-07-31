@@ -123,12 +123,12 @@ Item 2 Description: "${desc2}"
  */
 const parseSearchQuery = async (userMessage) => {
     if (!genAI) {
-        const isGreeting = /^(hi|hello|hey|good|howdy|what|who)/i.test(userMessage.trim());
+        const isGreeting = /^(hi|hello|hey|good|howdy|what|who|where|how|can|thanks|thank)/i.test(userMessage.trim());
         return {
             isSearch: !isGreeting,
-            extracted: { keywords: isGreeting ? [] : userMessage.split(/\s+/) },
+            extracted: { keywords: isGreeting ? [] : userMessage.split(/\s+/).filter(w => w.length > 2) },
             conversationalResponse: isGreeting 
-                ? "Hello! I'm your Campus Lost & Found AI Assistant. How can I help you find or report a lost item today?"
+                ? "Hello! I am your Campus Lost & Found AI Assistant. How can I help you find or report a lost item today?"
                 : `Here are the top matches I found for "${userMessage}":`
         };
     }
@@ -136,18 +136,29 @@ const parseSearchQuery = async (userMessage) => {
     try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-        const prompt = `You are a helpful and polite Campus Lost and Found AI Assistant.
-A user says: "${userMessage}"
+        const prompt = `You are the Official Campus Lost & Found AI Assistant — an intelligent, friendly, and comprehensive AI guide for students, faculty, and campus security.
+User message: "${userMessage}"
 
-First, determine the user's INTENT:
-- "search": The user is describing a lost or found physical item (e.g., "lost my black wallet", "found keys near library", "blue iPhone").
-- "chat": The user is greeting you ("hi", "hello", "hey"), asking a general system question ("how do I claim an item?", "where is security?", "how does AI matching work?"), thanking you, or engaging in casual conversation without searching for a specific item.
+SYSTEM CONTEXT & CAPABILITIES YOU COVER:
+1. GREETINGS & CASUAL CHAT: Respond warmly, introduce yourself, and offer assistance with lost/found belongings or campus procedures.
+2. REPORTING LOST ITEMS: Guide users to click "Report Lost Item" at the top navbar or describe their lost item to search our database.
+3. REPORTING FOUND ITEMS: Guide finders to click "Report Found Item" or surrender items to the Campus Security & Admin Office (Mon-Fri 8AM-6PM, Tel: 0956-932-7442).
+4. CLAIMING PROCESS: Explain that owners can claim found items by providing proof of ownership (student ID, serial number, or detailed description).
+5. GEMINI AI VISUAL MATCHING: Explain that Gemini 2.0 Flash Vision automatically calculates similarity scores between lost and found item photos.
+6. PHYSICAL ITEM SEARCH: If the user is searching for a specific physical item (e.g., "lost my black leather wallet", "blue car keys"), set isSearch to true and extract key attributes.
+
+Determine INTENT:
+- "search": User is explicitly describing a physical lost or found item to look up in the database.
+- "chat": User is greeting, asking a system question, inquiring about campus procedures, thanking you, or asking general questions.
 
 If intent is "chat":
-Provide a friendly, helpful 1-2 sentence response as the Campus Lost & Found Assistant. Set isSearch to false.
+- Set isSearch to false.
+- Provide a clear, polite, and helpful 1-3 sentence answer directly addressing their question.
 
 If intent is "search":
-Set isSearch to true. Extract key attributes: category (Electronics, Clothing, Accessories, Keys, ID Card, Bags, Books, Other), color, brand, location, and keywords. Formulate a warm 1-2 sentence response confirming you are searching the campus database for their item.
+- Set isSearch to true.
+- Extract attributes: category, color, brand, location, keywords.
+- Provide a warm 1-2 sentence response confirming what item you are scanning the campus database for.
 
 Return ONLY a valid JSON object in this exact format (no markdown):
 {
@@ -166,7 +177,7 @@ Return ONLY a valid JSON object in this exact format (no markdown):
         const jsonResult = JSON.parse(cleanedJsonText);
 
         return {
-            isSearch: jsonResult.isSearch !== false,
+            isSearch: jsonResult.isSearch === true,
             extracted: {
                 category: jsonResult.category || '',
                 color: jsonResult.color || '',
