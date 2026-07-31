@@ -9,26 +9,26 @@
    Variables
    ================================ */
 :root {
-    --primary: #c98a4b;
-    --primary-hover: #e0a85c;
-    --primary-light: rgba(201, 138, 75, 0.15);
-    --success: #22c55e;
-    --success-light: rgba(34, 197, 94, 0.15);
+    --primary: #3b82f6;
+    --primary-hover: #60a5fa;
+    --primary-light: rgba(59, 130, 246, 0.15);
+    --success: #10b981;
+    --success-light: rgba(16, 185, 129, 0.15);
     --danger: #ef4444;
     --danger-light: rgba(239, 68, 68, 0.15);
     --warning: #f59e0b;
     --warning-light: rgba(245, 158, 11, 0.15);
-    --info: #38bdf8;
-    --info-light: rgba(56, 189, 248, 0.15);
-    --dark: #0b0c10;
-    --sidebar-bg: #0f1015;
-    --sidebar-hover: #181a20;
-    --bg: #0b0c10;
-    --card-bg: rgba(20, 21, 26, 0.75);
+    --info: #06b6d4;
+    --info-light: rgba(6, 182, 212, 0.15);
+    --dark: #0a0e1a;
+    --sidebar-bg: #0a0e1a;
+    --sidebar-hover: #0f172a;
+    --bg: #0a0e1a;
+    --card-bg: rgba(15, 23, 42, 0.75);
     --text: #e2e8f0;
     --text-light: #94a3b8;
     --text-muted: #64748b;
-    --border: rgba(201, 138, 75, 0.2);
+    --border: rgba(59, 130, 246, 0.2);
     --shadow: 0 4px 16px rgba(0,0,0,0.5);
     --shadow-lg: 0 8px 24px rgba(0,0,0,0.7);
     --radius: 8px;

@@ -10,23 +10,23 @@
    CSS Variables
    ================================ */
 :root {
-    /* Primary / Copper Metallic Accents */
-    --primary: #c98a4b;
-    --primary-dark: #a26a33;
-    --primary-light: #e0a85c;
-    --copper: #c98a4b;
-    --copper-light: #e0a85c;
-    --copper-dark: #a26a33;
-    --copper-glow: rgba(201, 138, 75, 0.35);
+    /* Primary / Nordic Sapphire Accents */
+    --primary: #3b82f6;
+    --primary-dark: #1d4ed8;
+    --primary-light: #60a5fa;
+    --copper: #3b82f6;
+    --copper-light: #60a5fa;
+    --copper-dark: #1d4ed8;
+    --copper-glow: rgba(59, 130, 246, 0.35);
     
-    /* Secondary Accent */
-    --accent: #e0a85c;
-    --accent-dark: #c98a4b;
+    /* Secondary Accent / Electric Cyan */
+    --accent: #06b6d4;
+    --accent-dark: #0891b2;
     
     /* Toned Status Colors for Dark Background */
-    --success: #22c55e;
-    --success-dark: #15803d;
-    --success-bg: rgba(34, 197, 94, 0.15);
+    --success: #10b981;
+    --success-dark: #059669;
+    --success-bg: rgba(16, 185, 129, 0.15);
     --danger: #ef4444;
     --danger-dark: #b91c1c;
     --danger-bg: rgba(239, 68, 68, 0.15);
@@ -35,42 +35,42 @@
     --warning-bg: rgba(245, 158, 11, 0.15);
     
     /* Deep Near-Black Neutral Palette */
-    --dark: #0b0c10;
-    --dark-light: #14151a;
-    --dark-lighter: #1a1c23;
-    --dark-card: rgba(20, 21, 26, 0.75);
-    --dark-glass: rgba(15, 16, 21, 0.85);
+    --dark: #0a0e1a;
+    --dark-light: #0f172a;
+    --dark-lighter: #1e293b;
+    --dark-card: rgba(15, 23, 42, 0.75);
+    --dark-glass: rgba(15, 23, 42, 0.85);
     
-    --gray-900: #0f1015;
-    --gray-800: #181a20;
-    --gray-700: #2d313c;
+    --gray-900: #0a0e1a;
+    --gray-800: #0f172a;
+    --gray-700: #1e293b;
     --gray-600: #64748b;
     --gray-500: #94a3b8;
     --gray-400: #cbd5e1;
     --gray-300: #e2e8f0;
     --gray-200: #f1f5f9;
     --gray-100: #f8fafc;
-    --gray-50: #0b0c10;
+    --gray-50: #0a0e1a;
     --white: #ffffff;
     
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #c98a4b 0%, #e0a85c 100%);
-    --gradient-accent: linear-gradient(135deg, #e0a85c 0%, #c98a4b 100%);
-    --gradient-copper: linear-gradient(135deg, #c98a4b 0%, #f3cb87 50%, #a26a33 100%);
-    --gradient-success: linear-gradient(135deg, #22c55e, #10b981);
+    --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+    --gradient-accent: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    --gradient-copper: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #1d4ed8 100%);
+    --gradient-success: linear-gradient(135deg, #10b981, #059669);
     --gradient-danger: linear-gradient(135deg, #ef4444, #f97316);
-    --gradient-dark: linear-gradient(135deg, #14151a 0%, #0b0c10 100%);
-    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(201, 138, 75, 0.05) 100%);
+    --gradient-dark: linear-gradient(135deg, #0f172a 0%, #0a0e1a 100%);
+    --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(59, 130, 246, 0.05) 100%);
     
     /* Glass Borders & Shadows */
-    --border-copper: 1px solid rgba(201, 138, 75, 0.25);
+    --border-copper: 1px solid rgba(59, 130, 246, 0.25);
     --border-glass: 1px solid rgba(255, 255, 255, 0.08);
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
     --shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
     --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.6);
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.7);
-    --shadow-glow: 0 0 25px rgba(201, 138, 75, 0.25);
-    --shadow-glow-hover: 0 10px 30px rgba(201, 138, 75, 0.45);
+    --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.25);
+    --shadow-glow-hover: 0 10px 30px rgba(59, 130, 246, 0.45);
     
     /* Fonts */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -1299,10 +1299,10 @@ footer p, .footer p {
 .text-secondary { color: var(--gray-600) !important; }
 
 .bg-light, .bg-white { background: var(--dark-light) !important; color: var(--gray-300) !important; }
-.bg-primary { background: linear-gradient(135deg, #14151a 0%, #1a1c23 100%) !important; }
+.bg-primary { background: linear-gradient(135deg, var(--dark-light) 0%, var(--dark) 100%) !important; }
 .bg-dark { background: var(--dark) !important; }
 
-.border { border-color: rgba(201, 138, 75, 0.2) !important; }
+.border { border-color: rgba(59, 130, 246, 0.2) !important; }
 .shadow { box-shadow: var(--shadow) !important; }
 .shadow-lg { box-shadow: var(--shadow-lg) !important; }
 
