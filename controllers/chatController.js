@@ -40,6 +40,15 @@ const chatController = {
                 const geminiAnalysis = await geminiService.parseSearchQuery(userPrompt);
                 extracted = geminiAnalysis.extracted || {};
                 conversationalResponse = geminiAnalysis.conversationalResponse;
+
+                // If intent is general chat/greeting, return AI answer directly without database searching
+                if (geminiAnalysis.isSearch === false) {
+                    return res.json({
+                        success: true,
+                        response: conversationalResponse,
+                        matches: []
+                    });
+                }
             }
 
             // Query items database for approved candidates
@@ -103,17 +112,24 @@ const chatController = {
                 queryConditions.$or = orConditions;
             }
 
-            let foundItems = await Item.find(queryConditions)
-                .populate('category')
-                .sort({ createdAt: -1 })
-                .limit(10);
-
-            // Fallback: If no exact matched items found, get 3 most recent approved items
-            if (foundItems.length === 0) {
-                foundItems = await Item.find({ status: 'approved' })
+            let foundItems = [];
+            try {
+                foundItems = await Item.find(queryConditions)
                     .populate('category')
                     .sort({ createdAt: -1 })
-                    .limit(3);
+                    .limit(10)
+                    .maxTimeMS(2500);
+
+                if (foundItems.length === 0) {
+                    foundItems = await Item.find({ status: 'approved' })
+                        .populate('category')
+                        .sort({ createdAt: -1 })
+                        .limit(3)
+                        .maxTimeMS(2500);
+                }
+            } catch (dbErr) {
+                console.warn('DB query in chatController timed out or erred, proceeding without DB items:', dbErr.message);
+                foundItems = [];
             }
 
             // Score and rank candidates against virtual lost item prompt
@@ -142,15 +158,23 @@ const chatController = {
 
             return res.json({
                 success: true,
+                isSearch: true,
                 response: conversationalResponse,
                 matches: rankedMatches
             });
 
         } catch (error) {
             console.error('Chat controller error:', error);
-            return res.status(500).json({
-                success: false,
-                response: "I encountered an issue processing your query. Please try searching on the main page."
+            const userMsg = req.body ? (req.body.message || '') : '';
+            const isGreeting = /^(hi|hello|hey|good|how|what|who|where|can|thanks|thank)/i.test(userMsg.trim());
+            
+            return res.json({
+                success: true,
+                isSearch: false,
+                response: isGreeting 
+                    ? "Hello! I am your Campus Lost & Found Assistant. How can I assist you today?"
+                    : "I am ready to help! You can describe any lost or found item (or attach a photo using the camera button), and I will scan our campus database for matches.",
+                matches: []
             });
         }
     }

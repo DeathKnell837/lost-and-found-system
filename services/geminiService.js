@@ -123,9 +123,13 @@ Item 2 Description: "${desc2}"
  */
 const parseSearchQuery = async (userMessage) => {
     if (!genAI) {
+        const isGreeting = /^(hi|hello|hey|good|howdy|what|who)/i.test(userMessage.trim());
         return {
-            extracted: { keywords: userMessage.split(/\s+/) },
-            conversationalResponse: `Here are the top matches I found for "${userMessage}":`
+            isSearch: !isGreeting,
+            extracted: { keywords: isGreeting ? [] : userMessage.split(/\s+/) },
+            conversationalResponse: isGreeting 
+                ? "Hello! I'm your Campus Lost & Found AI Assistant. How can I help you find or report a lost item today?"
+                : `Here are the top matches I found for "${userMessage}":`
         };
     }
 
@@ -135,26 +139,34 @@ const parseSearchQuery = async (userMessage) => {
         const prompt = `You are a helpful and polite Campus Lost and Found AI Assistant.
 A user says: "${userMessage}"
 
-Analyze their message and:
-1. Extract key attributes: category (e.g. Electronics, Clothing, Accessories, Keys, Documents, Bags, Books, Other), color, brand, location, and key descriptive words.
-2. Formulate a warm, helpful 1-2 sentence response acknowledging their query and confirming what you are looking for in the campus database.
+First, determine the user's INTENT:
+- "search": The user is describing a lost or found physical item (e.g., "lost my black wallet", "found keys near library", "blue iPhone").
+- "chat": The user is greeting you ("hi", "hello", "hey"), asking a general system question ("how do I claim an item?", "where is security?", "how does AI matching work?"), thanking you, or engaging in casual conversation without searching for a specific item.
 
-Return ONLY a valid JSON object in this exact format (no markdown codeblock wrapper):
+If intent is "chat":
+Provide a friendly, helpful 1-2 sentence response as the Campus Lost & Found Assistant. Set isSearch to false.
+
+If intent is "search":
+Set isSearch to true. Extract key attributes: category (Electronics, Clothing, Accessories, Keys, ID Card, Bags, Books, Other), color, brand, location, and keywords. Formulate a warm 1-2 sentence response confirming you are searching the campus database for their item.
+
+Return ONLY a valid JSON object in this exact format (no markdown):
 {
+  "isSearch": true or false,
   "category": "<extracted category or empty string>",
   "color": "<extracted color or empty string>",
   "brand": "<extracted brand or empty string>",
   "location": "<extracted location or empty string>",
   "keywords": ["<keyword1>", "<keyword2>"],
-  "conversationalResponse": "<warm 1-2 sentence response>"
+  "conversationalResponse": "<your response text>"
 }`;
 
         const result = await model.generateContent(prompt);
         const responseText = result.response.text().trim();
-        const cleanedJsonText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/\s*```$/g, '').trim();
         const jsonResult = JSON.parse(cleanedJsonText);
 
         return {
+            isSearch: jsonResult.isSearch !== false,
             extracted: {
                 category: jsonResult.category || '',
                 color: jsonResult.color || '',
@@ -162,13 +174,17 @@ Return ONLY a valid JSON object in this exact format (no markdown codeblock wrap
                 location: jsonResult.location || '',
                 keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
             },
-            conversationalResponse: jsonResult.conversationalResponse || `I searched our database for "${userMessage}" and found these potential items:`
+            conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I assist you with lost or found items on campus today?"
         };
     } catch (error) {
         console.error('Gemini query parse error:', error.message);
+        const isGreeting = /^(hi|hello|hey|good|how|what|who|where|can|thanks|thank)/i.test(userMessage.trim());
         return {
-            extracted: { keywords: userMessage.split(/\s+/) },
-            conversationalResponse: `I looked up items matching "${userMessage}" in our campus database:`
+            isSearch: !isGreeting,
+            extracted: { keywords: isGreeting ? [] : userMessage.split(/\s+/).filter(w => w.length > 2) },
+            conversationalResponse: isGreeting 
+                ? "Hello! I am your Campus Lost & Found Assistant. How can I help you find or report a lost item on campus today?"
+                : `I scanned our campus database for items matching "${userMessage}":`
         };
     }
 };

@@ -507,8 +507,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 });
                 matchesHtml += '</div>';
-            } else {
-                matchesHtml = '<p class="small text-muted mt-1 mb-0">No direct database matches found. Try broadening your keywords!</p>';
+            } else if (data.isSearch === true) {
+                matchesHtml = '<p class="small text-muted mt-1 mb-0"><i class="fas fa-search me-1 text-cyan"></i> No direct database matches found yet.</p>';
             }
 
             botMsgDiv.innerHTML = `
