@@ -116,20 +116,46 @@ Item 2 Description: "${desc2}"
     }
 };
 
+const isNonSearchInput = (msg) => {
+    if (!msg || typeof msg !== 'string') return true;
+    const text = msg.trim().toLowerCase();
+    const casualRegex = /^(hi|hello|hey|good|howdy|what|who|where|how|can|thanks|thank|nothing|nothging|nvm|nevermind|ok|okay|cool|fine|bye|no|nah|none|not really|just looking|nope|nothing much|k|thx)/i;
+    if (casualRegex.test(text)) return true;
+    if (text.length < 3 && !/id|key/i.test(text)) return true;
+    return false;
+};
+
 /**
  * Conversational query parser and responder
  * @param {string} userMessage - User search description or chat prompt
- * @returns {Promise<Object>} - { extracted: { category, color, brand, location, keywords }, conversationalResponse: string }
+ * @returns {Promise<Object>} - { isSearch, extracted: { category, color, brand, location, keywords }, conversationalResponse: string }
  */
 const parseSearchQuery = async (userMessage) => {
-    if (!genAI) {
-        const isGreeting = /^(hi|hello|hey|good|howdy|what|who|where|how|can|thanks|thank)/i.test(userMessage.trim());
+    // Immediate pre-check for casual/non-search phrases (e.g. "hi", "nothing", "nothging", "ok", "nvm")
+    if (isNonSearchInput(userMessage)) {
+        let reply = "Hello! I am your Campus Lost & Found Assistant. How can I help you find or report a lost item on campus today?";
+        const textLower = userMessage.trim().toLowerCase();
+        
+        if (/nothing|nothging|nvm|nevermind|no|nah|none|nope|nothing much/i.test(textLower)) {
+            reply = "No problem! Feel free to reach out anytime if you lose or find something on campus. Have a great day!";
+        } else if (/thanks|thank|thx|cool|ok|okay|great|awesome/i.test(textLower)) {
+            reply = "You're very welcome! I'm always here if you need help finding or reporting an item.";
+        } else if (/bye|see ya|goodnight|cya/i.test(textLower)) {
+            reply = "Goodbye! Take care and have a wonderful day on campus!";
+        }
+
         return {
-            isSearch: !isGreeting,
-            extracted: { keywords: isGreeting ? [] : userMessage.split(/\s+/).filter(w => w.length > 2) },
-            conversationalResponse: isGreeting 
-                ? "Hello! I am your Campus Lost & Found AI Assistant. How can I help you find or report a lost item today?"
-                : `Here are the top matches I found for "${userMessage}":`
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: reply
+        };
+    }
+
+    if (!genAI) {
+        return {
+            isSearch: true,
+            extracted: { keywords: userMessage.split(/\s+/).filter(w => w.length > 2) },
+            conversationalResponse: `Here are the top matches I found for "${userMessage}":`
         };
     }
 
