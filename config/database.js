@@ -46,17 +46,9 @@ const mongoose = require('mongoose');
  * and handles connection issues.
  */
 const connectionOptions = {
-    // Maximum number of connections in the pool
-    // Allows multiple simultaneous queries
     maxPoolSize: 10,
-    
-    // How long to wait when selecting a server (10 seconds)
-    // If server isn't found in 10s, throw error
-    serverSelectionTimeoutMS: 10000,
-    
-    // How long to wait for socket operations (45 seconds)
-    // Prevents hanging on slow queries
-    socketTimeoutMS: 45000
+    serverSelectionTimeoutMS: 2000,
+    socketTimeoutMS: 15000
 };
 
 /**

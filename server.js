@@ -144,31 +144,42 @@ app.get('/favicon.ico', (req, res) => {
 // Sessions keep users logged in across page requests
 // Session data is stored in MongoDB (persists across server restarts)
 // Create session store with error handling
-const sessionStore = MongoStore.create({
-    mongoUrl: process.env.MONGODB_URI,  // Store sessions in MongoDB
-    collectionName: 'sessions',
-    ttl: 24 * 60 * 60,  // Session expires after 1 day
-    autoRemove: 'native',
-    touchAfter: 24 * 3600  // Only update session once per day
-});
-
-// Handle session store errors gracefully (don't crash the server)
-sessionStore.on('error', function (error) {
-    console.error('Session store error:', error.message);
-});
-
-app.use(session({
-    secret: process.env.SESSION_SECRET || 'lost-and-found-secret-key',  // Encryption key
-    resave: false,  // Don't save session if nothing changed
-    saveUninitialized: false,  // Don't create session until something stored
-    store: sessionStore,
-    cookie: {
-        secure: process.env.NODE_ENV === 'production',  // HTTPS only in production
-        httpOnly: true,  // Prevent JavaScript access to cookie
-        sameSite: 'lax',
-        maxAge: 24 * 60 * 60 * 1000  // Cookie expires after 1 day
+let sessionStore;
+if (process.env.MONGODB_URI && (process.env.MONGODB_URI.includes('mongodb+srv') || process.env.NODE_ENV === 'production')) {
+    try {
+        sessionStore = MongoStore.create({
+            mongoUrl: process.env.MONGODB_URI,
+            mongoOptions: { serverSelectionTimeoutMS: 2000 },
+            collectionName: 'sessions',
+            ttl: 24 * 60 * 60,
+            autoRemove: 'native',
+            touchAfter: 24 * 3600
+        });
+        sessionStore.on('error', function (error) {
+            console.warn('Mongo session store info:', error.message);
+        });
+    } catch (e) {
+        console.warn('Using memory session store');
     }
-}));
+}
+
+const sessionConfig = {
+    secret: process.env.SESSION_SECRET || 'lost-and-found-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000
+    }
+};
+
+if (sessionStore) {
+    sessionConfig.store = sessionStore;
+}
+
+app.use(session(sessionConfig));
 
 // ============================================================
 // FLASH MESSAGES

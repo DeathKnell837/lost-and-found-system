@@ -142,12 +142,16 @@ function updateDarkModeIcon(isDark) {
     }
 }
 
-// Check for saved preference on page load
+// Default to dark mode unless user explicitly set to false
 document.addEventListener('DOMContentLoaded', function() {
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (savedDarkMode) {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    const isDark = savedDarkMode === null ? true : savedDarkMode === 'true';
+    if (isDark) {
         document.body.classList.add('dark-mode');
         updateDarkModeIcon(true);
+    } else {
+        document.body.classList.remove('dark-mode');
+        updateDarkModeIcon(false);
     }
 });
 </script>

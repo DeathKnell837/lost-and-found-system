@@ -1298,12 +1298,11 @@ footer p, .footer p {
 .text-muted { color: var(--gray-500) !important; }
 .text-secondary { color: var(--gray-600) !important; }
 
-.bg-light { background: var(--gray-100) !important; }
-.bg-white { background: var(--white) !important; }
-.bg-primary { background: var(--primary) !important; }
+.bg-light, .bg-white { background: var(--dark-light) !important; color: var(--gray-300) !important; }
+.bg-primary { background: linear-gradient(135deg, #14151a 0%, #1a1c23 100%) !important; }
 .bg-dark { background: var(--dark) !important; }
 
-.border { border-color: var(--gray-200) !important; }
+.border { border-color: rgba(201, 138, 75, 0.2) !important; }
 .shadow { box-shadow: var(--shadow) !important; }
 .shadow-lg { box-shadow: var(--shadow-lg) !important; }
 
@@ -1316,7 +1315,7 @@ footer p, .footer p {
     font-size: 1.75rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
-    color: var(--gray-900);
+    color: var(--white) !important;
 }
 
 .section-subtitle {
