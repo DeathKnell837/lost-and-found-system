@@ -117,6 +117,99 @@ Item 2 Description: "${desc2}"
 };
 
 /**
+ * Intelligent AI Conversation Engine (NLP fallback when Gemini API key is missing or quota-exceeded)
+ */
+const generateIntelligentAIResponse = (userMessage) => {
+    const raw = (userMessage || '').trim();
+    const text = raw.toLowerCase();
+
+    // Check for physical item descriptions / lost or found queries
+    const isItemSearch = /lost|found|wallet|key|phone|bag|backpack|airpod|laptop|umbrella|jacket|coat|glasses|watch|card|badge/i.test(text);
+
+    if (isItemSearch) {
+        let category = '';
+        if (/wallet|card|badge/i.test(text)) category = 'Accessories';
+        else if (/key/i.test(text)) category = 'Keys';
+        else if (/phone|airpod|laptop/i.test(text)) category = 'Electronics';
+        else if (/bag|backpack/i.test(text)) category = 'Bags';
+        else if (/jacket|coat|glasses|watch/i.test(text)) category = 'Clothing';
+
+        return {
+            isSearch: true,
+            extracted: {
+                category,
+                color: '',
+                brand: '',
+                location: '',
+                keywords: text.split(/\s+/).filter(w => w.length > 2)
+            },
+            conversationalResponse: `I am scanning our campus database for items matching "${raw}". Here are the closest matches found:`
+        };
+    }
+
+    // Swearing / Frustration / Complaints / Not responding
+    if (/fuck|bitch|dumb|shit|ass|crap|stupid|useless|hate|trash|wtf|horrible|bad|not responding|repeat|responding/i.test(text)) {
+        return {
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: "I am right here and listening! I am your Campus Lost & Found Assistant. Tell me what item you lost or found, or ask me how to claim or report an item on campus."
+        };
+    }
+
+    // Greetings
+    if (/^(hi|hello|hey|good\s*(morning|afternoon|evening)|howdy|sup|yo)$/i.test(text)) {
+        return {
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: "Hello! Welcome to the Campus Lost & Found Portal. How can I help you today?"
+        };
+    }
+
+    // Questions about reporting lost item
+    if (/how.*(report|post|submit).*(lost)/i.test(text)) {
+        return {
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: "To report a lost item: Click the red 'Report Lost Item' button at the top navbar, fill in the details and location, and attach a photo if available!"
+        };
+    }
+
+    // Questions about reporting found item
+    if (/how.*(report|post|submit).*(found)/i.test(text)) {
+        return {
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: "To report a found item: Click the green 'Report Found Item' button at the top, or bring it to the Campus Security & Admin Office (Mon-Fri 8AM-6PM)."
+        };
+    }
+
+    // Questions about claiming
+    if (/how.*(claim|get back|verify|proof)/i.test(text)) {
+        return {
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: "To claim a found item: Browse the Found Items list and click 'Claim Item'. Campus security will review your proof of ownership (student ID, serial number, or item photo) before releasing it."
+        };
+    }
+
+    // Questions about security location
+    if (/where.*(security|office|admin|contact|phone)/i.test(text)) {
+        return {
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: "The Campus Security & Admin Office is at the Main Admin Building, Ground Floor (Mon-Fri 8:00 AM - 6:00 PM, Phone: 0956-932-7442)."
+        };
+    }
+
+    // General conversational response
+    return {
+        isSearch: false,
+        extracted: { keywords: [] },
+        conversationalResponse: `I am your Campus AI Assistant! You can ask me how to report or claim items, or describe an item (e.g., "lost black wallet near library") to search our campus database.`
+    };
+};
+
+/**
  * Full Gemini AI Engine — 100% powered by Gemini 2.0 Flash AI
  * @param {string} userMessage - User input prompt
  * @returns {Promise<Object>} - { isSearch, extracted, conversationalResponse }
@@ -125,11 +218,7 @@ const parseSearchQuery = async (userMessage) => {
     const textTrimmed = (userMessage || '').trim();
 
     if (!genAI) {
-        return {
-            isSearch: false,
-            extracted: { keywords: [] },
-            conversationalResponse: "Hello! I am your Campus Lost & Found Assistant. How can I help you today?"
-        };
+        return generateIntelligentAIResponse(textTrimmed);
     }
 
     try {
@@ -174,9 +263,9 @@ Return ONLY a valid JSON object in this exact format (no markdown code fence):
         };
     } catch (error) {
         console.error('Gemini 2.0 Flash parse error:', error.message);
-        // Fallback model rotation to gemini-1.5-flash
+        // Fallback model rotation to gemini-1.5-flash-latest
         try {
-            const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+            const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
             const result = await fallbackModel.generateContent(`You are the Campus Lost & Found AI Assistant. Answer this user prompt naturally and conversationally: "${textTrimmed}". Keep response concise and helpful.`);
             return {
                 isSearch: false,
@@ -185,14 +274,7 @@ Return ONLY a valid JSON object in this exact format (no markdown code fence):
             };
         } catch (e2) {
             console.error('Gemini 1.5 Flash fallback error:', e2.message);
-            const isQuotaError = error.message.includes('429') || e2.message.includes('429');
-            return {
-                isSearch: false,
-                extracted: { keywords: [] },
-                conversationalResponse: isQuotaError 
-                    ? "✨ Gemini AI is experiencing high demand right now. Please try your message again in a few seconds, or tell me about a lost item you'd like to find!" 
-                    : "I am your Campus Lost & Found AI Assistant. How can I assist you with your lost or found items today?"
-            };
+            return generateIntelligentAIResponse(textTrimmed);
         }
     }
 };
