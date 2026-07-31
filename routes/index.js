@@ -66,12 +66,18 @@ const userRoutes = require('./user');
 // Claim routes: /claims/* (submit/view claims)
 const claimRoutes = require('./claims');
 
+// Chat routes: /api/chat (Gemini AI assistant endpoint)
+const chatRoutes = require('./chat');
+
 /**
  * MOUNT ROUTES
  * 
  * Each use() call attaches a route module to a URL prefix.
  * The order matters - more specific routes should come first.
  */
+
+// Mount API chat route (/api/chat)
+router.use('/api', chatRoutes);
 
 // Mount home routes at root level (/, /about, /contact)
 router.use('/', homeRoutes);

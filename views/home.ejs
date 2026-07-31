@@ -18,7 +18,7 @@
 <section class="hero-section">
     <div class="container">
         <div class="row align-items-center min-vh-50">
-            <div class="col-lg-6">
+            <div class="col-lg-6 reveal-up" data-delay="0">
                 <h1 class="display-4 fw-bold mb-4">Lost Something? Found Something?</h1>
                 <p class="lead mb-4">
                     Our campus lost and found system helps you report lost items or
@@ -33,8 +33,10 @@
                     </a>
                 </div>
             </div>
-            <div class="col-lg-6 text-center mt-5 mt-lg-0">
+            <div class="col-lg-6 text-center mt-5 mt-lg-0 reveal-up" data-delay="150">
                 <div class="hero-illustration">
+                    <div class="radar-sweep-ring"></div>
+                    <div class="radar-pulse-ring"></div>
                     <i class="fas fa-search-location"></i>
                 </div>
             </div>
@@ -46,35 +48,35 @@
 <section class="py-5 bg-light">
     <div class="container">
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="stat-card text-center p-4 bg-white rounded shadow-sm">
+            <div class="col-md-4 reveal-up" data-delay="0">
+                <div class="stat-card text-center p-4 rounded">
                     <div class="stat-icon text-danger mb-3">
                         <i class="fas fa-exclamation-circle fa-3x"></i>
                     </div>
-                    <h2 class="stat-number">
-                        <%= stats.totalLost %>
+                    <h2 class="stat-number" data-target="<%= stats.totalLost %>">
+                        0
                     </h2>
                     <p class="stat-label text-muted mb-0">Lost Items Reported</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="stat-card text-center p-4 bg-white rounded shadow-sm">
+            <div class="col-md-4 reveal-up" data-delay="80">
+                <div class="stat-card text-center p-4 rounded">
                     <div class="stat-icon text-success mb-3">
                         <i class="fas fa-check-circle fa-3x"></i>
                     </div>
-                    <h2 class="stat-number">
-                        <%= stats.totalFound %>
+                    <h2 class="stat-number" data-target="<%= stats.totalFound %>">
+                        0
                     </h2>
                     <p class="stat-label text-muted mb-0">Found Items Reported</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="stat-card text-center p-4 bg-white rounded shadow-sm">
-                    <div class="stat-icon text-primary mb-3">
+            <div class="col-md-4 reveal-up" data-delay="160">
+                <div class="stat-card text-center p-4 rounded">
+                    <div class="stat-icon text-warning mb-3">
                         <i class="fas fa-handshake fa-3x"></i>
                     </div>
-                    <h2 class="stat-number">
-                        <%= stats.totalClaimed %>
+                    <h2 class="stat-number" data-target="<%= stats.totalClaimed %>">
+                        0
                     </h2>
                     <p class="stat-label text-muted mb-0">Items Successfully Claimed</p>
                 </div>
@@ -87,11 +89,12 @@
 <section class="py-5">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="search-box p-4 bg-white rounded shadow">
-                    <h4 class="text-center mb-4">
-                        <i class="fas fa-search me-2"></i> Search for Items
+            <div class="col-lg-8 reveal-up" data-delay="100">
+                <div class="search-box p-4 rounded">
+                    <h4 class="text-center mb-2">
+                        <i class="fas fa-search me-2 text-warning"></i> Search for Items
                     </h4>
+                    <div class="copper-divider mx-auto mb-4"></div>
                     <form action="/search" method="GET">
                         <div class="row g-3">
                             <div class="col-md-8">
@@ -114,25 +117,28 @@
 <!-- Recent Lost Items -->
 <section class="py-5 bg-light">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="section-title">
-                <i class="fas fa-exclamation-circle text-danger me-2"></i> Recent Lost Items
-            </h3>
+        <div class="d-flex justify-content-between align-items-center mb-2 reveal-up">
+            <div>
+                <h3 class="section-title mb-1">
+                    <i class="fas fa-exclamation-circle text-danger me-2"></i> Recent Lost Items
+                </h3>
+                <div class="copper-divider mb-0"></div>
+            </div>
             <a href="/items/lost" class="btn btn-outline-danger">
                 View All <i class="fas fa-arrow-right ms-1"></i>
             </a>
         </div>
 
         <% if (recentLost.length> 0) { %>
-            <div class="row g-4">
-                <% recentLost.forEach(function(item) { %>
-                    <div class="col-md-6 col-lg-4">
+            <div class="row g-4 mt-1">
+                <% recentLost.forEach(function(item, index) { %>
+                    <div class="col-md-6 col-lg-4 reveal-up" data-delay="<%= index * 80 %>">
                         <%- include('partials/item-card', { item: item }) %>
                     </div>
                     <% }); %>
             </div>
             <% } else { %>
-                <div class="text-center py-5">
+                <div class="text-center py-5 reveal-up">
                     <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
                     <p class="text-muted">No lost items reported yet.</p>
                 </div>
@@ -143,25 +149,28 @@
 <!-- Recent Found Items -->
 <section class="py-5">
     <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3 class="section-title">
-                <i class="fas fa-check-circle text-success me-2"></i> Recent Found Items
-            </h3>
+        <div class="d-flex justify-content-between align-items-center mb-2 reveal-up">
+            <div>
+                <h3 class="section-title mb-1">
+                    <i class="fas fa-check-circle text-success me-2"></i> Recent Found Items
+                </h3>
+                <div class="copper-divider mb-0"></div>
+            </div>
             <a href="/items/found" class="btn btn-outline-success">
                 View All <i class="fas fa-arrow-right ms-1"></i>
             </a>
         </div>
 
         <% if (recentFound.length> 0) { %>
-            <div class="row g-4">
-                <% recentFound.forEach(function(item) { %>
-                    <div class="col-md-6 col-lg-4">
+            <div class="row g-4 mt-1">
+                <% recentFound.forEach(function(item, index) { %>
+                    <div class="col-md-6 col-lg-4 reveal-up" data-delay="<%= index * 80 %>">
                         <%- include('partials/item-card', { item: item }) %>
                     </div>
                     <% }); %>
             </div>
             <% } else { %>
-                <div class="text-center py-5">
+                <div class="text-center py-5 reveal-up">
                     <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
                     <p class="text-muted">No found items reported yet.</p>
                 </div>
@@ -172,27 +181,30 @@
 <!-- How It Works -->
 <section class="py-5 bg-primary text-white">
     <div class="container">
-        <h3 class="text-center mb-5">How It Works</h3>
+        <div class="text-center mb-5 reveal-up">
+            <h3 class="mb-1">How It Works</h3>
+            <div class="copper-divider mx-auto"></div>
+        </div>
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="step-number mb-3">1</div>
+            <div class="col-md-4 reveal-up" data-delay="0">
+                <div class="text-center card p-4 h-100">
+                    <div class="step-number mb-3 text-warning fw-bold fs-3">1</div>
                     <h5>Report</h5>
-                    <p class="mb-0">Submit a detailed report of your lost or found item with photos and description.</p>
+                    <p class="mb-0 text-muted">Submit a detailed report of your lost or found item with photos and description.</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="step-number mb-3">2</div>
+            <div class="col-md-4 reveal-up" data-delay="80">
+                <div class="text-center card p-4 h-100">
+                    <div class="step-number mb-3 text-warning fw-bold fs-3">2</div>
                     <h5>Review</h5>
-                    <p class="mb-0">Our admin team reviews and approves your report for public listing.</p>
+                    <p class="mb-0 text-muted">Our admin team reviews and approves your report for public listing.</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="text-center">
-                    <div class="step-number mb-3">3</div>
+            <div class="col-md-4 reveal-up" data-delay="160">
+                <div class="text-center card p-4 h-100">
+                    <div class="step-number mb-3 text-warning fw-bold fs-3">3</div>
                     <h5>Connect</h5>
-                    <p class="mb-0">Get connected with the finder/owner and claim your item.</p>
+                    <p class="mb-0 text-muted">Get connected with the finder/owner and claim your item.</p>
                 </div>
             </div>
         </div>

@@ -22,7 +22,7 @@
         </p>
         <p class="item-description mb-0"><%= item.description.substring(0, 80) %><%= item.description.length > 80 ? '...' : '' %></p>
     </div>
-    <div class="card-footer bg-white border-top d-flex justify-content-between align-items-center">
+    <div class="card-footer bg-transparent border-top d-flex justify-content-between align-items-center">
         <small class="text-muted">
             <i class="fas fa-calendar me-1"></i>
             <%= new Date(item.dateLostFound).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>

@@ -218,6 +218,80 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // === NAVBAR SCROLL BLUR & SHADOW ===
+    const mainNavbar = document.querySelector('.navbar');
+    if (mainNavbar) {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                mainNavbar.classList.add('scrolled');
+            } else {
+                mainNavbar.classList.remove('scrolled');
+            }
+        };
+        window.addEventListener('scroll', handleScroll);
+        handleScroll(); // Initial check
+    }
+
+    // === SCROLL REVEAL ANIMATION (INTERSECTION OBSERVER) ===
+    const revealElements = document.querySelectorAll('.reveal-up');
+    if (revealElements.length > 0 && 'IntersectionObserver' in window) {
+        const revealObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const delay = parseInt(el.getAttribute('data-delay') || '0', 10);
+                    setTimeout(() => {
+                        el.classList.add('revealed');
+                    }, delay);
+                    observer.unobserve(el);
+                }
+            });
+        }, {
+            threshold: 0.15,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+    } else {
+        // Fallback for older browsers
+        revealElements.forEach(el => el.classList.add('revealed'));
+    }
+
+    // === STAT NUMBER COUNT-UP ANIMATION ===
+    const statNumbers = document.querySelectorAll('.stat-number[data-target]');
+    if (statNumbers.length > 0 && 'IntersectionObserver' in window) {
+        const countUpObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const targetVal = parseInt(el.getAttribute('data-target') || '0', 10);
+                    const duration = 1500; // ms
+                    const startTime = performance.now();
+
+                    const animateCount = (currentTime) => {
+                        const elapsedTime = currentTime - startTime;
+                        const progress = Math.min(elapsedTime / duration, 1);
+                        // Ease out cubic
+                        const easedProgress = 1 - Math.pow(1 - progress, 3);
+                        const currentVal = Math.floor(easedProgress * targetVal);
+                        el.textContent = currentVal.toLocaleString();
+
+                        if (progress < 1) {
+                            requestAnimationFrame(animateCount);
+                        } else {
+                            el.textContent = targetVal.toLocaleString();
+                        }
+                    };
+
+                    requestAnimationFrame(animateCount);
+                    observer.unobserve(el);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        statNumbers.forEach(el => countUpObserver.observe(el));
+    }
 });
 
 // === UTILITY FUNCTIONS ===

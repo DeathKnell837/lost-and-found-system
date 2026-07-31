@@ -1,5 +1,6 @@
 const { Item, User } = require('../models');
 const emailService = require('./emailService');
+const geminiService = require('./geminiService');
 
 /**
  * Item Matching Service
@@ -164,39 +165,77 @@ const calculateMatchScore = (lostItem, foundItem) => {
 };
 
 /**
- * Find matches for a specific lost item
+ * Find matches for a specific lost item using rule-based + Gemini AI shortlist comparison
  * @param {Object} lostItem - Lost item to find matches for
  * @param {number} minScore - Minimum match score (default: 50)
- * @returns {Array} - Array of matches with scores
+ * @returns {Array} - Array of matches with combined scores and AI reasoning
  */
 const findMatchesForLostItem = async (lostItem, minScore = 50) => {
     try {
-        // Find approved found items that are not claimed
         const foundItems = await Item.find({
             type: 'found',
             status: 'approved',
             _id: { $ne: lostItem._id }
         }).populate('category');
 
-        const matches = [];
+        const initialCandidates = [];
+        const threshold = Math.max(30, minScore - 15);
 
         for (const foundItem of foundItems) {
             const result = calculateMatchScore(lostItem, foundItem);
-            if (result.total >= minScore) {
-                matches.push({
+            if (result.total >= threshold) {
+                initialCandidates.push({
                     item: foundItem,
-                    score: result.total,
+                    ruleScore: result.total,
                     breakdown: result.breakdown,
-                    highlights: result.highlights,
+                    highlights: result.highlights
+                });
+            }
+        }
+
+        // Sort by rule score and take top 5 shortlist for Gemini AI evaluation
+        initialCandidates.sort((a, b) => b.ruleScore - a.ruleScore);
+        const shortlist = initialCandidates.slice(0, 5);
+
+        const finalMatches = [];
+
+        for (const candidate of shortlist) {
+            let aiScore = candidate.ruleScore;
+            let reasoning = 'Matched based on item properties, location, and description.';
+
+            try {
+                const geminiRes = await geminiService.compareImages(
+                    lostItem.imagePath,
+                    candidate.item.imagePath,
+                    `${lostItem.itemName}: ${lostItem.description}`,
+                    `${candidate.item.itemName}: ${candidate.item.description}`
+                );
+                if (geminiRes && typeof geminiRes.similarityScore === 'number') {
+                    aiScore = geminiRes.similarityScore;
+                    reasoning = geminiRes.reasoning;
+                }
+            } catch (err) {
+                console.error('Gemini match evaluation fallback:', err.message);
+            }
+
+            const combinedScore = Math.round((candidate.ruleScore * 0.55) + (aiScore * 0.45));
+
+            if (combinedScore >= minScore) {
+                finalMatches.push({
+                    item: candidate.item,
+                    score: combinedScore,
+                    ruleScore: candidate.ruleScore,
+                    aiScore,
+                    reasoning,
+                    breakdown: candidate.breakdown,
+                    highlights: candidate.highlights,
                     matchedAt: new Date()
                 });
             }
         }
 
-        // Sort by score descending
-        matches.sort((a, b) => b.score - a.score);
-
-        return matches;
+        finalMatches.sort((a, b) => b.score - a.score);
+        return finalMatches;
     } catch (error) {
         console.error('Find matches error:', error);
         return [];
@@ -204,39 +243,77 @@ const findMatchesForLostItem = async (lostItem, minScore = 50) => {
 };
 
 /**
- * Find matches for a specific found item
+ * Find matches for a specific found item using rule-based + Gemini AI shortlist comparison
  * @param {Object} foundItem - Found item to find matches for
  * @param {number} minScore - Minimum match score (default: 50)
- * @returns {Array} - Array of matches with scores
+ * @returns {Array} - Array of matches with combined scores and AI reasoning
  */
 const findMatchesForFoundItem = async (foundItem, minScore = 50) => {
     try {
-        // Find approved lost items that are not claimed
         const lostItems = await Item.find({
             type: 'lost',
             status: 'approved',
             _id: { $ne: foundItem._id }
         }).populate('category').populate('reportedBy');
 
-        const matches = [];
+        const initialCandidates = [];
+        const threshold = Math.max(30, minScore - 15);
 
         for (const lostItem of lostItems) {
             const result = calculateMatchScore(lostItem, foundItem);
-            if (result.total >= minScore) {
-                matches.push({
+            if (result.total >= threshold) {
+                initialCandidates.push({
                     item: lostItem,
-                    score: result.total,
+                    ruleScore: result.total,
                     breakdown: result.breakdown,
-                    highlights: result.highlights,
+                    highlights: result.highlights
+                });
+            }
+        }
+
+        // Sort by rule score and take top 5 shortlist for Gemini AI evaluation
+        initialCandidates.sort((a, b) => b.ruleScore - a.ruleScore);
+        const shortlist = initialCandidates.slice(0, 5);
+
+        const finalMatches = [];
+
+        for (const candidate of shortlist) {
+            let aiScore = candidate.ruleScore;
+            let reasoning = 'Matched based on item properties, location, and description.';
+
+            try {
+                const geminiRes = await geminiService.compareImages(
+                    candidate.item.imagePath,
+                    foundItem.imagePath,
+                    `${candidate.item.itemName}: ${candidate.item.description}`,
+                    `${foundItem.itemName}: ${foundItem.description}`
+                );
+                if (geminiRes && typeof geminiRes.similarityScore === 'number') {
+                    aiScore = geminiRes.similarityScore;
+                    reasoning = geminiRes.reasoning;
+                }
+            } catch (err) {
+                console.error('Gemini match evaluation fallback:', err.message);
+            }
+
+            const combinedScore = Math.round((candidate.ruleScore * 0.55) + (aiScore * 0.45));
+
+            if (combinedScore >= minScore) {
+                finalMatches.push({
+                    item: candidate.item,
+                    score: combinedScore,
+                    ruleScore: candidate.ruleScore,
+                    aiScore,
+                    reasoning,
+                    breakdown: candidate.breakdown,
+                    highlights: candidate.highlights,
                     matchedAt: new Date()
                 });
             }
         }
 
-        // Sort by score descending
-        matches.sort((a, b) => b.score - a.score);
-
-        return matches;
+        finalMatches.sort((a, b) => b.score - a.score);
+        return finalMatches;
     } catch (error) {
         console.error('Find matches error:', error);
         return [];
@@ -300,6 +377,7 @@ const processMatchesAndNotify = async (item) => {
                 potentialMatches: matches.slice(0, 10).map(m => ({
                     item: m.item._id,
                     score: m.score,
+                    reasoning: m.reasoning || '',
                     matchedAt: m.matchedAt
                 }))
             });

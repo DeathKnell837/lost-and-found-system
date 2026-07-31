@@ -9,28 +9,28 @@
    Variables
    ================================ */
 :root {
-    --primary: #5c6bc0;
-    --primary-hover: #4a5ab9;
-    --primary-light: #e8eaf6;
-    --success: #4caf50;
-    --success-light: #e8f5e9;
-    --danger: #ef5350;
-    --danger-light: #ffebee;
-    --warning: #ff9800;
-    --warning-light: #fff3e0;
-    --info: #29b6f6;
-    --info-light: #e1f5fe;
-    --dark: #263238;
-    --sidebar-bg: #1a1d21;
-    --sidebar-hover: #2d3239;
-    --bg: #f5f7fa;
-    --card-bg: #ffffff;
-    --text: #37474f;
-    --text-light: #78909c;
-    --text-muted: #b0bec5;
-    --border: #e0e6ed;
-    --shadow: 0 2px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
+    --primary: #c98a4b;
+    --primary-hover: #e0a85c;
+    --primary-light: rgba(201, 138, 75, 0.15);
+    --success: #22c55e;
+    --success-light: rgba(34, 197, 94, 0.15);
+    --danger: #ef4444;
+    --danger-light: rgba(239, 68, 68, 0.15);
+    --warning: #f59e0b;
+    --warning-light: rgba(245, 158, 11, 0.15);
+    --info: #38bdf8;
+    --info-light: rgba(56, 189, 248, 0.15);
+    --dark: #0b0c10;
+    --sidebar-bg: #0f1015;
+    --sidebar-hover: #181a20;
+    --bg: #0b0c10;
+    --card-bg: rgba(20, 21, 26, 0.75);
+    --text: #e2e8f0;
+    --text-light: #94a3b8;
+    --text-muted: #64748b;
+    --border: rgba(201, 138, 75, 0.2);
+    --shadow: 0 4px 16px rgba(0,0,0,0.5);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.7);
     --radius: 8px;
     --radius-lg: 12px;
     --sidebar-width: 240px;
@@ -47,15 +47,15 @@ body, .admin-body {
     font-family: 'Inter', -apple-system, sans-serif;
     font-size: 14px;
     line-height: 1.5;
-    color: var(--text);
-    background: var(--bg);
+    color: var(--text) !important;
+    background: var(--bg) !important;
     min-height: 100vh;
 }
 
 a { color: var(--primary); text-decoration: none; }
 a:hover { color: var(--primary-hover); }
 
-h1, h2, h3, h4, h5, h6 { font-weight: 600; color: var(--dark); }
+h1, h2, h3, h4, h5, h6 { font-family: 'Playfair Display', Georgia, serif; font-weight: 700; color: #ffffff; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }

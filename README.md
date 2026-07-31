@@ -1,6 +1,6 @@
 # Campus Lost & Found Management System
 
-A comprehensive web-based Lost and Found Item Management System designed for campus usage. Helps students and faculty report lost/found items and facilitates the claiming process.
+A comprehensive web-based Lost and Found Item Management System designed for campus usage. Helps students and faculty report lost/found items and facilitates the claiming process with AI-powered item matching and a dark luxury interface.
 
 ## 🌐 Live Demo
 
@@ -11,6 +11,18 @@ A comprehensive web-based Lost and Found Item Management System designed for cam
 - Password: `Siladan2026`
 
 ## ✨ Features
+
+### 🤖 Gemini AI Features (New)
+- **Multimodal Visual Item Comparison**: Powered by Gemini 2.0 Flash (`@google/generative-ai`) to compare photos and descriptions of lost and found items.
+- **Hybrid AI + Rule Matching**: Shortlists candidates with rule-based criteria and ranks them with Gemini visual similarity scores and plain-language reasoning.
+- **Conversational AI Assistant**: Floating Glassmorphism chat widget (`views/partials/ai-assistant.ejs`) providing natural-language search and instant database recommendations.
+
+### 🎨 Dark Luxury Interface (New)
+- **Deep Metallic Palette**: Built on a deep near-black base (`#0b0c10` to `#14151a`) with warm copper and amber accents (`#c98a4b` to `#e0a85c`).
+- **Sophisticated Typography**: Playfair Display serif headings paired with Inter body font.
+- **Glassmorphism Panels**: Semi-transparent dark cards with `backdrop-filter: blur`, 1px copper borders, and outer glow hover effects.
+- **Micro-Interactions**: Scroll reveal animations (`IntersectionObserver`), animated stat count-ups, hero radar-sweep animation, and button shine sweeps.
+- **UI Backup Branch**: Original UI saved on branch `backup-ui` (or tag `ui-backup-tag`) for easy reversal if needed.
 
 ### 👤 User Features
 - Register and login
@@ -29,7 +41,7 @@ A comprehensive web-based Lost and Found Item Management System designed for cam
 - Secure admin dashboard with statistics and analytics
 - Approve/reject pending item reports
 - Review and manage claim requests
-- Item matching algorithm (finds potential matches between lost & found items)
+- Item matching algorithm (finds potential matches between lost & found items with AI reasoning)
 - Manage item categories
 - Manage campus locations (70+ predefined + user-suggested)
 - User management (activate/deactivate accounts)
@@ -42,8 +54,9 @@ A comprehensive web-based Lost and Found Item Management System designed for cam
 | Layer | Technology |
 |-------|------------|
 | Backend | Node.js, Express.js |
+| AI Integration | Google Gemini 2.0 Flash (`@google/generative-ai`) |
 | Database | MongoDB Atlas |
-| Frontend | EJS Templates, Bootstrap 5, CSS3 |
+| Frontend | EJS Templates, Bootstrap 5, Dark Luxury Glassmorphism CSS3, Vanilla JS |
 | Authentication | Express-session, bcrypt.js |
 | File Storage | Cloudinary |
 | Email | Nodemailer |
@@ -127,6 +140,7 @@ A comprehensive web-based Lost and Found Item Management System designed for cam
    CLOUDINARY_API_SECRET=your_api_secret
    EMAIL_USER=your_gmail@gmail.com
    EMAIL_PASS=your_app_password
+   GEMINI_API_KEY=your_gemini_api_key
    ```
 
 4. **Seed the database**

@@ -169,6 +169,7 @@ const itemSchema = new mongoose.Schema({
     potentialMatches: [{
         item: { type: mongoose.Schema.Types.ObjectId, ref: 'Item' },
         score: Number,  // How similar the items are (0-100)
+        reasoning: String, // Gemini AI reasoning for match score
         matchedAt: { type: Date, default: Date.now },
         dismissed: { type: Boolean, default: false }  // User dismissed this match
     }]
