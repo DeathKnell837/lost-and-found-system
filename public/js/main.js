@@ -57,9 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // === FORM SUBMIT WITH LOADING OVERLAY ===
-    // Show loading overlay and disable submit button when any form is submitted
+    // Show loading overlay for standard page-navigation forms (exclude AJAX/AI chat forms)
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
+        // Skip AI Chat Form or AJAX forms
+        if (form.id === 'aiChatForm' || form.classList.contains('no-overlay') || form.classList.contains('ai-chat-input-form')) {
+            return;
+        }
+
         // Store original button text on page load
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) {
