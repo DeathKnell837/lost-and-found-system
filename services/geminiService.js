@@ -116,79 +116,66 @@ Item 2 Description: "${desc2}"
     }
 };
 
-const isNonSearchInput = (msg) => {
-    if (!msg || typeof msg !== 'string') return true;
-    const text = msg.trim().toLowerCase();
-    const casualRegex = /^(hi|hello|hey|good|howdy|what|who|where|how|can|thanks|thank|nothing|nothging|nvm|nevermind|ok|okay|cool|fine|bye|no|nah|none|not really|just looking|nope|nothing much|k|thx)/i;
-    if (casualRegex.test(text)) return true;
-    if (text.length < 3 && !/id|key/i.test(text)) return true;
-    return false;
-};
-
 /**
- * Conversational query parser and responder
+ * Conversational query parser & open-ended chat responder
  * @param {string} userMessage - User search description or chat prompt
- * @returns {Promise<Object>} - { isSearch, extracted: { category, color, brand, location, keywords }, conversationalResponse: string }
+ * @returns {Promise<Object>} - { isSearch, extracted, conversationalResponse }
  */
 const parseSearchQuery = async (userMessage) => {
-    // Immediate pre-check for casual/non-search phrases (e.g. "hi", "nothing", "nothging", "ok", "nvm")
-    if (isNonSearchInput(userMessage)) {
-        let reply = "Hello! I am your Campus Lost & Found Assistant. How can I help you find or report a lost item on campus today?";
-        const textLower = userMessage.trim().toLowerCase();
-        
-        if (/nothing|nothging|nvm|nevermind|no|nah|none|nope|nothing much/i.test(textLower)) {
-            reply = "No problem! Feel free to reach out anytime if you lose or find something on campus. Have a great day!";
-        } else if (/thanks|thank|thx|cool|ok|okay|great|awesome/i.test(textLower)) {
-            reply = "You're very welcome! I'm always here if you need help finding or reporting an item.";
-        } else if (/bye|see ya|goodnight|cya/i.test(textLower)) {
-            reply = "Goodbye! Take care and have a wonderful day on campus!";
-        }
+    const textTrimmed = (userMessage || '').trim();
 
-        return {
-            isSearch: false,
-            extracted: { keywords: [] },
-            conversationalResponse: reply
-        };
-    }
+    // Explicit Search Intent Detection:
+    // Only set isSearch: true if user explicitly asks to search/find/look up an item OR describes lost/found item details
+    const explicitSearchKeywords = /^\s*(search for|find my|look for|did someone find|has anyone seen|where is my|i lost|i found|is there a lost|do you have my|check if someone|scan for|match my|wallet|keys|phone|bag|backpack|airpods|laptop|umbrella|jacket|coat|glasses|watch|id card|student card|badge)/i;
+    const isSearchIntent = explicitSearchKeywords.test(textTrimmed);
 
     if (!genAI) {
         return {
-            isSearch: true,
-            extracted: { keywords: userMessage.split(/\s+/).filter(w => w.length > 2) },
-            conversationalResponse: `Here are the top matches I found for "${userMessage}":`
+            isSearch: isSearchIntent,
+            extracted: { keywords: isSearchIntent ? textTrimmed.split(/\s+/).filter(w => w.length > 2) : [] },
+            conversationalResponse: isSearchIntent 
+                ? `I am scanning our campus database for items matching "${textTrimmed}":`
+                : "Hello! I am your Campus Lost & Found Assistant. How can I help you today?"
         };
     }
 
     try {
         const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-        const prompt = `You are the Official Campus Lost & Found AI Assistant — an intelligent, friendly, and comprehensive AI guide for students, faculty, and campus security.
-User message: "${userMessage}"
+        if (!isSearchIntent) {
+            // NORMAL FREE-FORM AI CONVERSATION MODE
+            const chatPrompt = `You are a friendly, intelligent, and helpful AI Assistant for the Campus Lost & Found System.
+Engage in natural, warm, and helpful open-ended conversation with the user.
+Answer their questions on any topic, converse naturally, or assist them with campus life and lost & found procedures.
+Keep responses concise, natural, and helpful (1-3 sentences).
 
-SYSTEM CONTEXT & CAPABILITIES YOU COVER:
-1. GREETINGS & CASUAL CHAT: Respond warmly, introduce yourself, and offer assistance with lost/found belongings or campus procedures.
-2. REPORTING LOST ITEMS: Guide users to click "Report Lost Item" at the top navbar or describe their lost item to search our database.
-3. REPORTING FOUND ITEMS: Guide finders to click "Report Found Item" or surrender items to the Campus Security & Admin Office (Mon-Fri 8AM-6PM, Tel: 0956-932-7442).
-4. CLAIMING PROCESS: Explain that owners can claim found items by providing proof of ownership (student ID, serial number, or detailed description).
-5. GEMINI AI VISUAL MATCHING: Explain that Gemini 2.0 Flash Vision automatically calculates similarity scores between lost and found item photos.
-6. PHYSICAL ITEM SEARCH: If the user is searching for a specific physical item (e.g., "lost my black leather wallet", "blue car keys"), set isSearch to true and extract key attributes.
+User message: "${textTrimmed}"`;
 
-Determine INTENT:
-- "search": User is explicitly describing a physical lost or found item to look up in the database.
-- "chat": User is greeting, asking a system question, inquiring about campus procedures, thanking you, or asking general questions.
+            const chatResult = await model.generateContent(chatPrompt);
+            const chatResponseText = chatResult.response.text().trim();
 
-If intent is "chat":
-- Set isSearch to false.
-- Provide a clear, polite, and helpful 1-3 sentence answer directly addressing their question.
+            return {
+                isSearch: false,
+                extracted: { keywords: [] },
+                conversationalResponse: chatResponseText || "I'm here to chat or help you with anything on campus! Let me know if you lose or find something."
+            };
+        }
 
-If intent is "search":
-- Set isSearch to true.
-- Extract attributes: category, color, brand, location, keywords.
-- Provide a warm 1-2 sentence response confirming what item you are scanning the campus database for.
+        // EXPLICIT ITEM SEARCH MODE
+        const searchPrompt = `You are the Official Campus Lost & Found AI Assistant.
+A user is searching for a lost or found item: "${textTrimmed}"
+
+Extract search attributes:
+- category (Electronics, Clothing, Accessories, Keys, ID Card, Bags, Books, Other)
+- color
+- brand
+- location
+- keywords
+
+Formulate a warm 1-2 sentence response confirming you are searching the campus database for their item.
 
 Return ONLY a valid JSON object in this exact format (no markdown):
 {
-  "isSearch": true or false,
   "category": "<extracted category or empty string>",
   "color": "<extracted color or empty string>",
   "brand": "<extracted brand or empty string>",
@@ -197,13 +184,13 @@ Return ONLY a valid JSON object in this exact format (no markdown):
   "conversationalResponse": "<your response text>"
 }`;
 
-        const result = await model.generateContent(prompt);
-        const responseText = result.response.text().trim();
-        const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/\s*```$/g, '').trim();
+        const searchResult = await model.generateContent(searchPrompt);
+        const searchResponseText = searchResult.response.text().trim();
+        const cleanedJsonText = searchResponseText.replace(/^```json\s*/gi, '').replace(/\s*```$/g, '').trim();
         const jsonResult = JSON.parse(cleanedJsonText);
 
         return {
-            isSearch: jsonResult.isSearch === true,
+            isSearch: true,
             extracted: {
                 category: jsonResult.category || '',
                 color: jsonResult.color || '',
@@ -211,17 +198,16 @@ Return ONLY a valid JSON object in this exact format (no markdown):
                 location: jsonResult.location || '',
                 keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
             },
-            conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I assist you with lost or found items on campus today?"
+            conversationalResponse: jsonResult.conversationalResponse || `I am scanning our campus database for "${textTrimmed}":`
         };
     } catch (error) {
         console.error('Gemini query parse error:', error.message);
-        const isGreeting = /^(hi|hello|hey|good|how|what|who|where|can|thanks|thank)/i.test(userMessage.trim());
         return {
-            isSearch: !isGreeting,
-            extracted: { keywords: isGreeting ? [] : userMessage.split(/\s+/).filter(w => w.length > 2) },
-            conversationalResponse: isGreeting 
-                ? "Hello! I am your Campus Lost & Found Assistant. How can I help you find or report a lost item on campus today?"
-                : `I scanned our campus database for items matching "${userMessage}":`
+            isSearch: isSearchIntent,
+            extracted: { keywords: isSearchIntent ? textTrimmed.split(/\s+/).filter(w => w.length > 2) : [] },
+            conversationalResponse: isSearchIntent
+                ? `I am scanning our campus database for "${textTrimmed}":`
+                : "Hello! I am your Campus Lost & Found Assistant. How can I help you today?"
         };
     }
 };
