@@ -12,20 +12,35 @@ const chatController = {
      */
     handleChatMessage: async (req, res) => {
         try {
-            const { message } = req.body;
+            const message = req.body ? (req.body.message || '') : '';
+            const imageFile = req.file;
 
-            if (!message || typeof message !== 'string' || !message.trim()) {
+            if (!message.trim() && !imageFile) {
                 return res.status(400).json({
                     success: false,
-                    response: "Please enter a description or question about an item."
+                    response: "Please enter a description or attach a photo of the item."
                 });
             }
 
             const userPrompt = message.trim();
+            let extracted = {};
+            let conversationalResponse = '';
 
-            // Use Gemini to parse intent and extracted attributes
-            const geminiAnalysis = await geminiService.parseSearchQuery(userPrompt);
-            const { extracted, conversationalResponse } = geminiAnalysis;
+            if (imageFile) {
+                // Multimodal image analysis using Gemini 2.0 Flash Vision
+                const analysis = await geminiService.analyzeUploadedImage(
+                    imageFile.buffer,
+                    imageFile.mimetype,
+                    userPrompt
+                );
+                extracted = analysis.extracted || {};
+                conversationalResponse = analysis.conversationalResponse;
+            } else {
+                // Text-only query analysis using Gemini 2.0 Flash
+                const geminiAnalysis = await geminiService.parseSearchQuery(userPrompt);
+                extracted = geminiAnalysis.extracted || {};
+                conversationalResponse = geminiAnalysis.conversationalResponse;
+            }
 
             // Query items database for approved candidates
             const queryConditions = { status: 'approved' };

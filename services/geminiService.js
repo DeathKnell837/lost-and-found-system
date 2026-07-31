@@ -173,7 +173,67 @@ Return ONLY a valid JSON object in this exact format (no markdown codeblock wrap
     }
 };
 
+/**
+ * Multimodal image analysis using Gemini 2.0 Flash
+ * @param {Buffer} imageBuffer - Buffer of uploaded file
+ * @param {string} mimeType - e.g. 'image/jpeg' or 'image/png'
+ * @param {string} userPrompt - Optional text prompt
+ */
+const analyzeUploadedImage = async (imageBuffer, mimeType = 'image/jpeg', userPrompt = '') => {
+    if (!genAI) {
+        return {
+            extracted: { keywords: ['item'] },
+            conversationalResponse: "I received your photo! Gemini API key is not configured, but I am scanning our database for matching items."
+        };
+    }
+
+    try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const imagePart = {
+            inlineData: {
+                data: imageBuffer.toString('base64'),
+                mimeType
+            }
+        };
+
+        const prompt = `You are a Campus Lost & Found AI Assistant.
+Analyze this photo of an item ${userPrompt ? `along with user message: "${userPrompt}"` : ''}.
+Identify the item type, primary colors, brand/logo, materials, condition, and key features.
+
+Return ONLY a valid JSON object in this exact format (no markdown):
+{
+  "category": "<best fitting category like Electronics, Keys, Wallet, Bag, Clothing, Accessories, ID Card, Books, Other>",
+  "color": "<primary color>",
+  "brand": "<brand name or empty>",
+  "keywords": ["<keyword1>", "<keyword2>", "<keyword3>"],
+  "conversationalResponse": "<friendly 1-2 sentence response confirming what item you see in the photo and that you are scanning our campus database for matches>"
+}`;
+
+        const result = await model.generateContent([imagePart, prompt]);
+        const text = result.response.text().trim();
+        const cleanedText = text.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim();
+        const parsed = JSON.parse(cleanedText);
+
+        return {
+            extracted: {
+                category: parsed.category || '',
+                color: parsed.color || '',
+                brand: parsed.brand || '',
+                keywords: Array.isArray(parsed.keywords) ? parsed.keywords : []
+            },
+            conversationalResponse: parsed.conversationalResponse || "I analyzed your item photo and am checking our campus database for matches!"
+        };
+    } catch (err) {
+        console.error('Error analyzing image with Gemini:', err);
+        return {
+            extracted: { keywords: ['item'] },
+            conversationalResponse: "I received your photo and am checking our campus database for matching items!"
+        };
+    }
+};
+
 module.exports = {
     compareImages,
-    parseSearchQuery
+    parseSearchQuery,
+    analyzeUploadedImage
 };

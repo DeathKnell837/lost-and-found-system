@@ -42,10 +42,23 @@
             </div>
         </div>
 
+        <!-- Attached Photo Preview Container -->
+        <div id="aiImagePreviewBar" class="ai-image-preview-bar d-none">
+            <div class="position-relative d-inline-block">
+                <img id="aiImagePreview" src="" alt="Item photo preview" class="ai-image-preview-thumb">
+                <button type="button" id="aiRemoveImageBtn" class="btn-remove-preview" title="Remove photo">&times;</button>
+            </div>
+            <span class="small text-cyan ms-2"><i class="fas fa-image me-1"></i> Photo attached</span>
+        </div>
+
         <!-- Panel Input Form -->
-        <form id="aiChatForm" class="ai-chat-input-form">
+        <form id="aiChatForm" class="ai-chat-input-form" enctype="multipart/form-data">
+            <input type="file" id="aiImageInput" accept="image/*" class="d-none">
             <div class="input-group">
-                <input type="text" id="aiChatInput" class="form-control" placeholder="Describe lost item, brand, color, place..." required autocomplete="off">
+                <button type="button" id="aiImageBtn" class="btn btn-outline-cyan" title="Attach picture of lost/found item">
+                    <i class="fas fa-camera"></i>
+                </button>
+                <input type="text" id="aiChatInput" class="form-control" placeholder="Describe or attach item photo..." autocomplete="off">
                 <button type="submit" id="aiChatSubmitBtn" class="btn btn-primary">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -74,6 +87,63 @@
 
 .text-light-gray {
     color: #cbd5e1 !important;
+}
+
+.btn-outline-cyan {
+    background: rgba(6, 182, 212, 0.15);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    color: #38bdf8;
+    transition: all 0.2s ease;
+}
+
+.btn-outline-cyan:hover {
+    background: #06b6d4;
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+}
+
+.ai-image-preview-bar {
+    padding: 8px 14px;
+    background: rgba(15, 23, 42, 0.95);
+    border-top: 1px solid rgba(59, 130, 246, 0.2);
+    display: flex;
+    align-items: center;
+}
+
+.ai-image-preview-thumb {
+    width: 46px;
+    height: 46px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1.5px solid #06b6d4;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+}
+
+.btn-remove-preview {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #ef4444;
+    color: #ffffff;
+    border: 1px solid #0f172a;
+    font-size: 0.75rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.user-uploaded-img {
+    max-width: 180px;
+    max-height: 140px;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    object-fit: cover;
 }
 
 .ai-chat-toggle {
@@ -142,9 +212,9 @@
     position: absolute;
     bottom: 78px;
     right: 0;
-    width: 380px;
+    width: 385px;
     max-width: calc(100vw - 32px);
-    height: 510px;
+    height: 520px;
     background: rgba(15, 23, 42, 0.96);
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
@@ -283,9 +353,9 @@
 }
 
 .ai-chat-input-form {
-    padding: 10px;
-    background: rgba(20, 21, 26, 0.9);
-    border-top: 1px solid rgba(201, 138, 75, 0.2);
+    padding: 10px 12px;
+    background: rgba(15, 23, 42, 0.95);
+    border-top: 1px solid rgba(59, 130, 246, 0.25);
 }
 
 .ai-chat-input-form .form-control {
@@ -302,65 +372,117 @@
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const toggleBtn = document.getElementById('aiChatToggle');
     const closeBtn = document.getElementById('aiChatClose');
-    const panel = document.getElementById('aiChatPanel');
-    const form = document.getElementById('aiChatForm');
-    const input = document.getElementById('aiChatInput');
+    const chatPanel = document.getElementById('aiChatPanel');
+    const chatForm = document.getElementById('aiChatForm');
+    const chatInput = document.getElementById('aiChatInput');
     const messagesContainer = document.getElementById('aiChatMessages');
-    const sparkleIcon = toggleBtn?.querySelector('.fa-sparkles');
-    const closeIcon = toggleBtn?.querySelector('.close-icon');
+    const openIcon = toggleBtn.querySelector('.fa-search-location, .fa-robot');
+    const closeIcon = toggleBtn.querySelector('.close-icon');
 
-    const togglePanel = () => {
-        const isHidden = panel.classList.contains('d-none');
+    const imageBtn = document.getElementById('aiImageBtn');
+    const imageInput = document.getElementById('aiImageInput');
+    const previewBar = document.getElementById('aiImagePreviewBar');
+    const previewImg = document.getElementById('aiImagePreview');
+    const removeImgBtn = document.getElementById('aiRemoveImageBtn');
+
+    let selectedFile = null;
+
+    if (imageBtn && imageInput) {
+        imageBtn.addEventListener('click', () => imageInput.click());
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                selectedFile = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (evt) => {
+                    previewImg.src = evt.target.result;
+                    previewBar.classList.remove('d-none');
+                };
+                reader.readAsDataURL(selectedFile);
+            }
+        });
+
+        removeImgBtn.addEventListener('click', () => {
+            selectedFile = null;
+            imageInput.value = '';
+            previewBar.classList.add('d-none');
+            previewImg.src = '';
+        });
+    }
+
+    // Toggle Chat Panel
+    function toggleChat() {
+        const isHidden = chatPanel.classList.contains('d-none');
         if (isHidden) {
-            panel.classList.remove('d-none');
-            sparkleIcon?.classList.add('d-none');
-            closeIcon?.classList.remove('d-none');
-            input?.focus();
+            chatPanel.classList.remove('d-none');
+            if (openIcon) openIcon.classList.add('d-none');
+            if (closeIcon) closeIcon.classList.remove('d-none');
+            chatInput.focus();
         } else {
-            panel.classList.add('d-none');
-            sparkleIcon?.classList.remove('d-none');
-            closeIcon?.classList.add('d-none');
+            chatPanel.classList.add('d-none');
+            if (openIcon) openIcon.classList.remove('d-none');
+            if (closeIcon) closeIcon.classList.add('d-none');
         }
-    };
+    }
 
-    toggleBtn?.addEventListener('click', togglePanel);
-    closeBtn?.addEventListener('click', togglePanel);
+    toggleBtn.addEventListener('click', toggleChat);
+    closeBtn.addEventListener('click', toggleChat);
 
+    // Global Suggestion Function
     window.sendSuggestion = function(text) {
-        if (input) {
-            input.value = text;
-            form.dispatchEvent(new Event('submit', { cancelable: true }));
-        }
+        chatInput.value = text;
+        chatForm.dispatchEvent(new Event('submit'));
     };
 
-    form?.addEventListener('submit', async function(e) {
+    // Handle Chat Submit
+    chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const userText = input.value.trim();
-        if (!userText) return;
+        const userText = chatInput.value.trim();
+        const fileToSend = selectedFile;
 
-        // Render user message
+        if (!userText && !fileToSend) return;
+
+        // Render user message bubble with text and optional image preview
         const userMsgDiv = document.createElement('div');
         userMsgDiv.className = 'ai-message user-message';
-        userMsgDiv.innerHTML = `<div class="message-content"><p class="mb-0">${escapeHtml(userText)}</p></div>`;
+        
+        let userContentHtml = '<div class="message-content">';
+        if (fileToSend && previewImg.src) {
+            userContentHtml += `<img src="${previewImg.src}" class="user-uploaded-img d-block" alt="Uploaded Item">`;
+        }
+        if (userText) {
+            userContentHtml += `<p class="mb-0">${escapeHtml(userText)}</p>`;
+        }
+        userContentHtml += '</div>';
+        
+        userMsgDiv.innerHTML = userContentHtml;
         messagesContainer.appendChild(userMsgDiv);
-        input.value = '';
+
+        // Reset input and file preview bar
+        chatInput.value = '';
+        selectedFile = null;
+        if (imageInput) imageInput.value = '';
+        if (previewBar) previewBar.classList.add('d-none');
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         // Render typing indicator
         const loadingDiv = document.createElement('div');
         loadingDiv.className = 'ai-message bot-message loading-msg';
-        loadingDiv.innerHTML = `<div class="message-content"><i class="fas fa-spinner fa-spin me-2 text-copper"></i>Searching items with Gemini...</div>`;
+        loadingDiv.innerHTML = `<div class="message-content"><i class="fas fa-robot fa-spin me-2 text-cyan"></i>Analyzing item with Gemini 2.0 AI...</div>`;
         messagesContainer.appendChild(loadingDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
         try {
+            const formData = new FormData();
+            if (userText) formData.append('message', userText);
+            if (fileToSend) formData.append('image', fileToSend);
+
             const res = await fetch('/api/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userText })
+                body: formData
             });
             const data = await res.json();
 
@@ -375,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.matches.forEach(m => {
                     matchesHtml += `
                         <a href="/items/${m._id}" class="ai-match-card-mini">
-                            ${m.imagePath ? `<img src="${m.imagePath}" class="ai-match-thumb" alt="${escapeHtml(m.itemName)}">` : `<div class="ai-match-thumb d-flex align-items-center justify-content-center bg-dark text-copper"><i class="fas fa-box"></i></div>`}
+                            ${m.imagePath ? `<img src="${m.imagePath}" class="ai-match-thumb" alt="${escapeHtml(m.itemName)}">` : `<div class="ai-match-thumb d-flex align-items-center justify-content-center bg-dark text-cyan"><i class="fas fa-box"></i></div>`}
                             <div class="overflow-hidden flex-grow-1">
                                 <div class="fw-bold text-truncate text-white small">${escapeHtml(m.itemName)}</div>
                                 <div class="small text-muted text-truncate"><i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(m.location)}</div>
@@ -405,7 +527,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const errDiv = document.createElement('div');
             errDiv.className = 'ai-message bot-message';
-            errDiv.innerHTML = `<div class="message-content"><p class="mb-0 text-danger">Sorry, unable to connect right now. Please try again.</p></div>`;
+            errDiv.innerHTML = `<div class="message-content"><p class="mb-0 text-danger">Sorry, unable to process photo or message right now. Please try again.</p></div>`;
             messagesContainer.appendChild(errDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
