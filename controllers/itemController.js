@@ -49,180 +49,164 @@ const matchingService = require('../services/matchingService');
  * @param {Object} req - Express request object (contains query parameters)
  * @param {Object} res - Express response object (used to send response)
  */
+const mongoose = require('mongoose');
+
 exports.getLostItems = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    let items = [];
+    let total = 0;
+    let categories = [];
+
     try {
-        // PAGINATION SETUP
-        // Get current page from URL query (?page=2), default to page 1
-        const page = parseInt(req.query.page) || 1;
-        
-        // Show 12 items per page (3 rows x 4 columns in grid layout)
-        const limit = 12;
-        
-        // Calculate how many items to skip
-        // Page 1: skip 0, Page 2: skip 12, Page 3: skip 24
-        const skip = (page - 1) * limit;
+        if (mongoose.connection.readyState === 1) {
+            let query = { type: 'lost', status: 'approved' };
 
-        // BUILD DATABASE QUERY
-        // Only show lost items that have been approved by admin
-        let query = { type: 'lost', status: 'approved' };
-
-        // TEXT SEARCH
-        // Search by item name, description, or location
-        if (req.query.q && req.query.q.trim() !== '') {
-            query.$or = [
-                { itemName: { $regex: req.query.q, $options: 'i' } },
-                { description: { $regex: req.query.q, $options: 'i' } },
-                { location: { $regex: req.query.q, $options: 'i' } }
-            ];
-        }
-
-        // CATEGORY FILTER
-        // If user selected a category from dropdown, add to query
-        if (req.query.category && req.query.category !== '') {
-            query.category = req.query.category;
-        }
-
-        // DATE FILTER
-        // Filter items by date range if provided
-        if (req.query.dateFrom || req.query.dateTo) {
-            query.dateLostFound = {};
-            if (req.query.dateFrom) {
-                // $gte = greater than or equal (on or after this date)
-                query.dateLostFound.$gte = new Date(req.query.dateFrom);
+            if (req.query.q && req.query.q.trim() !== '') {
+                query.$or = [
+                    { itemName: { $regex: req.query.q, $options: 'i' } },
+                    { description: { $regex: req.query.q, $options: 'i' } },
+                    { location: { $regex: req.query.q, $options: 'i' } }
+                ];
             }
-            if (req.query.dateTo) {
-                // $lte = less than or equal (on or before this date)
-                query.dateLostFound.$lte = new Date(req.query.dateTo);
+
+            if (req.query.category && req.query.category !== '') {
+                query.category = req.query.category;
             }
+
+            if (req.query.dateFrom || req.query.dateTo) {
+                query.dateLostFound = {};
+                if (req.query.dateFrom) {
+                    query.dateLostFound.$gte = new Date(req.query.dateFrom);
+                }
+                if (req.query.dateTo) {
+                    query.dateLostFound.$lte = new Date(req.query.dateTo);
+                }
+            }
+
+            items = await Item.find(query)
+                .populate('category')
+                .sort({ dateReported: -1 })
+                .skip(skip)
+                .limit(limit);
+
+            total = await Item.countDocuments(query);
+            categories = await Category.find({ isActive: true });
         }
-
-        // EXECUTE DATABASE QUERY
-        const items = await Item.find(query)
-            .populate('category')        // Replace category ID with actual category data
-            .sort({ dateReported: -1 })  // Sort newest first
-            .skip(skip)                  // Skip items for pagination
-            .limit(limit);               // Only get 12 items
-
-        // Get total count for pagination calculation
-        const total = await Item.countDocuments(query);
-        
-        // Get all active categories for filter dropdown
-        const categories = await Category.find({ isActive: true });
-
-        // RENDER THE VIEW
-        // Send data to the EJS template to generate HTML
-        res.render('items/lost', {
-            title: 'Lost Items - Lost & Found',
-            items,                               // The items to display
-            categories,                          // For filter dropdown
-            currentPage: page,                   // Current page number
-            totalPages: Math.ceil(total / limit),// Calculate total pages
-            totalItems: total,                   // Total items found
-            query: req.query                     // Current filter values
-        });
     } catch (error) {
-        // If anything goes wrong, log error and redirect
-        console.error('Error loading lost items:', error);
-        req.flash('error', 'Error loading items');
-        res.redirect('/');
+        console.error('Error loading lost items:', error.message);
     }
+
+    res.render('items/lost', {
+        title: 'Lost Items - Lost & Found',
+        items,
+        categories,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        query: req.query || {}
+    });
 };
 
 // Get found items listing page
 exports.getFoundItems = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    let items = [];
+    let total = 0;
+    let categories = [];
+
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = 12;
-        const skip = (page - 1) * limit;
+        if (mongoose.connection.readyState === 1) {
+            let query = { type: 'found', status: 'approved' };
 
-        // Build query
-        let query = { type: 'found', status: 'approved' };
-
-        // Text search
-        if (req.query.q && req.query.q.trim() !== '') {
-            query.$or = [
-                { itemName: { $regex: req.query.q, $options: 'i' } },
-                { description: { $regex: req.query.q, $options: 'i' } },
-                { location: { $regex: req.query.q, $options: 'i' } }
-            ];
-        }
-
-        // Category filter
-        if (req.query.category && req.query.category !== '') {
-            query.category = req.query.category;
-        }
-
-        // Date filter
-        if (req.query.dateFrom || req.query.dateTo) {
-            query.dateLostFound = {};
-            if (req.query.dateFrom) {
-                query.dateLostFound.$gte = new Date(req.query.dateFrom);
+            if (req.query.q && req.query.q.trim() !== '') {
+                query.$or = [
+                    { itemName: { $regex: req.query.q, $options: 'i' } },
+                    { description: { $regex: req.query.q, $options: 'i' } },
+                    { location: { $regex: req.query.q, $options: 'i' } }
+                ];
             }
-            if (req.query.dateTo) {
-                query.dateLostFound.$lte = new Date(req.query.dateTo);
+
+            if (req.query.category && req.query.category !== '') {
+                query.category = req.query.category;
             }
+
+            if (req.query.dateFrom || req.query.dateTo) {
+                query.dateLostFound = {};
+                if (req.query.dateFrom) {
+                    query.dateLostFound.$gte = new Date(req.query.dateFrom);
+                }
+                if (req.query.dateTo) {
+                    query.dateLostFound.$lte = new Date(req.query.dateTo);
+                }
+            }
+
+            items = await Item.find(query)
+                .populate('category')
+                .sort({ dateReported: -1 })
+                .skip(skip)
+                .limit(limit);
+
+            total = await Item.countDocuments(query);
+            categories = await Category.find({ isActive: true });
         }
-
-        const items = await Item.find(query)
-            .populate('category')
-            .sort({ dateReported: -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const total = await Item.countDocuments(query);
-        const categories = await Category.find({ isActive: true });
-
-        res.render('items/found', {
-            title: 'Found Items - Lost & Found',
-            items,
-            categories,
-            currentPage: page,
-            totalPages: Math.ceil(total / limit),
-            totalItems: total,
-            query: req.query
-        });
     } catch (error) {
-        console.error('Error loading found items:', error);
-        req.flash('error', 'Error loading items');
-        res.redirect('/');
+        console.error('Error loading found items:', error.message);
     }
+
+    res.render('items/found', {
+        title: 'Found Items - Lost & Found',
+        items,
+        categories,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        query: req.query || {}
+    });
 };
 
 // Get claimed items listing page
 exports.getClaimedItems = async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 12;
+    const skip = (page - 1) * limit;
+
+    let items = [];
+    let total = 0;
+
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = 12;
-        const skip = (page - 1) * limit;
+        if (mongoose.connection.readyState === 1) {
+            let query = { status: 'claimed' };
 
-        let query = { status: 'claimed' };
+            if (req.query.type && req.query.type !== '') {
+                query.type = req.query.type;
+            }
 
-        // Type filter
-        if (req.query.type && req.query.type !== '') {
-            query.type = req.query.type;
+            items = await Item.find(query)
+                .populate('category')
+                .sort({ 'claimedBy.date': -1 })
+                .skip(skip)
+                .limit(limit);
+
+            total = await Item.countDocuments(query);
         }
-
-        const items = await Item.find(query)
-            .populate('category')
-            .sort({ 'claimedBy.date': -1 })
-            .skip(skip)
-            .limit(limit);
-
-        const total = await Item.countDocuments(query);
-
-        res.render('items/claimed', {
-            title: 'Claimed Items - Lost & Found',
-            items,
-            currentPage: page,
-            totalPages: Math.ceil(total / limit),
-            totalItems: total,
-            query: req.query
-        });
     } catch (error) {
-        console.error('Error loading claimed items:', error);
-        req.flash('error', 'Error loading items');
-        res.redirect('/');
+        console.error('Error loading claimed items:', error.message);
     }
+
+    res.render('items/claimed', {
+        title: 'Claimed Items - Lost & Found',
+        items,
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalItems: total,
+        query: req.query || {}
+    });
 };
 
 // Get single item details
