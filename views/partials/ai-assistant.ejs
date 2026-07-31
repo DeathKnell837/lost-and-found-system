@@ -1,11 +1,12 @@
 <!-- Floating Gemini AI Assistant Chat Widget -->
 <div id="aiAssistantWidget" class="ai-assistant-widget">
     <!-- Floating Circular Toggle Button -->
-    <button id="aiChatToggle" class="ai-chat-toggle" aria-label="Toggle AI Assistant" title="Ask Gemini AI Assistant">
-        <i class="fas fa-robot text-cyan"></i>
+    <button id="aiChatToggle" class="ai-chat-toggle" aria-label="Toggle Lost & Found AI Assistant" title="Campus Lost & Found AI Assistant">
+        <i class="fas fa-search-location text-cyan"></i>
         <i class="fas fa-times text-white close-icon d-none"></i>
         <span class="ai-pulse-ring"></span>
-        <span class="ai-badge-label">AI</span>
+        <span class="ai-online-dot"></span>
+        <span class="ai-badge-label">AI Finder</span>
     </button>
 
     <!-- Expanded Glassmorphism Chat Panel -->
@@ -14,11 +15,11 @@
         <div class="ai-chat-header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2">
                 <div class="ai-avatar-badge">
-                    <i class="fas fa-sparkles"></i>
+                    <i class="fas fa-robot"></i>
                 </div>
                 <div>
-                    <h6 class="mb-0 fw-bold font-sans text-white">Campus AI Reunifier</h6>
-                    <small class="text-cyan">Powered by Gemini 2.0</small>
+                    <h6 class="mb-0 fw-bold font-sans text-white">Lost & Found AI Assistant</h6>
+                    <small class="text-cyan"><i class="fas fa-circle text-success me-1 style-dot"></i> Online • Powered by Gemini AI</small>
                 </div>
             </div>
             <button id="aiChatClose" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
@@ -28,23 +29,23 @@
         <div id="aiChatMessages" class="ai-chat-messages">
             <div class="ai-message bot-message">
                 <div class="message-content">
-                    <p class="mb-1">Hello! I am your Gemini AI Lost & Found Assistant.</p>
-                    <p class="mb-0 small text-muted">Describe what you lost or found in natural words, and I will search our campus database for matches!</p>
+                    <p class="mb-1 fw-semibold text-white">👋 Hi! I'm your Campus Lost & Found Assistant.</p>
+                    <p class="mb-0 small text-light-gray">Describe an item you lost or found (brand, color, location), or ask me how to claim a match!</p>
                 </div>
             </div>
 
             <!-- Suggestion Chips -->
             <div class="ai-suggestion-chips mt-2">
-                <button class="chip-btn" onclick="sendSuggestion('Did anyone find a black leather wallet near library?')">Black leather wallet</button>
-                <button class="chip-btn" onclick="sendSuggestion('Found blue keys with a silver lanyard')">Blue keys with lanyard</button>
-                <button class="chip-btn" onclick="sendSuggestion('Lost an Apple AirPods Pro case')">AirPods Pro case</button>
+                <button class="chip-btn" onclick="sendSuggestion('I lost a black leather wallet near library')">🔍 Lost black leather wallet</button>
+                <button class="chip-btn" onclick="sendSuggestion('Found blue keys with silver lanyard')">📦 Found blue keys</button>
+                <button class="chip-btn" onclick="sendSuggestion('How does AI visual matching work?')">⚡ How AI matching works</button>
             </div>
         </div>
 
         <!-- Panel Input Form -->
         <form id="aiChatForm" class="ai-chat-input-form">
             <div class="input-group">
-                <input type="text" id="aiChatInput" class="form-control" placeholder="Type item description..." required autocomplete="off">
+                <input type="text" id="aiChatInput" class="form-control" placeholder="Describe lost item, brand, color, place..." required autocomplete="off">
                 <button type="submit" id="aiChatSubmitBtn" class="btn btn-primary">
                     <i class="fas fa-paper-plane"></i>
                 </button>
@@ -66,69 +67,90 @@
     color: #06b6d4 !important;
 }
 
+.style-dot {
+    font-size: 0.5rem;
+    vertical-align: middle;
+}
+
+.text-light-gray {
+    color: #cbd5e1 !important;
+}
+
 .ai-chat-toggle {
-    width: 62px;
-    height: 62px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background: rgba(15, 23, 42, 0.95);
-    border: 1px solid rgba(59, 130, 246, 0.5);
+    border: 1.5px solid rgba(59, 130, 246, 0.6);
     color: #3b82f6;
     font-size: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 25px rgba(59, 130, 246, 0.45);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), 0 0 25px rgba(59, 130, 246, 0.5);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
     position: relative;
 }
 
+.ai-online-dot {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #10b981;
+    border: 2px solid #0f172a;
+    box-shadow: 0 0 8px #10b981;
+}
+
 .ai-badge-label {
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -6px;
+    right: -6px;
     background: linear-gradient(135deg, #3b82f6, #06b6d4);
     color: #ffffff;
     font-size: 0.65rem;
     font-weight: 800;
-    padding: 2px 6px;
+    padding: 2px 7px;
     border-radius: 10px;
     border: 1px solid #0f172a;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.7);
 }
 
 .ai-chat-toggle:hover {
     transform: scale(1.08) translateY(-2px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), 0 0 35px rgba(59, 130, 246, 0.7);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.8), 0 0 40px rgba(59, 130, 246, 0.75);
 }
 
 .ai-pulse-ring {
     position: absolute;
     inset: -6px;
     border-radius: 50%;
-    border: 1px solid rgba(59, 130, 246, 0.5);
+    border: 1.5px solid rgba(59, 130, 246, 0.5);
     animation: aiPulse 2.5s ease-out infinite;
     pointer-events: none;
 }
 
 @keyframes aiPulse {
-    0% { transform: scale(0.95); opacity: 0.8; }
-    100% { transform: scale(1.25); opacity: 0; }
+    0% { transform: scale(0.95); opacity: 0.85; }
+    100% { transform: scale(1.3); opacity: 0; }
 }
 
 .ai-chat-panel {
     position: absolute;
-    bottom: 76px;
+    bottom: 78px;
     right: 0;
-    width: 370px;
+    width: 380px;
     max-width: calc(100vw - 32px);
-    height: 490px;
-    background: rgba(15, 23, 42, 0.95);
-    -webkit-backdrop-filter: blur(18px);
-    backdrop-filter: blur(18px);
+    height: 510px;
+    background: rgba(15, 23, 42, 0.96);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border: 1px solid rgba(59, 130, 246, 0.35);
-    border-radius: 18px;
-    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), 0 0 30px rgba(59, 130, 246, 0.25);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 35px rgba(59, 130, 246, 0.25);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -152,16 +174,16 @@
 }
 
 .ai-avatar-badge {
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
     background: linear-gradient(135deg, #3b82f6, #06b6d4);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
-    box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+    font-size: 1.1rem;
+    box-shadow: 0 0 14px rgba(59, 130, 246, 0.6);
 }
 
 .ai-chat-messages {
@@ -174,7 +196,7 @@
 }
 
 .ai-message {
-    max-width: 85%;
+    max-width: 88%;
     display: flex;
     flex-direction: column;
 }
@@ -190,47 +212,49 @@
 .ai-message .message-content {
     padding: 10px 14px;
     border-radius: 14px;
-    font-size: 0.875rem;
-    line-height: 1.45;
+    font-size: 0.88rem;
+    line-height: 1.5;
 }
 
 .bot-message .message-content {
-    background: rgba(30, 32, 42, 0.85);
-    border: 1px solid rgba(201, 138, 75, 0.2);
-    color: #e2e8f0;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-left: 3px solid #3b82f6;
+    color: #f8fafc;
     border-top-left-radius: 4px;
 }
 
 .user-message .message-content {
-    background: linear-gradient(135deg, #c98a4b, #a26a33);
+    background: linear-gradient(135deg, #3b82f6, #0284c7);
     color: #ffffff;
     border-top-right-radius: 4px;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .ai-match-card-mini {
-    background: rgba(20, 21, 26, 0.9);
-    border: 1px solid rgba(201, 138, 75, 0.3);
-    border-radius: 10px;
-    padding: 8px 10px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    border-radius: 12px;
+    padding: 10px 12px;
     margin-top: 6px;
     display: flex;
     align-items: center;
     gap: 10px;
     text-decoration: none;
-    color: inherit;
+    color: #f8fafc;
     transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .ai-match-card-mini:hover {
-    background: rgba(201, 138, 75, 0.15);
-    border-color: #e0a85c;
-    color: inherit;
+    background: rgba(59, 130, 246, 0.2);
+    border-color: #60a5fa;
+    color: #ffffff;
 }
 
 .ai-match-thumb {
-    width: 42px;
-    height: 42px;
-    border-radius: 6px;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
     object-fit: cover;
     background: rgba(255, 255, 255, 0.05);
 }
@@ -242,19 +266,20 @@
 }
 
 .chip-btn {
-    background: rgba(201, 138, 75, 0.12);
-    border: 1px solid rgba(201, 138, 75, 0.3);
-    color: #e0a85c;
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #60a5fa;
     font-size: 0.75rem;
-    padding: 4px 10px;
-    border-radius: 12px;
+    padding: 6px 12px;
+    border-radius: 14px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
 .chip-btn:hover {
-    background: var(--copper);
-    color: #fff;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    color: #ffffff;
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
 }
 
 .ai-chat-input-form {

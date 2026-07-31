@@ -106,7 +106,8 @@ body {
     font-size: 15px;
     line-height: 1.6;
     color: var(--gray-300) !important;
-    background: var(--dark) !important;
+    background: #0a0e1a url('/images/dark_mesh_bg.jpg') no-repeat center top fixed !important;
+    background-size: cover !important;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
 }
