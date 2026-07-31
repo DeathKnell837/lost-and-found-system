@@ -2380,3 +2380,56 @@ body.dark-mode .loading-overlay {
         background: rgba(255, 255, 255, 0.15);
     }
 }
+
+/* How It Works Dark Glass Styling */
+.how-it-works-section {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.4) 0%, rgba(10, 14, 26, 0.95) 100%);
+    border-top: 1px solid rgba(59, 130, 246, 0.15);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+    padding: 5rem 0;
+    position: relative;
+}
+
+.step-card {
+    background: rgba(15, 23, 42, 0.65) !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(59, 130, 246, 0.25) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 2.5rem 1.75rem !important;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    position: relative;
+}
+
+.step-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(59, 130, 246, 0.55) !important;
+    box-shadow: 0 16px 40px rgba(59, 130, 246, 0.25) !important;
+}
+
+.step-badge {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    color: #ffffff !important;
+    font-weight: 800;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.45);
+}
+
+.step-icon {
+    font-size: 2.25rem;
+    color: var(--primary-light);
+    margin-bottom: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+.step-card:hover .step-icon {
+    transform: scale(1.1);
+}
