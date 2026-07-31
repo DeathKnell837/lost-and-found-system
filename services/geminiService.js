@@ -117,6 +117,56 @@ Item 2 Description: "${desc2}"
 };
 
 /**
+ * Smart Local Conversational Engine for fallback & fast response
+ */
+const getSmartLocalResponse = (message) => {
+    const text = (message || '').trim().toLowerCase();
+    
+    // Frustration / Profanity / Complaints
+    if (/fuck|bitch|dumb|shit|ass|crap|stupid|useless|hate|trash|wtf|horrible|bad/i.test(text)) {
+        return "I apologize for any frustration! I am here to help you navigate lost and found items on campus, search for lost belongings, or answer questions about claiming items. How can I best assist you right now?";
+    }
+    
+    // Greetings
+    if (/^(hi|hello|hey|good\s*(morning|afternoon|evening)|howdy|sup|yo)$/i.test(text)) {
+        return "Hello! I am your Campus Lost & Found AI Assistant. How can I help you find or report a lost item on campus today?";
+    }
+
+    // Thanking
+    if (/thanks|thank|thx|awesome|great|cool|perfect|good job/i.test(text)) {
+        return "You're very welcome! I'm always here whenever you need help finding or reporting an item on campus.";
+    }
+
+    // Farewell
+    if (/bye|goodbye|cya|see ya|have a good/i.test(text)) {
+        return "Goodbye! Have a wonderful day on campus!";
+    }
+
+    // How to report lost item
+    if (/how.*(report|post|submit).*(lost)/i.test(text)) {
+        return "To report a lost item: Click 'Report Lost Item' at the top of the page, fill in the item details, location, and upload a photo if you have one. Our system will automatically match it with found items!";
+    }
+
+    // How to report found item
+    if (/how.*(report|post|submit).*(found)/i.test(text)) {
+        return "To report a found item: Click 'Report Found Item' at the top navbar. You can also bring found items directly to the Campus Security & Admin Office (Mon-Fri 8AM-6PM).";
+    }
+
+    // How claiming works
+    if (/how.*(claim|get back|verify|proof)/i.test(text)) {
+        return "To claim a found item: Browse the Found Items page or click 'Claim Item'. Campus security will verify your proof of ownership (such as a student ID, photo proof, or serial number) before releasing the item.";
+    }
+
+    // Security location / contact
+    if (/where.*(security|office|admin|contact|phone)/i.test(text)) {
+        return "The Campus Security & Admin Office is located at the Main Admin Building, Ground Floor. Operating Hours: Mon-Fri 8:00 AM - 6:00 PM. Contact: 0956-932-7442.";
+    }
+
+    // General fallback
+    return `I am your Campus Lost & Found AI Assistant. Feel free to ask me how to report or claim items, or describe an item (e.g. "I lost a black wallet near the library") so I can scan our database for you!`;
+};
+
+/**
  * Conversational query parser & open-ended chat responder
  * @param {string} userMessage - User search description or chat prompt
  * @returns {Promise<Object>} - { isSearch, extracted, conversationalResponse }
@@ -135,7 +185,7 @@ const parseSearchQuery = async (userMessage) => {
             extracted: { keywords: isSearchIntent ? textTrimmed.split(/\s+/).filter(w => w.length > 2) : [] },
             conversationalResponse: isSearchIntent 
                 ? `I am scanning our campus database for items matching "${textTrimmed}":`
-                : "Hello! I am your Campus Lost & Found Assistant. How can I help you today?"
+                : getSmartLocalResponse(textTrimmed)
         };
     }
 
@@ -157,7 +207,7 @@ User message: "${textTrimmed}"`;
             return {
                 isSearch: false,
                 extracted: { keywords: [] },
-                conversationalResponse: chatResponseText || "I'm here to chat or help you with anything on campus! Let me know if you lose or find something."
+                conversationalResponse: chatResponseText || getSmartLocalResponse(textTrimmed)
             };
         }
 
@@ -207,7 +257,7 @@ Return ONLY a valid JSON object in this exact format (no markdown):
             extracted: { keywords: isSearchIntent ? textTrimmed.split(/\s+/).filter(w => w.length > 2) : [] },
             conversationalResponse: isSearchIntent
                 ? `I am scanning our campus database for "${textTrimmed}":`
-                : "Hello! I am your Campus Lost & Found Assistant. How can I help you today?"
+                : getSmartLocalResponse(textTrimmed)
         };
     }
 };
