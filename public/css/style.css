@@ -2487,3 +2487,105 @@ body.dark-mode .loading-overlay {
     font-size: 0.925rem !important;
     line-height: 1.6 !important;
 }
+
+/* Ultra-Premium Lost & Found CSS Utilities */
+.portal-badge-pill {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(17, 24, 39, 0.8);
+    border: 1px solid rgba(59, 130, 246, 0.35);
+    color: #e2e8f0;
+    font-size: 0.825rem;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 15px rgba(59, 130, 246, 0.2);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+}
+
+.text-gradient-cyan {
+    background: linear-gradient(135deg, #ffffff 0%, #60a5fa 50%, #06b6d4 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.shadow-danger-glow {
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    transition: all 0.3s ease;
+}
+
+.shadow-danger-glow:hover {
+    box-shadow: 0 10px 30px rgba(239, 68, 68, 0.6);
+    transform: translateY(-2px);
+}
+
+.shadow-success-glow {
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    transition: all 0.3s ease;
+}
+
+.shadow-success-glow:hover {
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.6);
+    transform: translateY(-2px);
+}
+
+.border-danger-glow {
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+    transition: all 0.3s ease;
+}
+
+.border-danger-glow:hover {
+    border-color: rgba(239, 68, 68, 0.6) !important;
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.25) !important;
+}
+
+.border-success-glow {
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    transition: all 0.3s ease;
+}
+
+.border-success-glow:hover {
+    border-color: rgba(16, 185, 129, 0.6) !important;
+    box-shadow: 0 0 25px rgba(16, 185, 129, 0.25) !important;
+}
+
+.border-cyan-glow {
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+    transition: all 0.3s ease;
+}
+
+.border-cyan-glow:hover {
+    border-color: rgba(6, 182, 212, 0.6) !important;
+    box-shadow: 0 0 25px rgba(6, 182, 212, 0.25) !important;
+}
+
+.tag-pill {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #cbd5e1;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.tag-pill:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(6, 182, 212, 0.3));
+    border-color: #06b6d4;
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.style-dot-pulse {
+    animation: dotPulse 2s infinite;
+}
+
+@keyframes dotPulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
