@@ -1,10 +1,11 @@
 <!-- Floating Gemini AI Assistant Chat Widget -->
 <div id="aiAssistantWidget" class="ai-assistant-widget">
     <!-- Floating Circular Toggle Button -->
-    <button id="aiChatToggle" class="ai-chat-toggle" aria-label="Toggle AI Assistant">
-        <i class="fas fa-sparkles text-copper"></i>
-        <i class="fas fa-times text-copper close-icon d-none"></i>
+    <button id="aiChatToggle" class="ai-chat-toggle" aria-label="Toggle AI Assistant" title="Ask Gemini AI Assistant">
+        <i class="fas fa-robot text-cyan"></i>
+        <i class="fas fa-times text-white close-icon d-none"></i>
         <span class="ai-pulse-ring"></span>
+        <span class="ai-badge-label">AI</span>
     </button>
 
     <!-- Expanded Glassmorphism Chat Panel -->
@@ -13,11 +14,11 @@
         <div class="ai-chat-header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2">
                 <div class="ai-avatar-badge">
-                    <i class="fas fa-robot"></i>
+                    <i class="fas fa-sparkles"></i>
                 </div>
                 <div>
-                    <h6 class="mb-0 fw-bold font-display text-white">Campus AI Reunifier</h6>
-                    <small class="text-copper">Powered by Gemini 2.0</small>
+                    <h6 class="mb-0 fw-bold font-sans text-white">Campus AI Reunifier</h6>
+                    <small class="text-cyan">Powered by Gemini 2.0</small>
                 </div>
             </div>
             <button id="aiChatClose" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
@@ -27,14 +28,14 @@
         <div id="aiChatMessages" class="ai-chat-messages">
             <div class="ai-message bot-message">
                 <div class="message-content">
-                    <p class="mb-1">Hello! I am your AI Lost & Found assistant.</p>
-                    <p class="mb-0 small text-muted">Describe what you lost or found in plain words, and I'll match it across our campus database!</p>
+                    <p class="mb-1">Hello! I am your Gemini AI Lost & Found Assistant.</p>
+                    <p class="mb-0 small text-muted">Describe what you lost or found in natural words, and I will search our campus database for matches!</p>
                 </div>
             </div>
 
             <!-- Suggestion Chips -->
             <div class="ai-suggestion-chips mt-2">
-                <button class="chip-btn" onclick="sendSuggestion('I lost a black leather wallet near library')">Black leather wallet</button>
+                <button class="chip-btn" onclick="sendSuggestion('Did anyone find a black leather wallet near library?')">Black leather wallet</button>
                 <button class="chip-btn" onclick="sendSuggestion('Found blue keys with a silver lanyard')">Blue keys with lanyard</button>
                 <button class="chip-btn" onclick="sendSuggestion('Lost an Apple AirPods Pro case')">AirPods Pro case</button>
             </div>
@@ -44,7 +45,7 @@
         <form id="aiChatForm" class="ai-chat-input-form">
             <div class="input-group">
                 <input type="text" id="aiChatInput" class="form-control" placeholder="Type item description..." required autocomplete="off">
-                <button type="submit" id="aiChatSubmitBtn" class="btn btn-copper">
+                <button type="submit" id="aiChatSubmitBtn" class="btn btn-primary">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
@@ -55,39 +56,57 @@
 <style>
 .ai-assistant-widget {
     position: fixed;
-    bottom: 24px;
-    right: 24px;
+    bottom: 28px;
+    right: 28px;
     z-index: 1050;
     font-family: var(--font-sans);
 }
 
+.text-cyan {
+    color: #06b6d4 !important;
+}
+
 .ai-chat-toggle {
-    width: 58px;
-    height: 58px;
+    width: 62px;
+    height: 62px;
     border-radius: 50%;
-    background: rgba(20, 21, 26, 0.9);
-    border: 1px solid rgba(201, 138, 75, 0.5);
-    color: #e0a85c;
-    font-size: 1.4rem;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    color: #3b82f6;
+    font-size: 1.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 20px rgba(201, 138, 75, 0.35);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6), 0 0 25px rgba(59, 130, 246, 0.45);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
     position: relative;
 }
 
+.ai-badge-label {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 1px solid #0f172a;
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+}
+
 .ai-chat-toggle:hover {
     transform: scale(1.08) translateY(-2px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), 0 0 30px rgba(201, 138, 75, 0.6);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8), 0 0 35px rgba(59, 130, 246, 0.7);
 }
 
 .ai-pulse-ring {
     position: absolute;
     inset: -6px;
     border-radius: 50%;
-    border: 1px solid rgba(201, 138, 75, 0.4);
+    border: 1px solid rgba(59, 130, 246, 0.5);
     animation: aiPulse 2.5s ease-out infinite;
     pointer-events: none;
 }
@@ -99,17 +118,17 @@
 
 .ai-chat-panel {
     position: absolute;
-    bottom: 72px;
+    bottom: 76px;
     right: 0;
-    width: 360px;
+    width: 370px;
     max-width: calc(100vw - 32px);
-    height: 480px;
-    background: rgba(15, 16, 21, 0.92);
+    height: 490px;
+    background: rgba(15, 23, 42, 0.95);
     -webkit-backdrop-filter: blur(18px);
     backdrop-filter: blur(18px);
-    border: 1px solid rgba(201, 138, 75, 0.35);
+    border: 1px solid rgba(59, 130, 246, 0.35);
     border-radius: 18px;
-    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), 0 0 25px rgba(201, 138, 75, 0.2);
+    box-shadow: 0 16px 45px rgba(0, 0, 0, 0.85), 0 0 30px rgba(59, 130, 246, 0.25);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -123,21 +142,26 @@
 
 .ai-chat-header {
     padding: 14px 16px;
-    background: rgba(20, 21, 26, 0.8);
-    border-bottom: 1px solid rgba(201, 138, 75, 0.2);
+    background: rgba(15, 23, 42, 0.95);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.ai-chat-header h6 {
+    color: #ffffff !important;
+    font-size: 0.95rem;
 }
 
 .ai-avatar-badge {
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #c98a4b, #a26a33);
+    background: linear-gradient(135deg, #3b82f6, #06b6d4);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1rem;
-    box-shadow: 0 0 10px rgba(201, 138, 75, 0.4);
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
 }
 
 .ai-chat-messages {
