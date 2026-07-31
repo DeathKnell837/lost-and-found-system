@@ -106,7 +106,7 @@ body {
     font-size: 15px;
     line-height: 1.6;
     color: var(--gray-300) !important;
-    background: #090d16 url('/images/dark_mesh_bg.jpg') no-repeat center top fixed !important;
+    background: #090d16 url('/images/seamless_dark_bg.jpg') no-repeat center center fixed !important;
     background-size: cover !important;
     min-height: 100vh;
     position: relative;
@@ -1520,7 +1520,7 @@ body.dark-mode {
     --bs-link-hover-color-rgb: 6, 182, 212;
     --bs-code-color: #38bdf8;
     
-    background: #090d16 url('/images/dark_mesh_bg.jpg') no-repeat center top fixed !important;
+    background: #090d16 url('/images/seamless_dark_bg.jpg') no-repeat center center fixed !important;
     background-size: cover !important;
     color: var(--text-primary);
 }
@@ -2416,9 +2416,9 @@ body.dark-mode .loading-overlay {
 
 /* How It Works Dark Glass Styling */
 .how-it-works-section {
-    background: radial-gradient(circle at 50% 30%, rgba(59, 130, 246, 0.12) 0%, rgba(10, 14, 26, 0.95) 70%) !important;
-    border-top: 1px solid rgba(59, 130, 246, 0.15);
-    border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+    background: rgba(15, 23, 42, 0.35) !important;
+    border-top: 1px solid rgba(59, 130, 246, 0.2);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
     padding: 5.5rem 0;
     position: relative;
 }
