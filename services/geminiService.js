@@ -324,7 +324,7 @@ const analyzeUploadedImage = async (imageBuffer, mimeType = 'image/jpeg', userPr
 Analyze this photo of an item ${userPrompt ? `along with user message: "${userPrompt}"` : ''}.
 Identify the item type, primary colors, brand/logo, materials, condition, and key features.
 
-Return ONLY a valid JSON object in this exact format (no markdown):
+Return ONLY a valid JSON object in this exact format:
 {
   "category": "<best fitting category like Electronics, Keys, Wallet, Bag, Clothing, Accessories, ID Card, Books, Other>",
   "color": "<primary color>",
@@ -333,10 +333,10 @@ Return ONLY a valid JSON object in this exact format (no markdown):
   "conversationalResponse": "<friendly 1-2 sentence response confirming what item you see in the photo and that you are scanning our campus database for matches>"
 }`;
 
-        const result = await model.generateContent([imagePart, prompt]);
+        const result = await model.generateContent([prompt, imagePart]);
         const text = result.response.text().trim();
-        const cleanedText = text.replace(/^```json\s*/i, '').replace(/\s*```$/, '').trim();
-        const parsed = JSON.parse(cleanedText);
+        const jsonMatch = text.match(/\{[\s\S]*\}/);
+        const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
 
         return {
             extracted: {
@@ -348,11 +348,22 @@ Return ONLY a valid JSON object in this exact format (no markdown):
             conversationalResponse: parsed.conversationalResponse || "I analyzed your item photo and am checking our campus database for matches!"
         };
     } catch (err) {
-        console.error('Error analyzing image with Gemini:', err);
-        return {
-            extracted: { keywords: ['item'] },
-            conversationalResponse: "I received your photo and am checking our campus database for matching items!"
-        };
+        console.error('Error analyzing image with Gemini 2.5 Flash:', err.message);
+        try {
+            const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
+            const imagePart = { inlineData: { data: imageBuffer.toString('base64'), mimeType } };
+            const result = await fallbackModel.generateContent(['Analyze this photo and tell the user what item you see.', imagePart]);
+            return {
+                extracted: { keywords: ['item'] },
+                conversationalResponse: result.response.text().trim()
+            };
+        } catch (e2) {
+            console.error('Fallback image vision error:', e2.message);
+            return {
+                extracted: { keywords: ['item'] },
+                conversationalResponse: "I received your photo and am scanning our campus database for matching items!"
+            };
+        }
     }
 };
 
