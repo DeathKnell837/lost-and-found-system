@@ -240,7 +240,7 @@ const parseSearchQuery = async (userMessage) => {
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         const systemPrompt = `You are the Official Campus Lost & Found AI Assistant — a smart, empathetic, open-ended conversational AI for students, faculty, and campus security.
 
@@ -280,10 +280,10 @@ Return ONLY a valid JSON object in this exact format (no markdown code fence):
             conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I help you today?"
         };
     } catch (error) {
-        console.error('Gemini 2.0 Flash parse error:', error.message);
-        // Fallback model rotation to gemini-1.5-flash-latest
+        console.error('Gemini 2.5 Flash parse error:', error.message);
+        // Fallback model rotation to gemini-flash-latest
         try {
-            const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+            const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
             const result = await fallbackModel.generateContent(`You are the Campus Lost & Found AI Assistant. Answer this user prompt naturally and conversationally: "${textTrimmed}". Keep response concise and helpful.`);
             return {
                 isSearch: false,
@@ -291,14 +291,14 @@ Return ONLY a valid JSON object in this exact format (no markdown code fence):
                 conversationalResponse: result.response.text().trim()
             };
         } catch (e2) {
-            console.error('Gemini 1.5 Flash fallback error:', e2.message);
+            console.error('Gemini Flash fallback error:', e2.message);
             return generateIntelligentAIResponse(textTrimmed);
         }
     }
 };
 
 /**
- * Multimodal image analysis using Gemini 2.0 Flash
+ * Multimodal image analysis using Gemini 2.5 Flash
  * @param {Buffer} imageBuffer - Buffer of uploaded file
  * @param {string} mimeType - e.g. 'image/jpeg' or 'image/png'
  * @param {string} userPrompt - Optional text prompt
@@ -312,7 +312,7 @@ const analyzeUploadedImage = async (imageBuffer, mimeType = 'image/jpeg', userPr
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
         const imagePart = {
             inlineData: {
                 data: imageBuffer.toString('base64'),
