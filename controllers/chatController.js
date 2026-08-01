@@ -16,9 +16,11 @@ const chatController = {
             const imageFile = req.file;
 
             if (!message.trim() && !imageFile) {
-                return res.status(400).json({
-                    success: false,
-                    response: "Please enter a description or attach a photo of the item."
+                return res.json({
+                    success: true,
+                    isSearch: false,
+                    response: "Hello! I am your Campus Lost & Found AI Assistant. How can I help you find or report a lost item today?",
+                    matches: []
                 });
             }
 
