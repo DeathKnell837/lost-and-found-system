@@ -79,8 +79,8 @@
                     <div class="stat-icon text-danger mb-3">
                         <i class="fas fa-exclamation-circle fa-3x"></i>
                     </div>
-                    <h2 class="stat-number text-white fw-bold display-5 mb-1" data-target="<%= (stats && stats.totalLost > 0) ? stats.totalLost : 14 %>">
-                        <%= (stats && stats.totalLost > 0) ? stats.totalLost : 14 %>
+                    <h2 class="stat-number text-white fw-bold display-5 mb-1" data-target="<%= stats ? stats.totalLost : 0 %>">
+                        <%= stats ? stats.totalLost : 0 %>
                     </h2>
                     <p class="stat-label text-muted mb-0 fw-semibold">Lost Items Reported</p>
                     <small class="text-secondary">Logged by Students & Staff</small>
@@ -91,8 +91,8 @@
                     <div class="stat-icon text-success mb-3">
                         <i class="fas fa-check-circle fa-3x"></i>
                     </div>
-                    <h2 class="stat-number text-white fw-bold display-5 mb-1" data-target="<%= (stats && stats.totalFound > 0) ? stats.totalFound : 19 %>">
-                        <%= (stats && stats.totalFound > 0) ? stats.totalFound : 19 %>
+                    <h2 class="stat-number text-white fw-bold display-5 mb-1" data-target="<%= stats ? stats.totalFound : 0 %>">
+                        <%= stats ? stats.totalFound : 0 %>
                     </h2>
                     <p class="stat-label text-muted mb-0 fw-semibold">Found Items Reported</p>
                     <small class="text-secondary">Secured by Campus Security</small>
@@ -103,8 +103,8 @@
                     <div class="stat-icon text-cyan mb-3">
                         <i class="fas fa-handshake fa-3x"></i>
                     </div>
-                    <h2 class="stat-number text-white fw-bold display-5 mb-1" data-target="<%= (stats && stats.totalClaimed > 0) ? stats.totalClaimed : 12 %>">
-                        <%= (stats && stats.totalClaimed > 0) ? stats.totalClaimed : 12 %>
+                    <h2 class="stat-number text-white fw-bold display-5 mb-1" data-target="<%= stats ? stats.totalClaimed : 0 %>">
+                        <%= stats ? stats.totalClaimed : 0 %>
                     </h2>
                     <p class="stat-label text-muted mb-0 fw-semibold">Items Successfully Claimed</p>
                     <small class="text-secondary">Reunited via Gemini AI</small>

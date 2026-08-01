@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 exports.getHomePage = async (req, res) => {
     let recentLost = [];
     let recentFound = [];
-    let stats = { totalLost: 14, totalFound: 19, totalClaimed: 12 };
+    let stats = { totalLost: 0, totalFound: 0, totalClaimed: 0 };
 
     try {
         if (mongoose.connection.readyState === 1) {
@@ -30,9 +30,9 @@ exports.getHomePage = async (req, res) => {
             ]);
 
             stats = {
-                totalLost: lostCount > 0 ? lostCount : 14,
-                totalFound: foundCount > 0 ? foundCount : 19,
-                totalClaimed: claimedCount > 0 ? claimedCount : 12
+                totalLost: lostCount,
+                totalFound: foundCount,
+                totalClaimed: claimedCount
             };
         }
     } catch (error) {
