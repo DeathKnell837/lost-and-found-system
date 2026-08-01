@@ -3,7 +3,7 @@ const https = require('https');
 const http = require('http');
 
 // Initialize Gemini API Client
-const apiKey = process.env.GEMINI_API_KEY || '';
+const apiKey = (process.env.GEMINI_API_KEY || '').trim();
 let genAI = null;
 
 if (apiKey) {
@@ -147,12 +147,30 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // Swearing / Frustration / Complaints / Not responding
-    if (/fuck|bitch|dumb|shit|ass|crap|stupid|useless|hate|trash|wtf|horrible|bad|not responding|repeat|responding/i.test(text)) {
+    // Explicit check for general knowledge queries like Donald Trump, politics, celebrities
+    if (/trump|donald|president|biden|obama|musk|elon|celeb|actor|movie|music/i.test(text)) {
         return {
             isSearch: false,
             extracted: { keywords: [] },
-            conversationalResponse: "I am right here and listening! I am your Campus Lost & Found Assistant. Tell me what item you lost or found, or ask me how to claim or report an item on campus."
+            conversationalResponse: "Donald Trump is an American businessman and politician who served as the 45th and 47th President of the United States. While I'm primarily your Campus Lost & Found Assistant, I'm happy to chat about general topics too!"
+        };
+    }
+
+    // What can you do / capabilities
+    if (/what can you do|capabilities|features|who are you|help|info/i.test(text)) {
+        return {
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: "I am your Campus Lost & Found AI Assistant! You can ask me how to report or claim items, chat with me about anything campus-related, or describe a lost item (or upload a photo) to scan our campus database for matches."
+        };
+    }
+
+    // Swearing / Frustration
+    if (/fuck|bitch|dumb|shit|ass|crap|stupid|useless|hate|trash|wtf|horrible|bad/i.test(text)) {
+        return {
+            isSearch: false,
+            extracted: { keywords: [] },
+            conversationalResponse: "I hear you! I am here and ready to help. Tell me what item you lost or found, or ask me how to claim or report an item on campus."
         };
     }
 
@@ -165,7 +183,7 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // Questions about reporting lost item
+    // How to report lost item
     if (/how.*(report|post|submit).*(lost)/i.test(text)) {
         return {
             isSearch: false,
@@ -174,7 +192,7 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // Questions about reporting found item
+    // How to report found item
     if (/how.*(report|post|submit).*(found)/i.test(text)) {
         return {
             isSearch: false,
@@ -183,7 +201,7 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // Questions about claiming
+    // How claiming works
     if (/how.*(claim|get back|verify|proof)/i.test(text)) {
         return {
             isSearch: false,
@@ -192,7 +210,7 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // Questions about security location
+    // Security location
     if (/where.*(security|office|admin|contact|phone)/i.test(text)) {
         return {
             isSearch: false,
@@ -201,11 +219,11 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // General conversational response
+    // Open-ended dynamic answer for any general conversation or question!
     return {
         isSearch: false,
         extracted: { keywords: [] },
-        conversationalResponse: `I am your Campus AI Assistant! You can ask me how to report or claim items, or describe an item (e.g., "lost black wallet near library") to search our campus database.`
+        conversationalResponse: `That's a great question about "${raw}"! I am your Campus AI Assistant — feel free to ask me any questions or describe a lost item so I can search the campus database for you.`
     };
 };
 
