@@ -19,10 +19,16 @@ exports.getClaimForm = async (req, res) => {
             return res.redirect(`/items/${item._id}`);
         }
 
+        const claimantId = req.session.user ? (req.session.user._id || req.session.user.id) : null;
+        if (!claimantId) {
+            req.flash('error', 'Please log in to claim an item');
+            return res.redirect('/auth/login');
+        }
+
         // Check if user already has a pending claim
         const existingClaim = await ClaimRequest.findOne({
             item: item._id,
-            claimant: req.session.user._id,
+            claimant: claimantId,
             status: { $in: ['pending', 'under_review'] }
         });
 
@@ -51,6 +57,12 @@ exports.submitClaim = async (req, res) => {
         const { description, proofOfOwnership, identifyingFeatures, contactPhone, preferredContactMethod } = req.body;
         const itemId = req.params.itemId;
 
+        const claimantId = req.session.user ? (req.session.user._id || req.session.user.id) : null;
+        if (!claimantId) {
+            req.flash('error', 'Please log in to submit a claim');
+            return res.redirect('/auth/login');
+        }
+
         const item = await Item.findById(itemId);
         if (!item) {
             req.flash('error', 'Item not found');
@@ -65,7 +77,7 @@ exports.submitClaim = async (req, res) => {
         // Check for existing claim
         const existingClaim = await ClaimRequest.findOne({
             item: itemId,
-            claimant: req.session.user._id,
+            claimant: claimantId,
             status: { $in: ['pending', 'under_review'] }
         });
 
@@ -85,7 +97,7 @@ exports.submitClaim = async (req, res) => {
 
         const claim = new ClaimRequest({
             item: itemId,
-            claimant: req.session.user._id,
+            claimant: claimantId,
             description,
             proofOfOwnership,
             identifyingFeatures: identifyingFeatures || '',
@@ -94,7 +106,7 @@ exports.submitClaim = async (req, res) => {
             proofImages,
             timeline: [{
                 action: 'Claim submitted',
-                performedBy: req.session.user._id,
+                performedBy: claimantId,
                 timestamp: new Date()
             }]
         });

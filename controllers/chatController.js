@@ -64,11 +64,12 @@ const chatController = {
                 }
             }
 
-            // Build search conditions for items
+            // Build search conditions for items safely with escaped regex
+            const escapeRegex = (str) => (str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const orConditions = [];
 
             if (extracted.keywords && extracted.keywords.length > 0) {
-                const keywordRegex = extracted.keywords.map(k => new RegExp(k, 'i'));
+                const keywordRegex = extracted.keywords.map(k => new RegExp(escapeRegex(k), 'i'));
                 orConditions.push(
                     { itemName: { $in: keywordRegex } },
                     { description: { $in: keywordRegex } },
@@ -77,22 +78,25 @@ const chatController = {
             }
 
             if (extracted.color) {
+                const safeColor = escapeRegex(extracted.color);
                 orConditions.push(
-                    { itemName: { $regex: new RegExp(extracted.color, 'i') } },
-                    { description: { $regex: new RegExp(extracted.color, 'i') } }
+                    { itemName: { $regex: new RegExp(safeColor, 'i') } },
+                    { description: { $regex: new RegExp(safeColor, 'i') } }
                 );
             }
 
             if (extracted.brand) {
+                const safeBrand = escapeRegex(extracted.brand);
                 orConditions.push(
-                    { itemName: { $regex: new RegExp(extracted.brand, 'i') } },
-                    { description: { $regex: new RegExp(extracted.brand, 'i') } }
+                    { itemName: { $regex: new RegExp(safeBrand, 'i') } },
+                    { description: { $regex: new RegExp(safeBrand, 'i') } }
                 );
             }
 
             if (extracted.location) {
+                const safeLoc = escapeRegex(extracted.location);
                 orConditions.push(
-                    { location: { $regex: new RegExp(extracted.location, 'i') } }
+                    { location: { $regex: new RegExp(safeLoc, 'i') } }
                 );
             }
 
@@ -100,10 +104,11 @@ const chatController = {
             if (orConditions.length === 0) {
                 const words = userPrompt.split(/\s+/).filter(w => w.length > 2);
                 words.forEach(w => {
+                    const safeW = escapeRegex(w);
                     orConditions.push(
-                        { itemName: { $regex: new RegExp(w, 'i') } },
-                        { description: { $regex: new RegExp(w, 'i') } },
-                        { location: { $regex: new RegExp(w, 'i') } }
+                        { itemName: { $regex: new RegExp(safeW, 'i') } },
+                        { description: { $regex: new RegExp(safeW, 'i') } },
+                        { location: { $regex: new RegExp(safeW, 'i') } }
                     );
                 });
             }

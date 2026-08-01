@@ -65,10 +65,11 @@ exports.getLostItems = async (req, res) => {
             let query = { type: 'lost', status: 'approved' };
 
             if (req.query.q && req.query.q.trim() !== '') {
+                const safeQ = req.query.q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 query.$or = [
-                    { itemName: { $regex: req.query.q, $options: 'i' } },
-                    { description: { $regex: req.query.q, $options: 'i' } },
-                    { location: { $regex: req.query.q, $options: 'i' } }
+                    { itemName: { $regex: safeQ, $options: 'i' } },
+                    { description: { $regex: safeQ, $options: 'i' } },
+                    { location: { $regex: safeQ, $options: 'i' } }
                 ];
             }
 
@@ -125,10 +126,11 @@ exports.getFoundItems = async (req, res) => {
             let query = { type: 'found', status: 'approved' };
 
             if (req.query.q && req.query.q.trim() !== '') {
+                const safeQ = req.query.q.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
                 query.$or = [
-                    { itemName: { $regex: req.query.q, $options: 'i' } },
-                    { description: { $regex: req.query.q, $options: 'i' } },
-                    { location: { $regex: req.query.q, $options: 'i' } }
+                    { itemName: { $regex: safeQ, $options: 'i' } },
+                    { description: { $regex: safeQ, $options: 'i' } },
+                    { location: { $regex: safeQ, $options: 'i' } }
                 ];
             }
 
@@ -228,14 +230,19 @@ exports.getItemDetails = async (req, res) => {
             return res.redirect('/');
         }
 
-        // Get related items
-        const relatedItems = await Item.find({
-            category: item.category._id,
-            _id: { $ne: item._id },
-            status: 'approved'
-        })
-        .limit(4)
-        .populate('category');
+        // Get related items safely
+        let relatedItems = [];
+        if (item.category) {
+            const categoryId = item.category._id || item.category;
+            relatedItems = await Item.find({
+                category: categoryId,
+                _id: { $ne: item._id },
+                status: 'approved'
+            })
+            .limit(4)
+            .populate('category')
+            .maxTimeMS(2500);
+        }
 
         res.render('items/details', {
             title: item.itemName + ' - Lost & Found',
