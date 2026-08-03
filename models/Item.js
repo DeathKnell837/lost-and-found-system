@@ -187,11 +187,13 @@ const itemSchema = new mongoose.Schema({
 });
 
 /**
- * TEXT INDEX
- * Enables full-text search on itemName, description, and location
- * Users can search for items using keywords
+ * INDEXES
+ * Enables fast filtering and full-text search across items
  */
 itemSchema.index({ itemName: 'text', description: 'text', location: 'text' });
+itemSchema.index({ status: 1, type: 1, createdAt: -1 });
+itemSchema.index({ category: 1, status: 1 });
+itemSchema.index({ reportedBy: 1, status: 1 });
 
 /**
  * VIRTUAL PROPERTIES

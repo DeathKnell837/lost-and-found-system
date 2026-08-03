@@ -20,8 +20,23 @@ const http = require('http');
 const HF_API_KEY = (process.env.HUGGINGFACE_API_KEY || '').trim();
 const HF_MODEL_URL = 'https://api-inference.huggingface.co/pipeline/feature-extraction/openai/clip-vit-base-patch32';
 
+// In-memory LRU embedding cache for image URLs to avoid duplicate API calls
+const embeddingCache = new Map();
+const MAX_CACHE_SIZE = 500;
+
+const getCachedEmbedding = (url) => embeddingCache.get(url) || null;
+const setCachedEmbedding = (url, embedding) => {
+    if (!url || !embedding) return;
+    if (embeddingCache.size >= MAX_CACHE_SIZE) {
+        // Evict oldest entry
+        const firstKey = embeddingCache.keys().next().value;
+        if (firstKey) embeddingCache.delete(firstKey);
+    }
+    embeddingCache.set(url, embedding);
+};
+
 /**
- * Download image from URL into a raw Buffer
+ * Download image from URL into a raw Buffer with 10s timeout
  * @param {string} url - Image URL (Cloudinary or any HTTP/HTTPS)
  * @returns {Promise<Buffer|null>}
  */
@@ -30,7 +45,7 @@ const downloadImage = (url) => {
         if (!url || typeof url !== 'string') return resolve(null);
 
         const client = url.startsWith('https') ? https : http;
-        client.get(url, (res) => {
+        const req = client.get(url, (res) => {
             if (res.statusCode !== 200) {
                 res.resume(); // Drain response
                 return resolve(null);
@@ -39,7 +54,14 @@ const downloadImage = (url) => {
             res.on('data', (chunk) => chunks.push(chunk));
             res.on('end', () => resolve(Buffer.concat(chunks)));
             res.on('error', () => resolve(null));
-        }).on('error', () => resolve(null));
+        });
+
+        req.setTimeout(10000, () => {
+            req.destroy();
+            resolve(null);
+        });
+
+        req.on('error', () => resolve(null));
     });
 };
 
@@ -100,9 +122,7 @@ const getEmbeddingFromBuffer = (imageBuffer, retryCount = 0) => {
 
                 try {
                     const parsed = JSON.parse(body);
-                    // The response is a flat array of numbers (512 floats)
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                        // Could be nested [[...]] or flat [...]
                         const embedding = Array.isArray(parsed[0]) ? parsed[0] : parsed;
                         if (embedding.length > 0 && typeof embedding[0] === 'number') {
                             return resolve(embedding);
@@ -117,6 +137,11 @@ const getEmbeddingFromBuffer = (imageBuffer, retryCount = 0) => {
             });
         });
 
+        req.setTimeout(12000, () => {
+            req.destroy();
+            resolve(null);
+        });
+
         req.on('error', (err) => {
             console.error('CLIP request error:', err.message);
             resolve(null);
@@ -128,19 +153,25 @@ const getEmbeddingFromBuffer = (imageBuffer, retryCount = 0) => {
 };
 
 /**
- * Get CLIP embedding for an image given its URL
- * Downloads the image first, then sends to HF API
+ * Get CLIP embedding for an image given its URL (with LRU caching)
  * @param {string} imageUrl - Cloudinary (or other) image URL
  * @returns {Promise<number[]|null>} - 512-float embedding array or null
  */
 const getEmbedding = async (imageUrl) => {
     if (!imageUrl) return null;
+    const cached = getCachedEmbedding(imageUrl);
+    if (cached) return cached;
+
     const buffer = await downloadImage(imageUrl);
     if (!buffer) {
         console.warn('Failed to download image for CLIP embedding:', imageUrl);
         return null;
     }
-    return getEmbeddingFromBuffer(buffer);
+    const embedding = await getEmbeddingFromBuffer(buffer);
+    if (embedding) {
+        setCachedEmbedding(imageUrl, embedding);
+    }
+    return embedding;
 };
 
 /**
