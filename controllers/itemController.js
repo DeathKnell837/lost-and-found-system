@@ -323,6 +323,18 @@ exports.reportLostItem = async (req, res) => {
 
         await item.save();
 
+        // Compute CLIP embedding in background (don't block the response)
+        if (item.imagePath) {
+            const clipService = require('../services/clipService');
+            clipService.getEmbedding(item.imagePath).then(embedding => {
+                if (embedding) {
+                    Item.findByIdAndUpdate(item._id, { embedding }).catch(err =>
+                        console.error('Failed to save CLIP embedding:', err.message)
+                    );
+                }
+            }).catch(err => console.error('CLIP embedding error:', err.message));
+        }
+
         // If user typed a custom location, create a pending suggestion for admin review
         if (location === '__other__' && req.body.locationCustom) {
             const customName = req.body.locationCustom.trim();
@@ -383,6 +395,18 @@ exports.reportFoundItem = async (req, res) => {
         });
 
         await item.save();
+
+        // Compute CLIP embedding in background (don't block the response)
+        if (item.imagePath) {
+            const clipService = require('../services/clipService');
+            clipService.getEmbedding(item.imagePath).then(embedding => {
+                if (embedding) {
+                    Item.findByIdAndUpdate(item._id, { embedding }).catch(err =>
+                        console.error('Failed to save CLIP embedding:', err.message)
+                    );
+                }
+            }).catch(err => console.error('CLIP embedding error:', err.message));
+        }
 
         // If user typed a custom location, create a pending suggestion for admin review
         if (location === '__other__' && req.body.locationCustom) {

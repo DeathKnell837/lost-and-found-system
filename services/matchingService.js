@@ -1,6 +1,6 @@
 const { Item, User } = require('../models');
 const emailService = require('./emailService');
-const geminiService = require('./geminiService');
+const clipService = require('./clipService');
 
 /**
  * Item Matching Service
@@ -176,7 +176,7 @@ const findMatchesForLostItem = async (lostItem, minScore = 50) => {
             type: 'found',
             status: 'approved',
             _id: { $ne: lostItem._id }
-        }).populate('category');
+        }).select('+embedding').populate('category');
 
         const initialCandidates = [];
         const threshold = Math.max(30, minScore - 15);
@@ -199,23 +199,42 @@ const findMatchesForLostItem = async (lostItem, minScore = 50) => {
 
         const finalMatches = [];
 
+        // Load the lost item's embedding (may need on-the-fly computation)
+        let lostEmbedding = lostItem.embedding || null;
+        if (!lostEmbedding && lostItem.imagePath) {
+            try {
+                lostEmbedding = await clipService.getEmbedding(lostItem.imagePath);
+            } catch (e) { /* proceed without embedding */ }
+        }
+
         for (const candidate of shortlist) {
             let aiScore = candidate.ruleScore;
             let reasoning = 'Matched based on item properties, location, and description.';
 
+            // CLIP cosine similarity (embedding-based visual comparison)
+            let clipSimilarity = 0;
             try {
-                const geminiRes = await geminiService.compareImages(
-                    lostItem.imagePath,
-                    candidate.item.imagePath,
-                    `${lostItem.itemName}: ${lostItem.description}`,
-                    `${candidate.item.itemName}: ${candidate.item.description}`
-                );
-                if (geminiRes && typeof geminiRes.similarityScore === 'number') {
-                    aiScore = geminiRes.similarityScore;
-                    reasoning = geminiRes.reasoning;
+                let foundEmbedding = candidate.item.embedding || null;
+                if (!foundEmbedding && candidate.item.imagePath) {
+                    foundEmbedding = await clipService.getEmbedding(candidate.item.imagePath);
+                }
+                if (lostEmbedding && foundEmbedding) {
+                    clipSimilarity = clipService.computeCosineSimilarity(lostEmbedding, foundEmbedding);
+                    aiScore = Math.round(clipSimilarity * 100);
                 }
             } catch (err) {
-                console.error('Gemini match evaluation fallback:', err.message);
+                console.error('CLIP similarity fallback:', err.message);
+            }
+
+            // For high-confidence matches (>70%), get text-only Gemini reasoning
+            if (clipSimilarity > 0.70) {
+                try {
+                    const desc1 = `${lostItem.itemName}: ${lostItem.description}`;
+                    const desc2 = `${candidate.item.itemName}: ${candidate.item.description}`;
+                    reasoning = await clipService.getMatchReasoning(desc1, desc2, clipSimilarity);
+                } catch (err) {
+                    reasoning = `Visual similarity: ${Math.round(clipSimilarity * 100)}%. Items appear visually similar.`;
+                }
             }
 
             const combinedScore = Math.round((candidate.ruleScore * 0.55) + (aiScore * 0.45));
@@ -254,7 +273,7 @@ const findMatchesForFoundItem = async (foundItem, minScore = 50) => {
             type: 'lost',
             status: 'approved',
             _id: { $ne: foundItem._id }
-        }).populate('category').populate('reportedBy');
+        }).select('+embedding').populate('category').populate('reportedBy');
 
         const initialCandidates = [];
         const threshold = Math.max(30, minScore - 15);
@@ -277,23 +296,42 @@ const findMatchesForFoundItem = async (foundItem, minScore = 50) => {
 
         const finalMatches = [];
 
+        // Load the found item's embedding (may need on-the-fly computation)
+        let foundEmbedding = foundItem.embedding || null;
+        if (!foundEmbedding && foundItem.imagePath) {
+            try {
+                foundEmbedding = await clipService.getEmbedding(foundItem.imagePath);
+            } catch (e) { /* proceed without embedding */ }
+        }
+
         for (const candidate of shortlist) {
             let aiScore = candidate.ruleScore;
             let reasoning = 'Matched based on item properties, location, and description.';
 
+            // CLIP cosine similarity (embedding-based visual comparison)
+            let clipSimilarity = 0;
             try {
-                const geminiRes = await geminiService.compareImages(
-                    candidate.item.imagePath,
-                    foundItem.imagePath,
-                    `${candidate.item.itemName}: ${candidate.item.description}`,
-                    `${foundItem.itemName}: ${foundItem.description}`
-                );
-                if (geminiRes && typeof geminiRes.similarityScore === 'number') {
-                    aiScore = geminiRes.similarityScore;
-                    reasoning = geminiRes.reasoning;
+                let lostEmbedding = candidate.item.embedding || null;
+                if (!lostEmbedding && candidate.item.imagePath) {
+                    lostEmbedding = await clipService.getEmbedding(candidate.item.imagePath);
+                }
+                if (foundEmbedding && lostEmbedding) {
+                    clipSimilarity = clipService.computeCosineSimilarity(foundEmbedding, lostEmbedding);
+                    aiScore = Math.round(clipSimilarity * 100);
                 }
             } catch (err) {
-                console.error('Gemini match evaluation fallback:', err.message);
+                console.error('CLIP similarity fallback:', err.message);
+            }
+
+            // For high-confidence matches (>70%), get text-only Gemini reasoning
+            if (clipSimilarity > 0.70) {
+                try {
+                    const desc1 = `${candidate.item.itemName}: ${candidate.item.description}`;
+                    const desc2 = `${foundItem.itemName}: ${foundItem.description}`;
+                    reasoning = await clipService.getMatchReasoning(desc1, desc2, clipSimilarity);
+                } catch (err) {
+                    reasoning = `Visual similarity: ${Math.round(clipSimilarity * 100)}%. Items appear visually similar.`;
+                }
             }
 
             const combinedScore = Math.round((candidate.ruleScore * 0.55) + (aiScore * 0.45));

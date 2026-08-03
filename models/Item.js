@@ -87,6 +87,15 @@ const itemSchema = new mongoose.Schema({
         default: null
     },
 
+    // CLIP embedding vector for image similarity matching
+    // 512-float array computed via Hugging Face CLIP model
+    // select: false prevents loading in default queries (large payload)
+    embedding: {
+        type: [Number],
+        default: null,
+        select: false
+    },
+
     // Contact Info - how to reach the reporter (optional)
     contactInfo: {
         type: String,
