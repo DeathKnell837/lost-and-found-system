@@ -71,12 +71,15 @@ const chatController = {
             const orConditions = [];
 
             if (extracted.keywords && extracted.keywords.length > 0) {
-                const keywordRegex = extracted.keywords.map(k => new RegExp(escapeRegex(k), 'i'));
-                orConditions.push(
-                    { itemName: { $in: keywordRegex } },
-                    { description: { $in: keywordRegex } },
-                    { location: { $in: keywordRegex } }
-                );
+                const filteredKeywords = extracted.keywords.filter(k => k && !['item', 'photo', 'picture', 'image', 'object', 'thing'].includes(k.toLowerCase()));
+                if (filteredKeywords.length > 0) {
+                    const keywordRegex = filteredKeywords.map(k => new RegExp(escapeRegex(k), 'i'));
+                    orConditions.push(
+                        { itemName: { $in: keywordRegex } },
+                        { description: { $in: keywordRegex } },
+                        { location: { $in: keywordRegex } }
+                    );
+                }
             }
 
             if (extracted.color) {
@@ -102,8 +105,8 @@ const chatController = {
                 );
             }
 
-            // If no specific conditions extracted, search raw prompt in text fields
-            if (orConditions.length === 0) {
+            // If no specific conditions extracted and userPrompt exists, search raw prompt in text fields
+            if (orConditions.length === 0 && userPrompt) {
                 const words = userPrompt.split(/\s+/).filter(w => w.length > 2);
                 words.forEach(w => {
                     const safeW = escapeRegex(w);
@@ -122,16 +125,19 @@ const chatController = {
             let foundItems = [];
             try {
                 foundItems = await Item.find(queryConditions)
+                    .select('+embedding')
                     .populate('category')
                     .sort({ createdAt: -1 })
                     .limit(10)
                     .maxTimeMS(2500);
 
                 if (foundItems.length === 0) {
+                    // Fallback to all approved items if strict search returns none
                     foundItems = await Item.find({ status: 'approved' })
+                        .select('+embedding')
                         .populate('category')
                         .sort({ createdAt: -1 })
-                        .limit(3)
+                        .limit(6)
                         .maxTimeMS(2500);
                 }
             } catch (dbErr) {
@@ -139,17 +145,53 @@ const chatController = {
                 foundItems = [];
             }
 
-            // Score and rank candidates against virtual lost item prompt
+            // If photo uploaded, try CLIP embedding comparison for accurate visual matching
+            const clipService = require('../services/clipService');
+            let userImageEmbedding = null;
+            if (imageFile && imageFile.buffer) {
+                try {
+                    userImageEmbedding = await clipService.getEmbeddingFromBuffer(imageFile.buffer);
+                } catch (clipErr) {
+                    console.error('CLIP embedding extraction error in chat:', clipErr.message);
+                }
+            }
+
+            // Build synthetic item representation for text fallback scoring
+            const syntheticText = userPrompt || [
+                extracted.category,
+                extracted.color,
+                extracted.brand,
+                (extracted.keywords || []).join(' ')
+            ].filter(Boolean).join(' ');
+
             const syntheticItem = {
-                itemName: userPrompt,
-                description: userPrompt,
+                itemName: syntheticText || 'Item',
+                description: syntheticText || 'Item photo upload',
                 location: extracted.location || '',
                 dateLostFound: new Date(),
                 category: queryConditions.category || null
             };
 
-            const rankedMatches = foundItems.map(item => {
+            const rankedMatchesPromises = foundItems.map(async (item) => {
                 const scoreResult = calculateMatchScore(syntheticItem, item);
+                let finalScore = scoreResult.total;
+
+                // If user uploaded an image and CLIP embedding exists, compute visual similarity
+                if (userImageEmbedding && item.imagePath) {
+                    try {
+                        let itemEmb = item.embedding || null;
+                        if (!itemEmb) {
+                            itemEmb = await clipService.getEmbedding(item.imagePath);
+                        }
+                        if (itemEmb) {
+                            const clipSim = clipService.computeCosineSimilarity(userImageEmbedding, itemEmb);
+                            const clipScore = Math.round(clipSim * 100);
+                            // Combine text/keyword score (45%) with CLIP visual score (55%)
+                            finalScore = Math.round((scoreResult.total * 0.45) + (clipScore * 0.55));
+                        }
+                    } catch (e) { /* fallback to scoreResult.total */ }
+                }
+
                 return {
                     _id: item._id,
                     itemName: item.itemName,
@@ -159,9 +201,12 @@ const chatController = {
                     description: item.description,
                     imagePath: item.imagePath,
                     dateLostFound: item.dateLostFound ? new Date(item.dateLostFound).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '',
-                    matchScore: scoreResult.total
+                    matchScore: finalScore
                 };
-            }).sort((a, b) => b.matchScore - a.matchScore).slice(0, 4);
+            });
+
+            const resolvedMatches = await Promise.all(rankedMatchesPromises);
+            const rankedMatches = resolvedMatches.sort((a, b) => b.matchScore - a.matchScore).slice(0, 4);
 
             return res.json({
                 success: true,
