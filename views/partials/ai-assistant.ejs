@@ -1,12 +1,12 @@
 <!-- Floating Gemini AI Assistant Chat Widget -->
 <div id="aiAssistantWidget" class="ai-assistant-widget">
     <!-- Floating Circular Toggle Button -->
-    <button id="aiChatToggle" class="ai-chat-toggle" aria-label="Toggle Lost & Found AI Assistant" title="Campus Lost & Found AI Assistant">
-        <i class="fas fa-search-location text-cyan"></i>
+    <button id="aiChatToggle" class="ai-chat-toggle" aria-label="Toggle Campus AI Assistant" title="Campus Lost & Found AI Assistant">
+        <img src="/images/ai-logo.jpg" alt="AI Assistant" class="ai-toggle-logo-img">
         <i class="fas fa-times text-white close-icon d-none"></i>
         <span class="ai-pulse-ring"></span>
         <span class="ai-online-dot"></span>
-        <span class="ai-badge-label">AI Finder</span>
+        <span class="ai-badge-label">Campus AI</span>
     </button>
 
     <!-- Expanded Glassmorphism Chat Panel -->
@@ -14,12 +14,10 @@
         <!-- Panel Header -->
         <div class="ai-chat-header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2">
-                <div class="ai-avatar-badge">
-                    <i class="fas fa-robot"></i>
-                </div>
+                <img src="/images/ai-logo.jpg" alt="AI Avatar" class="ai-avatar-badge-img">
                 <div>
-                    <h6 class="mb-0 fw-bold font-sans text-white">Lost & Found AI Assistant</h6>
-                    <small class="text-cyan"><i class="fas fa-circle text-success me-1 style-dot"></i> Online • Powered by Gemini AI</small>
+                    <h6 class="mb-0 fw-bold font-sans text-white">Campus AI Assistant</h6>
+                    <small class="text-cyan"><i class="fas fa-circle text-success me-1 style-dot"></i> Online • Powered by Gemini 2.5 Flash</small>
                 </div>
             </div>
             <div class="d-flex align-items-center gap-1">
@@ -248,17 +246,27 @@
     font-size: 0.95rem;
 }
 
-.ai-avatar-badge {
-    width: 38px;
-    height: 38px;
+.ai-toggle-logo-img {
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #06b6d4);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.1rem;
-    box-shadow: 0 0 14px rgba(59, 130, 246, 0.6);
+    object-fit: cover;
+    border: 1.5px solid rgba(6, 182, 212, 0.7);
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ai-chat-toggle:hover .ai-toggle-logo-img {
+    transform: scale(1.08) rotate(5deg);
+}
+
+.ai-avatar-badge-img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(59, 130, 246, 0.8);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
 }
 
 .ai-chat-messages {
