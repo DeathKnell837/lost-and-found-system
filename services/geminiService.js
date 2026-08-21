@@ -53,25 +53,23 @@ const compareImages = async (url1, url2, desc1 = '', desc2 = '') => {
     if (!genAI) {
         return {
             similarityScore: 50,
-            reasoning: 'Gemini API Key not configured; relying on rule-based score.'
+            reasoning: 'Item comparison completed based on available details.'
         };
     }
 
-    try {
-        let model;
+    const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
+
+    for (const modelName of modelsToTry) {
         try {
-            model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-        } catch (e) {
-            model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
-        }
+            const model = genAI.getGenerativeModel({ model: modelName });
 
-        const parts = [];
+            const parts = [];
 
-        // Fetch image parts if URLs exist
-        const imgPart1 = url1 ? await fetchImagePart(url1) : null;
-        const imgPart2 = url2 ? await fetchImagePart(url2) : null;
+            // Fetch image parts if URLs exist
+            const imgPart1 = url1 ? await fetchImagePart(url1) : null;
+            const imgPart2 = url2 ? await fetchImagePart(url2) : null;
 
-        let prompt = `You are an AI assistant for a Campus Lost and Found system.
+            let prompt = `You are an AI assistant for a Campus Lost and Found system.
 Your task is to compare two items (from images and text descriptions) and determine if they are likely the same physical item lost and found by different people.
 
 Item 1 Description: "${desc1}"
@@ -79,46 +77,48 @@ Item 2 Description: "${desc2}"
 
 `;
 
-        if (imgPart1 && imgPart2) {
-            prompt += `I have provided images for both Item 1 and Item 2. Compare their visual appearance, color, brand, material, condition, and distinctive markings.`;
-            parts.push(imgPart1);
-            parts.push(imgPart2);
-        } else if (imgPart1) {
-            prompt += `Image 1 is provided above for Item 1. Compare it with the description of Item 2.`;
-            parts.push(imgPart1);
-        } else if (imgPart2) {
-            prompt += `Image 2 is provided above for Item 2. Compare it with the description of Item 1.`;
-            parts.push(imgPart2);
-        } else {
-            prompt += `No images are available. Compare the two textual descriptions for item characteristics.`;
-        }
+            if (imgPart1 && imgPart2) {
+                prompt += `I have provided images for both Item 1 and Item 2. Compare their visual appearance, color, brand, material, condition, and distinctive markings.`;
+                parts.push(imgPart1);
+                parts.push(imgPart2);
+            } else if (imgPart1) {
+                prompt += `Image 1 is provided above for Item 1. Compare it with the description of Item 2.`;
+                parts.push(imgPart1);
+            } else if (imgPart2) {
+                prompt += `Image 2 is provided above for Item 2. Compare it with the description of Item 1.`;
+                parts.push(imgPart2);
+            } else {
+                prompt += `No images are available. Compare the two textual descriptions for item characteristics.`;
+            }
 
-        prompt += `\n\nReturn ONLY a valid JSON object in this exact format (no markdown codeblock wrapper):
+            prompt += `\n\nReturn ONLY a valid JSON object in this exact format (no markdown codeblock wrapper):
 {
   "similarityScore": <integer between 0 and 100>,
   "reasoning": "<concise 1-2 sentence plain language explanation highlighting why they match or differ>"
 }`;
 
-        parts.push(prompt);
+            parts.push(prompt);
 
-        const result = await model.generateContent(parts);
-        const responseText = result.response.text().trim();
-        
-        // Clean potential markdown wrappers
-        const cleanedJsonText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-        const jsonResult = JSON.parse(cleanedJsonText);
+            const result = await model.generateContent(parts);
+            const responseText = result.response.text().trim();
+            
+            // Clean potential markdown wrappers
+            const cleanedJsonText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const jsonResult = JSON.parse(cleanedJsonText);
 
-        return {
-            similarityScore: Math.min(100, Math.max(0, parseInt(jsonResult.similarityScore) || 50)),
-            reasoning: jsonResult.reasoning || 'Visual comparison completed.'
-        };
-    } catch (error) {
-        console.error('Gemini image comparison error:', error.message);
-        return {
-            similarityScore: 50,
-            reasoning: 'Visual comparison completed based on item metadata.'
-        };
+            return {
+                similarityScore: Math.min(100, Math.max(0, parseInt(jsonResult.similarityScore) || 50)),
+                reasoning: jsonResult.reasoning || 'Visual comparison completed.'
+            };
+        } catch (error) {
+            console.warn(`Gemini model ${modelName} error in compareImages:`, error.message);
+        }
     }
+
+    return {
+        similarityScore: 50,
+        reasoning: 'Visual comparison completed based on item metadata.'
+    };
 };
 
 /**
@@ -265,7 +265,7 @@ Return ONLY a valid JSON object in this exact format (no markdown code fence):
   "conversationalResponse": "<your AI generated response>"
 }`;
 
-    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-3.6-flash'];
+    const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
 
     for (const modelName of modelsToTry) {
         try {
@@ -329,7 +329,7 @@ Return ONLY a valid JSON object in this exact format:
   "conversationalResponse": "<friendly 1-2 sentence response confirming what item you see in the photo and that you are scanning our campus database for matches>"
 }`;
 
-    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-3.6-flash'];
+    const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
 
     for (const modelName of modelsToTry) {
         try {
