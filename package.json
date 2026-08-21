@@ -41,6 +41,7 @@
     "ua-parser-js": "^2.0.6"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "nodemon": "^3.0.2",
+    "puppeteer": "^25.8.0"
   }
 }

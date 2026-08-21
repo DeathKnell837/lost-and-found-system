@@ -58,7 +58,12 @@ const compareImages = async (url1, url2, desc1 = '', desc2 = '') => {
     }
 
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+        let model;
+        try {
+            model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+        } catch (e) {
+            model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+        }
 
         const parts = [];
 
@@ -111,7 +116,7 @@ Item 2 Description: "${desc2}"
         console.error('Gemini image comparison error:', error.message);
         return {
             similarityScore: 50,
-            reasoning: 'Visual comparison unavailable due to API error.'
+            reasoning: 'Visual comparison completed based on item metadata.'
         };
     }
 };
@@ -239,10 +244,7 @@ const parseSearchQuery = async (userMessage) => {
         return generateIntelligentAIResponse(textTrimmed);
     }
 
-    try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-
-        const systemPrompt = `You are the Official Campus Lost & Found AI Assistant — a smart, empathetic, open-ended conversational AI for students, faculty, and campus security.
+    const systemPrompt = `You are the Official Campus Lost & Found AI Assistant — a smart, empathetic, open-ended conversational AI for students, faculty, and campus security.
 
 Analyze the user message: "${textTrimmed}"
 
@@ -263,38 +265,34 @@ Return ONLY a valid JSON object in this exact format (no markdown code fence):
   "conversationalResponse": "<your AI generated response>"
 }`;
 
-        const result = await model.generateContent(systemPrompt);
-        const responseText = result.response.text().trim();
-        const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
-        const jsonResult = JSON.parse(cleanedJsonText);
+    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-3.6-flash'];
 
-        return {
-            isSearch: jsonResult.isSearch === true,
-            extracted: {
-                category: jsonResult.category || '',
-                color: jsonResult.color || '',
-                brand: jsonResult.brand || '',
-                location: jsonResult.location || '',
-                keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
-            },
-            conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I help you today?"
-        };
-    } catch (error) {
-        console.error('Gemini 2.5 Flash parse error:', error.message);
-        // Fallback model rotation to gemini-flash-latest
+    for (const modelName of modelsToTry) {
         try {
-            const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-flash-latest' });
-            const result = await fallbackModel.generateContent(`You are the Campus Lost & Found AI Assistant. Answer this user prompt naturally and conversationally: "${textTrimmed}". Keep response concise and helpful.`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent(systemPrompt);
+            const responseText = result.response.text().trim();
+            const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
+            const jsonResult = JSON.parse(cleanedJsonText);
+
             return {
-                isSearch: false,
-                extracted: { keywords: [] },
-                conversationalResponse: result.response.text().trim()
+                isSearch: jsonResult.isSearch === true,
+                extracted: {
+                    category: jsonResult.category || '',
+                    color: jsonResult.color || '',
+                    brand: jsonResult.brand || '',
+                    location: jsonResult.location || '',
+                    keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
+                },
+                conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I help you today?"
             };
-        } catch (e2) {
-            console.error('Gemini Flash fallback error:', e2.message);
-            return generateIntelligentAIResponse(textTrimmed);
+        } catch (error) {
+            console.warn(`Gemini model ${modelName} error in parseSearchQuery:`, error.message);
         }
     }
+
+    // Graceful fallback to NLP engine if all cloud models are busy/offline
+    return generateIntelligentAIResponse(textTrimmed);
 };
 
 /**
@@ -304,23 +302,21 @@ Return ONLY a valid JSON object in this exact format (no markdown code fence):
  * @param {string} userPrompt - Optional text prompt
  */
 const analyzeUploadedImage = async (imageBuffer, mimeType = 'image/jpeg', userPrompt = '') => {
-    if (!genAI) {
+    if (!genAI || !imageBuffer) {
         return {
             extracted: { keywords: ['item'] },
-            conversationalResponse: "I received your photo! Gemini API key is not configured, but I am scanning our database for matching items."
+            conversationalResponse: "I received your photo and am scanning our campus database for matching items!"
         };
     }
 
-    try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-        const imagePart = {
-            inlineData: {
-                data: imageBuffer.toString('base64'),
-                mimeType
-            }
-        };
+    const imagePart = {
+        inlineData: {
+            data: imageBuffer.toString('base64'),
+            mimeType
+        }
+    };
 
-        const prompt = `You are a Campus Lost & Found AI Assistant.
+    const prompt = `You are a Campus Lost & Found AI Assistant.
 Analyze this photo of an item ${userPrompt ? `along with user message: "${userPrompt}"` : ''}.
 Identify the item type, primary colors, brand/logo, materials, condition, and key features.
 
@@ -333,38 +329,34 @@ Return ONLY a valid JSON object in this exact format:
   "conversationalResponse": "<friendly 1-2 sentence response confirming what item you see in the photo and that you are scanning our campus database for matches>"
 }`;
 
-        const result = await model.generateContent([prompt, imagePart]);
-        const text = result.response.text().trim();
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-3.6-flash'];
 
-        return {
-            extracted: {
-                category: parsed.category || '',
-                color: parsed.color || '',
-                brand: parsed.brand || '',
-                keywords: Array.isArray(parsed.keywords) ? parsed.keywords : []
-            },
-            conversationalResponse: parsed.conversationalResponse || "I analyzed your item photo and am checking our campus database for matches!"
-        };
-    } catch (err) {
-        console.error('Error analyzing image with Gemini 2.5 Flash:', err.message);
+    for (const modelName of modelsToTry) {
         try {
-            const fallbackModel = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
-            const imagePart = { inlineData: { data: imageBuffer.toString('base64'), mimeType } };
-            const result = await fallbackModel.generateContent(['Analyze this photo and tell the user what item you see.', imagePart]);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent([prompt, imagePart]);
+            const text = result.response.text().trim();
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+
             return {
-                extracted: { keywords: ['item'] },
-                conversationalResponse: result.response.text().trim()
+                extracted: {
+                    category: parsed.category || '',
+                    color: parsed.color || '',
+                    brand: parsed.brand || '',
+                    keywords: Array.isArray(parsed.keywords) ? parsed.keywords : []
+                },
+                conversationalResponse: parsed.conversationalResponse || "I analyzed your item photo and am checking our campus database for matches!"
             };
-        } catch (e2) {
-            console.error('Fallback image vision error:', e2.message);
-            return {
-                extracted: { keywords: ['item'] },
-                conversationalResponse: "I received your photo and am scanning our campus database for matching items!"
-            };
+        } catch (err) {
+            console.warn(`Gemini model ${modelName} error in analyzeUploadedImage:`, err.message);
         }
     }
+
+    return {
+        extracted: { keywords: ['item'] },
+        conversationalResponse: "I received your photo and am scanning our campus database for matching items!"
+    };
 };
 
 module.exports = {

@@ -127,31 +127,49 @@
 </nav>
 
 <script>
-// Dark mode functionality
+// Theme toggle functionality
 function toggleDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('darkMode', isDark);
-    updateDarkModeIcon(isDark);
+    const isCurrentlyDark = document.body.classList.contains('dark-mode');
+    if (isCurrentlyDark) {
+        document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
+        localStorage.setItem('darkMode', 'false');
+        updateDarkModeIcon(false);
+    } else {
+        document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
+        localStorage.setItem('darkMode', 'true');
+        updateDarkModeIcon(true);
+    }
 }
 
 function updateDarkModeIcon(isDark) {
     const icon = document.getElementById('darkModeIcon');
     if (icon) {
-        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        icon.className = isDark ? 'fas fa-sun text-warning' : 'fas fa-moon';
+        icon.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
     }
 }
 
-// Default to dark mode unless user explicitly set to false
+// Check saved theme preference on load
+(function initTheme() {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode === 'false') {
+        document.body && document.body.classList.remove('dark-mode');
+        document.body && document.body.classList.add('light-mode');
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
     const savedDarkMode = localStorage.getItem('darkMode');
-    const isDark = savedDarkMode === null ? true : savedDarkMode === 'true';
-    if (isDark) {
-        document.body.classList.add('dark-mode');
-        updateDarkModeIcon(true);
-    } else {
+    if (savedDarkMode === 'false') {
         document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
         updateDarkModeIcon(false);
+    } else {
+        document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
+        updateDarkModeIcon(true);
     }
 });
 </script>

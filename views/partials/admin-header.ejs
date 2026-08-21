@@ -39,24 +39,38 @@ function toggleSidebar() {
 
 // Admin Dark Mode
 function toggleAdminDarkMode() {
-    document.body.classList.toggle('dark-mode');
-    const isDark = document.body.classList.contains('dark-mode');
-    localStorage.setItem('adminDarkMode', isDark);
-    updateAdminDarkModeIcon(isDark);
+    const isCurrentlyDark = document.body.classList.contains('dark-mode');
+    if (isCurrentlyDark) {
+        document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
+        localStorage.setItem('adminDarkMode', 'false');
+        updateAdminDarkModeIcon(false);
+    } else {
+        document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
+        localStorage.setItem('adminDarkMode', 'true');
+        updateAdminDarkModeIcon(true);
+    }
 }
 
 function updateAdminDarkModeIcon(isDark) {
     const icon = document.getElementById('adminDarkModeIcon');
     if (icon) {
-        icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        icon.className = isDark ? 'fas fa-sun text-warning' : 'fas fa-moon';
+        icon.title = isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode';
     }
 }
 
 // Check for saved preference on page load
 document.addEventListener('DOMContentLoaded', function() {
-    const savedDarkMode = localStorage.getItem('adminDarkMode') === 'true';
-    if (savedDarkMode) {
+    const savedDarkMode = localStorage.getItem('adminDarkMode');
+    if (savedDarkMode === 'false') {
+        document.body.classList.remove('dark-mode');
+        document.body.classList.add('light-mode');
+        updateAdminDarkModeIcon(false);
+    } else {
         document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
         updateAdminDarkModeIcon(true);
     }
 });

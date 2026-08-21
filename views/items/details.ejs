@@ -182,8 +182,8 @@
                         <button type="button" class="btn btn-outline-primary flex-fill" onclick="shareOnFacebook()">
                             <i class="fab fa-facebook-f"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-info flex-fill" onclick="shareOnTwitter()">
-                            <i class="fab fa-twitter"></i>
+                        <button type="button" class="btn btn-outline-dark flex-fill" onclick="shareOnTwitter()" title="Share on X">
+                            <i class="fab fa-x-twitter"></i>
                         </button>
                         <button type="button" class="btn btn-outline-success flex-fill" onclick="shareOnWhatsApp()">
                             <i class="fab fa-whatsapp"></i>
@@ -362,9 +362,9 @@
 }
 
     function shareOnTwitter() {
-        var shareUrl = 'https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.itemName.split("'").join("\\'") %> ');
+        var shareUrl = 'https://x.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent('<%= item.itemName.split("'").join("\\'") %> ');
         window.open(shareUrl, 'tw', 'width=600,height=400');
-        showToast('<i class="fab fa-twitter me-2"></i>Opening Twitter share...', 'info');
+        showToast('<i class="fab fa-x-twitter me-2"></i>Opening X share...', 'dark');
     }
 
     function shareOnWhatsApp() {

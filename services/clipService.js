@@ -242,6 +242,7 @@ Write a concise 1-2 sentence explanation for why these items likely match (or do
 
 module.exports = {
     getEmbedding,
+    getCLIPEmbedding: getEmbedding,
     getEmbeddingFromBuffer,
     computeCosineSimilarity,
     getMatchReasoning
