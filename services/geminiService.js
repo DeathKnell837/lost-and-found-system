@@ -248,9 +248,10 @@ const parseSearchQuery = async (userMessage) => {
 
 Analyze the user message: "${textTrimmed}"
 
-1. Determine if the user is explicitly searching for a physical lost or found item (e.g. "I lost my wallet", "find my blue keys", "where is my laptop").
-   - If YES: Set "isSearch" to true. Extract "category", "color", "brand", "location", and "keywords".
-   - If NO (the user is greeting, chatting, asking general questions, expressing frustration, telling jokes, or talking casually): Set "isSearch" to false.
+1. Determine if the user is searching for, asking about, or referencing any lost/found item, category, location, or campus inventory (e.g. "I lost my wallet", "find my blue keys", "what phones are in the system?", "tell me about the brief", "what is in Primera Hall?"):
+   - Set "isSearch" to true if ANY physical item, category (Electronics, Clothing, Keys, Wallet, Bag, etc.), brand, location, or inventory inquiry is mentioned.
+   - Extract "category", "color", "brand", "location", and "keywords" (including synonyms and root item words like phone, brief, keys, wallet, bottle, id, card, laptop).
+   - Only set "isSearch" to false for pure casual conversation/greetings (e.g. "hi", "how are you", "who made you", "thank you").
 
 2. Generate a warm, natural, empathetic, and intelligent response as a helpful AI assistant.
 
