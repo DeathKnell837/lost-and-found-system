@@ -1,153 +1,149 @@
-<div class="dashboard-content">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<div class="cyber-dashboard">
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div>
-            <h2 class="mb-1"><i class="fas fa-hand-holding me-2"></i> Claim Requests</h2>
-            <p class="text-muted mb-0">Review and manage item claim requests</p>
+            <h4 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="letter-spacing: -0.02em;">
+                <i class="fas fa-hand-holding text-cyan"></i>
+                Claim Verification Desk
+            </h4>
+            <span class="text-muted small" style="font-size: 0.76rem;">Review student ownership claims, verify security proofs &amp; authorize item handovers</span>
         </div>
-        <a href="/admin/export/claims" class="btn btn-outline-success btn-sm">
-            <i class="fas fa-file-csv me-1"></i>Export CSV
+        <a href="/admin/export/claims" class="btn btn-sm btn-outline-info text-cyan border-secondary py-1 px-3" style="font-size: 0.76rem;">
+            <i class="fas fa-file-csv me-1"></i> Export Claims CSV
         </a>
     </div>
 
     <!-- Stats Cards -->
-    <div class="row g-3 mb-4">
+    <div class="row g-2 mb-3">
         <div class="col-6 col-md">
-            <div class="card">
-                <div class="card-body text-center py-3">
-                    <h3 class="mb-0"><%= counts.all %></h3>
-                    <small class="text-muted">Total</small>
-                </div>
+            <div class="cyber-card p-2 text-center">
+                <div class="text-muted small" style="font-size: 0.68rem; text-transform: uppercase;">Total Claims</div>
+                <div class="fw-bold text-white fs-5 mt-1"><%= counts.all %></div>
             </div>
         </div>
         <div class="col-6 col-md">
-            <div class="card">
-                <div class="card-body text-center py-3">
-                    <h3 class="mb-0 text-warning"><%= counts.pending %></h3>
-                    <small class="text-muted">Pending</small>
-                </div>
+            <div class="cyber-card p-2 text-center">
+                <div class="text-muted small" style="font-size: 0.68rem; text-transform: uppercase;">Pending</div>
+                <div class="fw-bold text-warning fs-5 mt-1"><%= counts.pending %></div>
             </div>
         </div>
-        <div class="col-6 col-md">
-            <div class="card">
-                <div class="card-body text-center py-3">
-                    <h3 class="mb-0 text-info"><%= counts.under_review %></h3>
-                    <small class="text-muted">Reviewing</small>
-                </div>
+        <div class="col-4 col-md">
+            <div class="cyber-card p-2 text-center">
+                <div class="text-muted small" style="font-size: 0.68rem; text-transform: uppercase;">Reviewing</div>
+                <div class="fw-bold text-info fs-5 mt-1"><%= counts.under_review %></div>
             </div>
         </div>
-        <div class="col-6 col-md">
-            <div class="card">
-                <div class="card-body text-center py-3">
-                    <h3 class="mb-0 text-success"><%= counts.approved %></h3>
-                    <small class="text-muted">Approved</small>
-                </div>
+        <div class="col-4 col-md">
+            <div class="cyber-card p-2 text-center">
+                <div class="text-muted small" style="font-size: 0.68rem; text-transform: uppercase;">Approved</div>
+                <div class="fw-bold text-success fs-5 mt-1"><%= counts.approved %></div>
             </div>
         </div>
-        <div class="col-6 col-md">
-            <div class="card">
-                <div class="card-body text-center py-3">
-                    <h3 class="mb-0 text-danger"><%= counts.rejected %></h3>
-                    <small class="text-muted">Rejected</small>
-                </div>
+        <div class="col-4 col-md">
+            <div class="cyber-card p-2 text-center">
+                <div class="text-muted small" style="font-size: 0.68rem; text-transform: uppercase;">Rejected</div>
+                <div class="fw-bold text-danger fs-5 mt-1"><%= counts.rejected %></div>
             </div>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="card mb-3">
-        <div class="card-body py-3">
-            <form class="row g-2 align-items-end">
-                <div class="col-md-4">
-                    <label class="form-label small text-muted mb-1">Status</label>
-                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="all" <%= currentStatus === 'all' ? 'selected' : '' %>>All Claims</option>
-                        <option value="pending" <%= currentStatus === 'pending' ? 'selected' : '' %>>Pending</option>
-                        <option value="under_review" <%= currentStatus === 'under_review' ? 'selected' : '' %>>Under Review</option>
-                        <option value="approved" <%= currentStatus === 'approved' ? 'selected' : '' %>>Approved</option>
-                        <option value="rejected" <%= currentStatus === 'rejected' ? 'selected' : '' %>>Rejected</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label small text-muted mb-1">Sort By</label>
-                    <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>Newest First</option>
-                        <option value="oldest" <%= currentSort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
-                        <option value="priority" <%= currentSort === 'priority' ? 'selected' : '' %>>Priority</option>
-                    </select>
-                </div>
-            </form>
-        </div>
+    <div class="cyber-card p-3 mb-3">
+        <form class="row g-2 align-items-end">
+            <div class="col-12 col-md-6">
+                <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Filter by Status</label>
+                <select name="status" class="form-select cyber-select py-1 px-2" onchange="this.form.submit()" style="font-size: 0.76rem;">
+                    <option value="all" <%= currentStatus === 'all' ? 'selected' : '' %>>All Claims</option>
+                    <option value="pending" <%= currentStatus === 'pending' ? 'selected' : '' %>>⏳ Pending Verification</option>
+                    <option value="under_review" <%= currentStatus === 'under_review' ? 'selected' : '' %>>🔍 Under Review</option>
+                    <option value="approved" <%= currentStatus === 'approved' ? 'selected' : '' %>>✓ Approved &amp; Handed Over</option>
+                    <option value="rejected" <%= currentStatus === 'rejected' ? 'selected' : '' %>>✗ Rejected</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Sort Order</label>
+                <select name="sort" class="form-select cyber-select py-1 px-2" onchange="this.form.submit()" style="font-size: 0.76rem;">
+                    <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>Newest First</option>
+                    <option value="oldest" <%= currentSort === 'oldest' ? 'selected' : '' %>>Oldest First</option>
+                    <option value="priority" <%= currentSort === 'priority' ? 'selected' : '' %>>High Priority</option>
+                </select>
+            </div>
+        </form>
     </div>
 
     <!-- Claims Table -->
-    <div class="card">
-        <div class="card-body p-0">
+    <div class="cyber-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                <i class="fas fa-list text-cyan"></i> Claim Verification Queue
+            </h6>
+        </div>
+
+        <% if (claims.length === 0) { %>
+            <div class="text-center py-5">
+                <div class="cyber-thumb-placeholder mx-auto mb-2" style="width: 50px; height: 50px; font-size: 1.3rem;">
+                    <i class="fas fa-inbox text-muted"></i>
+                </div>
+                <p class="text-muted small mb-0">No claim requests found matching your filter.</p>
+            </div>
+        <% } else { %>
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="cyber-table">
                     <thead>
                         <tr>
-                            <th>Item</th>
-                            <th>Claimant</th>
+                            <th style="width: 44px">Item</th>
+                            <th>Claimed Belonging</th>
+                            <th>Claimant Details</th>
                             <th>Status</th>
                             <th>Submitted</th>
-                            <th>Actions</th>
+                            <th class="text-end">Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <% if (claims.length === 0) { %>
+                        <% claims.forEach(claim => { %>
                             <tr>
-                                <td colspan="5" class="text-center py-4">
-                                    <i class="fas fa-inbox fa-2x text-muted mb-2 d-block"></i>
-                                    <p class="text-muted small mb-0">No claims found</p>
+                                <td>
+                                    <% if (claim.item && claim.item.imagePath) { %>
+                                        <img src="<%= claim.item.imagePath %>" class="cyber-thumb" alt="">
+                                    <% } else { %>
+                                        <div class="cyber-thumb-placeholder">
+                                            <i class="fas <%= (claim.item && claim.item.category && claim.item.category.icon) ? claim.item.category.icon : 'fa-box' %>"></i>
+                                        </div>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <strong class="text-white d-block text-truncate" style="max-width: 200px;"><%= claim.item ? claim.item.itemName : 'Deleted Item' %></strong>
+                                    <small class="text-muted" style="font-size: 0.7rem;">
+                                        <i class="fas fa-map-marker-alt me-1 text-secondary"></i><%= claim.item ? claim.item.location : 'N/A' %>
+                                    </small>
+                                </td>
+                                <td>
+                                    <strong class="text-white d-block"><%= claim.claimant.username %></strong>
+                                    <small class="text-muted" style="font-size: 0.68rem;"><%= claim.claimant.email %></small>
+                                </td>
+                                <td>
+                                    <span class="cyber-badge <%= 
+                                        claim.status === 'pending' ? 'cyber-badge-pending' : 
+                                        claim.status === 'under_review' ? 'cyber-badge-claimed' : 
+                                        claim.status === 'approved' ? 'cyber-badge-found' : 'cyber-badge-lost' 
+                                    %>">
+                                        <%= claim.status.replace('_', ' ') %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-white d-block"><%= new Date(claim.createdAt).toLocaleDateString() %></small>
+                                    <small class="text-muted" style="font-size: 0.68rem;"><%= new Date(claim.createdAt).toLocaleTimeString() %></small>
+                                </td>
+                                <td class="text-end">
+                                    <a href="/admin/claims/<%= claim._id %>" class="btn btn-sm btn-outline-info text-cyan border-secondary py-0 px-2" style="font-size: 0.7rem;">
+                                        <i class="fas fa-eye me-1"></i> Review
+                                    </a>
                                 </td>
                             </tr>
-                        <% } else { %>
-                            <% claims.forEach(claim => { %>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <% if (claim.item && claim.item.imagePath) { %>
-                                                <img src="<%= claim.item.imagePath %>" class="item-thumb me-2" alt="">
-                                            <% } else { %>
-                                                <div class="item-thumb-placeholder me-2">
-                                                    <i class="fas <%= (claim.item && claim.item.category && claim.item.category.icon) ? claim.item.category.icon : 'fa-box' %>"></i>
-                                                </div>
-                                            <% } %>
-                                            <div>
-                                                <strong class="d-block"><%= claim.item ? claim.item.itemName : 'Deleted Item' %></strong>
-                                                <small class="text-muted"><%= claim.item ? claim.item.location : 'N/A' %></small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <strong class="d-block"><%= claim.claimant.username %></strong>
-                                        <small class="text-muted"><%= claim.claimant.email %></small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<%= 
-                                            claim.status === 'pending' ? 'warning' : 
-                                            claim.status === 'under_review' ? 'info' : 
-                                            claim.status === 'approved' ? 'success' : 
-                                            claim.status === 'rejected' ? 'danger' : 'secondary' 
-                                        %>">
-                                            <%= claim.status.replace('_', ' ') %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <small><%= new Date(claim.createdAt).toLocaleDateString() %></small><br>
-                                        <small class="text-muted"><%= new Date(claim.createdAt).toLocaleTimeString() %></small>
-                                    </td>
-                                    <td>
-                                        <a href="/admin/claims/<%= claim._id %>" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-eye me-1"></i> Review
-                                        </a>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        <% } %>
+                        <% }); %>
                     </tbody>
                 </table>
             </div>
-        </div>
+        <% } %>
     </div>
 </div>

@@ -1,170 +1,176 @@
-<div class="dashboard-content">
-    <nav aria-label="breadcrumb" class="mb-3">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/admin/dashboard">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="/admin/items">Items</a></li>
-            <li class="breadcrumb-item active">Edit Item</li>
-        </ol>
-    </nav>
+<div class="cyber-dashboard">
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 0.72rem;">
+                <a href="/admin/dashboard" class="text-muted text-decoration-none">Dashboard</a>
+                <span class="text-secondary">/</span>
+                <a href="/admin/items" class="text-muted text-decoration-none">Items</a>
+                <span class="text-secondary">/</span>
+                <span class="text-cyan">Edit Item</span>
+            </div>
+            <h4 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="letter-spacing: -0.02em;">
+                <i class="fas fa-edit text-cyan"></i>
+                Edit Belonging Details &amp; Custody
+            </h4>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <span class="cyber-badge <%= item.type === 'lost' ? 'cyber-badge-lost' : 'cyber-badge-found' %>">
+                <i class="fas <%= item.type === 'lost' ? 'fa-exclamation-triangle' : 'fa-check-circle' %>"></i>
+                <%= item.type.toUpperCase() %>
+            </span>
+            <span class="cyber-badge <%= 
+                item.status === 'approved' ? 'cyber-badge-found' : 
+                item.status === 'pending' ? 'cyber-badge-pending' : 
+                item.status === 'claimed' ? 'cyber-badge-claimed' : 'cyber-badge-lost' 
+            %>">
+                <%= item.status.toUpperCase() %>
+            </span>
+        </div>
+    </div>
     
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent">
-                    <h5 class="mb-0"><i class="fas fa-edit me-2"></i> Edit Item</h5>
-                </div>
-                <div class="card-body">
-                    <form action="/admin/items/<%= item._id %>" method="POST" enctype="multipart/form-data">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Item Name</label>
-                                <input type="text" class="form-control" name="itemName" 
-                                       value="<%= item.itemName %>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Category</label>
-                                <select class="form-select" name="category" required>
-                                    <% categories.forEach(function(cat) { %>
-                                        <option value="<%= cat._id %>" 
-                                            <%= item.category && item.category._id.toString() === cat._id.toString() ? 'selected' : '' %>>
-                                            <%= cat.name %>
-                                        </option>
-                                    <% }); %>
-                                </select>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Description</label>
-                                <textarea class="form-control" name="description" rows="4" required><%= item.description %></textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Location</label>
-                                <input type="text" class="form-control" name="location" 
-                                       value="<%= item.location %>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Date Lost/Found</label>
-                                <input type="date" class="form-control" name="dateLostFound" 
-                                       value="<%= item.dateLostFound.toISOString().split('T')[0] %>" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Type</label>
-                                <select class="form-select" name="type" required>
-                                    <option value="lost" <%= item.type === 'lost' ? 'selected' : '' %>>Lost</option>
-                                    <option value="found" <%= item.type === 'found' ? 'selected' : '' %>>Found</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Status</label>
-                                <select class="form-select" name="status" required>
-                                    <option value="pending" <%= item.status === 'pending' ? 'selected' : '' %>>Pending</option>
-                                    <option value="approved" <%= item.status === 'approved' ? 'selected' : '' %>>Approved</option>
-                                    <option value="claimed" <%= item.status === 'claimed' ? 'selected' : '' %>>Claimed</option>
-                                    <option value="rejected" <%= item.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Contact Info</label>
-                                <input type="text" class="form-control" name="contactInfo" 
-                                       value="<%= item.contactInfo %>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Reporter Name</label>
-                                <input type="text" class="form-control" name="reporterName" 
-                                       value="<%= item.reporterName %>" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Reporter Email</label>
-                                <input type="email" class="form-control" name="reporterEmail" 
-                                       value="<%= item.reporterEmail %>" required>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Admin Notes</label>
-                                <textarea class="form-control" name="adminNotes" rows="2" 
-                                          placeholder="Internal notes..."><%= item.adminNotes || '' %></textarea>
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label">Update Image</label>
-                                <input type="file" class="form-control" name="image" accept="image/*">
-                                <small class="text-muted">Leave empty to keep current image</small>
-                            </div>
-                            <div class="col-12">
-                                <hr>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i> Save Changes
+    <div class="row g-3">
+        <!-- Main Form (Left) -->
+        <div class="col-12 col-lg-8">
+            <div class="cyber-card p-3">
+                <h6 class="text-white mb-3 fw-bold d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                    <i class="fas fa-file-alt text-cyan"></i> Item Specification
+                </h6>
+                <form action="/admin/items/<%= item._id %>" method="POST" enctype="multipart/form-data">
+                    <div class="row g-2">
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Item Name</label>
+                            <input type="text" class="form-control cyber-select py-1 px-2" name="itemName" 
+                                   value="<%= item.itemName %>" required style="font-size: 0.76rem;">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Campus Category</label>
+                            <select class="form-select cyber-select py-1 px-2" name="category" required style="font-size: 0.76rem;">
+                                <% categories.forEach(function(cat) { %>
+                                    <option value="<%= cat._id %>" 
+                                        <%= item.category && item.category._id.toString() === cat._id.toString() ? 'selected' : '' %>>
+                                        <%= cat.name %>
+                                    </option>
+                                <% }); %>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Item Description</label>
+                            <textarea class="form-control cyber-select py-1 px-2" name="description" rows="3" required style="font-size: 0.76rem;"><%= item.description %></textarea>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Location Found / Lost</label>
+                            <input type="text" class="form-control cyber-select py-1 px-2" name="location" 
+                                   value="<%= item.location %>" required style="font-size: 0.76rem;">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Date Incident Occurred</label>
+                            <input type="date" class="form-control cyber-select py-1 px-2" name="dateLostFound" 
+                                   value="<%= item.dateLostFound ? item.dateLostFound.toISOString().split('T')[0] : '' %>" required style="font-size: 0.76rem;">
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Listing Type</label>
+                            <select class="form-select cyber-select py-1 px-2" name="type" required style="font-size: 0.76rem;">
+                                <option value="lost" <%= item.type === 'lost' ? 'selected' : '' %>>Lost</option>
+                                <option value="found" <%= item.type === 'found' ? 'selected' : '' %>>Found</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Status</label>
+                            <select class="form-select cyber-select py-1 px-2" name="status" required style="font-size: 0.76rem;">
+                                <option value="pending" <%= item.status === 'pending' ? 'selected' : '' %>>Pending</option>
+                                <option value="approved" <%= item.status === 'approved' ? 'selected' : '' %>>Approved</option>
+                                <option value="claimed" <%= item.status === 'claimed' ? 'selected' : '' %>>Claimed</option>
+                                <option value="rejected" <%= item.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Contact Number</label>
+                            <input type="text" class="form-control cyber-select py-1 px-2" name="contactInfo" 
+                                   value="<%= item.contactInfo %>" required style="font-size: 0.76rem;">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Reporter Name</label>
+                            <input type="text" class="form-control cyber-select py-1 px-2" name="reporterName" 
+                                   value="<%= item.reporterName %>" required style="font-size: 0.76rem;">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Reporter Email</label>
+                            <input type="email" class="form-control cyber-select py-1 px-2" name="reporterEmail" 
+                                   value="<%= item.reporterEmail %>" required style="font-size: 0.76rem;">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Admin Internal Notes</label>
+                            <textarea class="form-control cyber-select py-1 px-2" name="adminNotes" rows="2" 
+                                      placeholder="Internal notes for campus staff..." style="font-size: 0.76rem;"><%= item.adminNotes || '' %></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Replace Thumbnail Photo</label>
+                            <input type="file" class="form-control cyber-select py-1 px-2" name="image" accept="image/*" style="font-size: 0.76rem;">
+                            <small class="text-muted" style="font-size: 0.68rem;">Leave blank to maintain the current image.</small>
+                        </div>
+                        <div class="col-12 pt-3" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-sm btn-primary py-1 px-3" style="font-size: 0.76rem;">
+                                    <i class="fas fa-save me-1"></i> Save Changes
                                 </button>
-                                <a href="/admin/items" class="btn btn-outline-secondary">Cancel</a>
+                                <a href="/admin/items" class="btn btn-sm btn-outline-light border-secondary py-1 px-3" style="font-size: 0.76rem;">Cancel</a>
                             </div>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
         
-        <div class="col-lg-4">
+        <!-- Sidebar Info (Right) -->
+        <div class="col-12 col-lg-4">
             <!-- Current Image -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-transparent">
-                    <h6 class="mb-0">Current Image</h6>
-                </div>
-                <div class="card-body text-center">
-                    <% if (item.imagePath) { %>
-                        <img src="<%= item.imagePath %>" class="img-fluid rounded" alt="<%= item.itemName %>">
-                    <% } else { %>
-                        <div class="rounded text-center <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>" style="padding: 3rem 1rem; position: relative; overflow: hidden;">
-                            <div class="placeholder-pattern"></div>
-                            <div class="placeholder-icon-wrap placeholder-icon-lg" style="position: relative; z-index: 1;">
-                                <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
-                            </div>
-                            <p class="mt-3 mb-0 fw-medium" style="opacity: 0.6; position: relative; z-index: 1;">No image uploaded</p>
-                        </div>
-                    <% } %>
-                </div>
+            <div class="cyber-card p-3 mb-3 text-center">
+                <h6 class="text-white mb-2 fw-bold text-start" style="font-size: 0.82rem;">Current Photo</h6>
+                <% if (item.imagePath) { %>
+                    <img src="<%= item.imagePath %>" class="cyber-thumb w-100 rounded-3" style="height: 180px; object-fit: cover;" alt="<%= item.itemName %>">
+                <% } else { %>
+                    <div class="cyber-thumb-placeholder w-100 rounded-3 d-flex flex-column align-items-center justify-content-center" style="height: 160px;">
+                        <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %> fa-2x text-muted mb-2"></i>
+                        <span class="text-muted small" style="font-size: 0.72rem;">No photo uploaded</span>
+                    </div>
+                <% } %>
             </div>
             
             <!-- Quick Actions -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-transparent">
-                    <h6 class="mb-0">Quick Actions</h6>
-                </div>
-                <div class="card-body">
+            <div class="cyber-card p-3 mb-3">
+                <h6 class="text-white mb-3 fw-bold" style="font-size: 0.82rem;">Quick Operations</h6>
+                <div class="d-flex flex-column gap-2">
                     <% if (item.status === 'pending') { %>
-                        <form action="/admin/items/<%= item._id %>/approve" method="POST" class="mb-2">
-                            <button type="submit" class="btn btn-success w-100">
-                                <i class="fas fa-check me-2"></i> Approve Item
+                        <form action="/admin/items/<%= item._id %>/approve" method="POST" class="mb-0">
+                            <button type="submit" class="btn btn-sm btn-success w-100 py-1" style="font-size: 0.74rem;">
+                                <i class="fas fa-check me-1"></i> Approve Item
                             </button>
                         </form>
                     <% } %>
                     <% if (item.status === 'approved') { %>
-                        <button type="button" class="btn btn-info w-100 mb-2" 
+                        <button type="button" class="btn btn-sm btn-outline-info text-cyan border-secondary w-100 py-1" style="font-size: 0.74rem;"
                                 data-bs-toggle="modal" data-bs-target="#claimModal">
-                            <i class="fas fa-handshake me-2"></i> Mark as Claimed
+                            <i class="fas fa-handshake me-1"></i> Mark as Claimed
                         </button>
                     <% } %>
-                    <a href="/items/<%= item._id %>" target="_blank" class="btn btn-outline-primary w-100 mb-2">
-                        <i class="fas fa-external-link-alt me-2"></i> View Public Page
+                    <a href="/items/<%= item._id %>" target="_blank" class="btn btn-sm btn-outline-light border-secondary w-100 py-1" style="font-size: 0.74rem;">
+                        <i class="fas fa-external-link-alt me-1"></i> View Public Listing
                     </a>
-                    <button type="button" class="btn btn-outline-danger w-100" 
+                    <button type="button" class="btn btn-sm btn-outline-danger w-100 py-1" style="font-size: 0.74rem;"
                             data-bs-toggle="modal" data-bs-target="#deleteModal">
-                        <i class="fas fa-trash me-2"></i> Delete Item
+                        <i class="fas fa-trash me-1"></i> Delete Item
                     </button>
                 </div>
             </div>
             
-            <!-- Item Info -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-transparent">
-                    <h6 class="mb-0">Item Information</h6>
-                </div>
-                <div class="card-body">
-                    <p class="mb-2"><small class="text-muted">Created:</small><br>
-                        <%= new Date(item.createdAt).toLocaleString() %>
-                    </p>
-                    <p class="mb-2"><small class="text-muted">Last Updated:</small><br>
-                        <%= new Date(item.updatedAt).toLocaleString() %>
-                    </p>
-                    <p class="mb-0"><small class="text-muted">ID:</small><br>
-                        <code><%= item._id %></code>
-                    </p>
+            <!-- Item Meta -->
+            <div class="cyber-card p-3">
+                <h6 class="text-white mb-2 fw-bold" style="font-size: 0.82rem;">Audit Information</h6>
+                <div class="text-muted" style="font-size: 0.7rem; line-height: 1.6;">
+                    <div><strong class="text-secondary">Created:</strong> <%= new Date(item.createdAt).toLocaleString() %></div>
+                    <div><strong class="text-secondary">Updated:</strong> <%= new Date(item.updatedAt).toLocaleString() %></div>
+                    <div><strong class="text-secondary">Database ID:</strong> <code class="text-cyan"><%= item._id %></code></div>
                 </div>
             </div>
         </div>
@@ -173,30 +179,30 @@
 
 <!-- Claim Modal -->
 <div class="modal fade" id="claimModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
             <form action="/admin/items/<%= item._id %>/claim" method="POST">
-                <div class="modal-header">
-                    <h5 class="modal-title">Mark as Claimed</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h6 class="modal-title small fw-bold">Mark as Claimed</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Claimer Name</label>
-                        <input type="text" class="form-control" name="claimerName" required>
+                <div class="modal-body py-2">
+                    <div class="mb-2">
+                        <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Claimer Name</label>
+                        <input type="text" class="form-control cyber-select py-1 px-2" name="claimerName" required style="font-size: 0.76rem;">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Claimer Email</label>
-                        <input type="email" class="form-control" name="claimerEmail" required>
+                    <div class="mb-2">
+                        <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Claimer Email</label>
+                        <input type="email" class="form-control cyber-select py-1 px-2" name="claimerEmail" required style="font-size: 0.76rem;">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Claimer Phone</label>
-                        <input type="text" class="form-control" name="claimerPhone">
+                    <div>
+                        <label class="form-label text-muted small mb-1" style="font-size: 0.72rem;">Claimer Phone</label>
+                        <input type="text" class="form-control cyber-select py-1 px-2" name="claimerPhone" style="font-size: 0.76rem;">
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-info">Mark as Claimed</button>
+                <div class="modal-footer py-2" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" class="btn btn-sm btn-outline-light border-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-sm btn-info text-dark fw-bold">Mark as Claimed</button>
                 </div>
             </form>
         </div>
@@ -205,20 +211,20 @@
 
 <!-- Delete Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Delete Item</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+            <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                <h6 class="modal-title small fw-bold">Delete Item</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete <strong><%= item.itemName %></strong>?</p>
-                <p class="text-danger"><small>This action cannot be undone.</small></p>
+            <div class="modal-body py-2">
+                <p class="small mb-1">Delete <strong class="text-white"><%= item.itemName %></strong>?</p>
+                <p class="text-danger small mb-0" style="font-size: 0.7rem;">This action cannot be undone.</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <form action="/admin/items/<%= item._id %>/delete" method="POST" class="d-inline">
-                    <button type="submit" class="btn btn-danger">Delete</button>
+            <div class="modal-footer py-2" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                <button type="button" class="btn btn-sm btn-outline-light border-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form action="/admin/items/<%= item._id %>/delete" method="POST" class="d-inline mb-0">
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
                 </form>
             </div>
         </div>

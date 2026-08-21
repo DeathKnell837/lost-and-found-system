@@ -1,259 +1,271 @@
-<div class="dashboard-content">
+<div class="cyber-dashboard">
     <!-- Page Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div>
-            <h2 class="mb-1"><i class="fas fa-box text-primary me-2"></i> All Items</h2>
-            <p class="text-muted mb-0">Manage all lost and found items</p>
+            <h4 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="letter-spacing: -0.02em;">
+                <i class="fas fa-boxes text-cyan"></i>
+                Manage Campus Belongings
+            </h4>
+            <span class="text-muted small" style="font-size: 0.76rem;">Inspect, verify, approve, and track all reported lost and found items</span>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <a href="/admin/export/items" class="btn btn-outline-success btn-sm">
-                <i class="fas fa-file-csv me-1"></i>Export CSV
+            <a href="/admin/export/items" class="btn btn-sm btn-outline-info text-cyan border-secondary py-1 px-3" style="font-size: 0.76rem;">
+                <i class="fas fa-file-csv me-1"></i> Export CSV
             </a>
-            <span class="badge bg-primary fs-6"><%= totalItems %> items</span>
+            <span class="badge bg-primary bg-opacity-25 text-cyan border border-info border-opacity-50 py-1 px-2" style="font-size: 0.76rem;">
+                <%= totalItems %> Total Items
+            </span>
         </div>
     </div>
     
     <!-- Filters Card -->
-    <div class="card mb-3">
-        <div class="card-body py-3">
-            <form action="/admin/items" method="GET" class="row g-2 align-items-end">
-                <div class="col-md-3">
-                    <label class="form-label small text-muted mb-1">Search</label>
-                    <input type="text" class="form-control form-control-sm" name="search" 
-                           value="<%= query.search || '' %>" placeholder="Item name, location...">
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small text-muted mb-1">Status</label>
-                    <select class="form-select form-select-sm" name="status">
-                        <option value="">All Status</option>
-                        <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>⏳ Pending</option>
-                        <option value="approved" <%= query.status === 'approved' ? 'selected' : '' %>>✓ Approved</option>
-                        <option value="claimed" <%= query.status === 'claimed' ? 'selected' : '' %>>🤝 Claimed</option>
-                        <option value="rejected" <%= query.status === 'rejected' ? 'selected' : '' %>>✗ Rejected</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label small text-muted mb-1">Type</label>
-                    <select class="form-select form-select-sm" name="type">
-                        <option value="">All Types</option>
-                        <option value="lost" <%= query.type === 'lost' ? 'selected' : '' %>>🔴 Lost</option>
-                        <option value="found" <%= query.type === 'found' ? 'selected' : '' %>>🟢 Found</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label small text-muted mb-1">Category</label>
-                    <select class="form-select form-select-sm" name="category">
-                        <option value="">All Categories</option>
-                        <% categories.forEach(function(cat) { %>
-                            <option value="<%= cat._id %>" <%= query.category === cat._id.toString() ? 'selected' : '' %>>
-                                <%= cat.name %>
-                            </option>
-                        <% }); %>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-primary btn-sm w-100">
-                        <i class="fas fa-search me-1"></i> Search
-                    </button>
-                </div>
-            </form>
-        </div>
+    <div class="cyber-card p-3 mb-3">
+        <form action="/admin/items" method="GET" class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+                <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Search Keywords</label>
+                <input type="text" class="form-control cyber-select py-1 px-2" name="search" 
+                       value="<%= query.search || '' %>" placeholder="Item name, location, reporter..." style="font-size: 0.76rem;">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Status</label>
+                <select class="form-select cyber-select py-1 px-2" name="status" style="font-size: 0.76rem;">
+                    <option value="">All Statuses</option>
+                    <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>⏳ Pending Review</option>
+                    <option value="approved" <%= query.status === 'approved' ? 'selected' : '' %>>✓ Approved</option>
+                    <option value="claimed" <%= query.status === 'claimed' ? 'selected' : '' %>>🤝 Claimed / Reunited</option>
+                    <option value="rejected" <%= query.status === 'rejected' ? 'selected' : '' %>>✗ Rejected</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Item Type</label>
+                <select class="form-select cyber-select py-1 px-2" name="type" style="font-size: 0.76rem;">
+                    <option value="">All Types</option>
+                    <option value="lost" <%= query.type === 'lost' ? 'selected' : '' %>>🔴 Lost</option>
+                    <option value="found" <%= query.type === 'found' ? 'selected' : '' %>>🟢 Found</option>
+                </select>
+            </div>
+            <div class="col-8 col-md-3">
+                <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Campus Category</label>
+                <select class="form-select cyber-select py-1 px-2" name="category" style="font-size: 0.76rem;">
+                    <option value="">All Categories</option>
+                    <% categories.forEach(function(cat) { %>
+                        <option value="<%= cat._id %>" <%= query.category === cat._id.toString() ? 'selected' : '' %>>
+                            <%= cat.name %>
+                        </option>
+                    <% }); %>
+                </select>
+            </div>
+            <div class="col-4 col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100 py-1" style="font-size: 0.76rem;">
+                    <i class="fas fa-search me-1"></i> Filter
+                </button>
+            </div>
+        </form>
     </div>
     
     <!-- Items Table -->
-    <div class="card">
-        <div class="card-body p-0">
-            <% if (items.length > 0) { %>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead>
-                            <tr>
-                                <th style="width: 50px">Image</th>
-                                <th>Item Details</th>
-                                <th>Category</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th>Reporter</th>
-                                <th>Date</th>
-                                <th style="width: 160px" class="text-center">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% items.forEach(function(item) { %>
-                                <tr>
-                                    <td>
-                                        <% if (item.imagePath) { %>
-                                            <img src="<%= item.imagePath %>" class="item-thumb" alt="<%= item.itemName %>">
-                                        <% } else { %>
-                                            <div class="item-thumb-placeholder">
-                                                <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
-                                            </div>
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <strong class="d-block"><%= item.itemName %></strong>
-                                        <small class="text-muted">
-                                            <i class="fas fa-map-marker-alt me-1"></i><%= item.location.substring(0, 30) %><%= item.location.length > 30 ? '...' : '' %>
-                                        </small>
-                                    </td>
-                                    <td>
-                                        <% if (item.category) { %>
-                                            <span class="badge bg-light text-dark"><%= item.category.name %></span>
-                                        <% } else { %>
-                                            <span class="text-muted">—</span>
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<%= item.type === 'lost' ? 'danger' : 'success' %>">
-                                            <i class="fas fa-<%= item.type === 'lost' ? 'search' : 'hand-holding' %> me-1"></i>
-                                            <%= item.type %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-<%= 
-                                            item.status === 'approved' ? 'primary' : 
-                                            item.status === 'pending' ? 'warning' : 
-                                            item.status === 'claimed' ? 'info' : 'secondary' 
-                                        %>">
-                                            <%= item.status %>
-                                        </span>
-                                    </td>
-                                    <td>
-                                        <small class="d-block"><%= item.reporterName %></small>
-                                        <small class="text-muted"><%= item.reporterEmail %></small>
-                                    </td>
-                                    <td>
-                                        <small><%= new Date(item.dateReported).toLocaleDateString() %></small>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex gap-1 justify-content-center">
-                                            <% if (item.status === 'pending') { %>
-                                                <form action="/admin/items/<%= item._id %>/approve" method="POST" class="d-inline">
-                                                    <button type="submit" class="btn btn-sm btn-success" title="Approve">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </form>
-                                                <button type="button" class="btn btn-sm btn-danger" title="Reject"
-                                                        data-bs-toggle="modal" data-bs-target="#rejectModal<%= item._id %>">
-                                                    <i class="fas fa-times"></i>
-                                                </button>
-                                            <% } %>
-                                            <% if (item.status === 'approved') { %>
-                                                <button type="button" class="btn btn-sm btn-info" title="Mark as Claimed"
-                                                        data-bs-toggle="modal" data-bs-target="#claimModal<%= item._id %>">
-                                                    <i class="fas fa-handshake"></i>
-                                                </button>
-                                            <% } %>
-                                            <a href="/admin/items/<%= item._id %>/edit" class="btn btn-sm btn-secondary" title="Edit">
-                                                <i class="fas fa-edit"></i>
-                                            </a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger" title="Delete"
-                                                    data-bs-toggle="modal" data-bs-target="#deleteModal<%= item._id %>">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                        
-                                        <!-- Reject Modal -->
-                                        <div class="modal fade" id="rejectModal<%= item._id %>" tabindex="-1">
-                                            <div class="modal-dialog modal-sm">
-                                                <div class="modal-content">
-                                                    <form action="/admin/items/<%= item._id %>/reject" method="POST">
-                                                        <div class="modal-header py-2">
-                                                            <h6 class="modal-title">Reject Item</h6>
-                                                            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal"></button>
-                                                        </div>
-                                                        <div class="modal-body py-2">
-                                                            <p class="small mb-2">Rejecting: <strong><%= item.itemName %></strong></p>
-                                                            <textarea class="form-control form-control-sm" name="reason" rows="2" 
-                                                                      placeholder="Reason..."></textarea>
-                                                        </div>
-                                                        <div class="modal-footer py-2">
-                                                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Claim Modal -->
-                                        <div class="modal fade" id="claimModal<%= item._id %>" tabindex="-1">
-                                            <div class="modal-dialog modal-sm">
-                                                <div class="modal-content">
-                                                    <form action="/admin/items/<%= item._id %>/claim" method="POST">
-                                                        <div class="modal-header py-2">
-                                                            <h6 class="modal-title">Mark as Claimed</h6>
-                                                            <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal"></button>
-                                                        </div>
-                                                        <div class="modal-body py-2">
-                                                            <p class="small mb-2"><strong><%= item.itemName %></strong></p>
-                                                            <div class="mb-2">
-                                                                <input type="text" class="form-control form-control-sm" name="claimerName" placeholder="Claimer Name" required>
-                                                            </div>
-                                                            <div class="mb-2">
-                                                                <input type="email" class="form-control form-control-sm" name="claimerEmail" placeholder="Email" required>
-                                                            </div>
-                                                            <div>
-                                                                <input type="text" class="form-control form-control-sm" name="claimerPhone" placeholder="Phone (optional)">
-                                                            </div>
-                                                        </div>
-                                                        <div class="modal-footer py-2">
-                                                            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                            <button type="submit" class="btn btn-sm btn-info">Confirm</button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <!-- Delete Modal -->
-                                        <div class="modal fade" id="deleteModal<%= item._id %>" tabindex="-1">
-                                            <div class="modal-dialog modal-sm">
-                                                <div class="modal-content">
-                                                    <div class="modal-header py-2">
-                                                        <h6 class="modal-title">Delete Item</h6>
-                                                        <button type="button" class="btn-close btn-close-sm" data-bs-dismiss="modal"></button>
-                                                    </div>
-                                                    <div class="modal-body py-2">
-                                                        <p class="small">Delete <strong><%= item.itemName %></strong>?</p>
-                                                        <p class="text-danger small mb-0">This cannot be undone.</p>
-                                                    </div>
-                                                    <div class="modal-footer py-2">
-                                                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <form action="/admin/items/<%= item._id %>/delete" method="POST" class="d-inline">
-                                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <% }); %>
-                        </tbody>
-                    </table>
-                </div>
-                
-                <!-- Pagination -->
-                <% if (totalPages > 1) { %>
-                    <div class="card-footer bg-transparent py-2">
-                        <nav>
-                            <ul class="pagination pagination-sm justify-content-center mb-0">
-                                <% for (let i = 1; i <= totalPages; i++) { %>
-                                    <li class="page-item <%= i === currentPage ? 'active' : '' %>">
-                                        <a class="page-link" href="?page=<%= i %><%= Object.keys(query).filter(k => k !== 'page').map(k => '&' + k + '=' + query[k]).join('') %>"><%= i %></a>
-                                    </li>
-                                <% } %>
-                            </ul>
-                        </nav>
-                    </div>
-                <% } %>
-            <% } else { %>
-                <div class="text-center py-4">
-                    <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-                    <p class="text-muted small mb-0">No items found</p>
-                </div>
+    <div class="cyber-card p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                <i class="fas fa-list text-cyan"></i> Belongings Catalog
+            </h6>
+            <% if (totalPages > 1) { %>
+                <span class="text-muted small" style="font-size: 0.72rem;">Page <%= currentPage %> of <%= totalPages %></span>
             <% } %>
         </div>
+
+        <% if (items.length > 0) { %>
+            <div class="table-responsive">
+                <table class="cyber-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 44px">Item</th>
+                            <th>Details & Location</th>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Reporter</th>
+                            <th>Date</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% items.forEach(function(item) { %>
+                            <tr>
+                                <td>
+                                    <% if (item.imagePath) { %>
+                                        <img src="<%= item.imagePath %>" class="cyber-thumb" alt="<%= item.itemName %>">
+                                    <% } else { %>
+                                        <div class="cyber-thumb-placeholder">
+                                            <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
+                                        </div>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <strong class="text-white d-block text-truncate" style="max-width: 200px;"><%= item.itemName %></strong>
+                                    <small class="text-muted" style="font-size: 0.7rem;">
+                                        <i class="fas fa-map-marker-alt me-1 text-secondary"></i><%= item.location.substring(0, 32) %><%= item.location.length > 32 ? '...' : '' %>
+                                    </small>
+                                </td>
+                                <td>
+                                    <% if (item.category) { %>
+                                        <span class="badge bg-dark border border-secondary text-info" style="font-size: 0.7rem;"><%= item.category.name %></span>
+                                    <% } else { %>
+                                        <span class="text-muted small">—</span>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <span class="cyber-badge <%= item.type === 'lost' ? 'cyber-badge-lost' : 'cyber-badge-found' %>">
+                                        <i class="fas <%= item.type === 'lost' ? 'fa-exclamation-triangle' : 'fa-check-circle' %>"></i>
+                                        <%= item.type %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="cyber-badge <%= 
+                                        item.status === 'approved' ? 'cyber-badge-found' : 
+                                        item.status === 'pending' ? 'cyber-badge-pending' : 
+                                        item.status === 'claimed' ? 'cyber-badge-claimed' : 'cyber-badge-lost' 
+                                    %>">
+                                        <%= item.status %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-white d-block"><%= item.reporterName %></small>
+                                    <small class="text-muted" style="font-size: 0.68rem;"><%= item.reporterEmail %></small>
+                                </td>
+                                <td>
+                                    <small class="text-muted"><%= new Date(item.dateReported).toLocaleDateString() %></small>
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <% if (item.status === 'pending') { %>
+                                            <form action="/admin/items/<%= item._id %>/approve" method="POST" class="d-inline mb-0">
+                                                <button type="submit" class="btn btn-sm btn-success py-0 px-2" style="font-size: 0.7rem;" title="Approve">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-sm btn-danger py-0 px-2" style="font-size: 0.7rem;" title="Reject"
+                                                    data-bs-toggle="modal" data-bs-target="#rejectModal<%= item._id %>">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        <% } %>
+                                        <% if (item.status === 'approved') { %>
+                                            <button type="button" class="btn btn-sm btn-outline-info py-0 px-2" style="font-size: 0.7rem;" title="Mark as Claimed"
+                                                    data-bs-toggle="modal" data-bs-target="#claimModal<%= item._id %>">
+                                                <i class="fas fa-handshake"></i>
+                                            </button>
+                                        <% } %>
+                                        <a href="/admin/items/<%= item._id %>/edit" class="btn btn-sm btn-outline-light border-secondary py-0 px-2" style="font-size: 0.7rem;" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size: 0.7rem;" title="Delete"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal<%= item._id %>">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    
+                                    <!-- Reject Modal -->
+                                    <div class="modal fade" id="rejectModal<%= item._id %>" tabindex="-1">
+                                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                                            <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+                                                <form action="/admin/items/<%= item._id %>/reject" method="POST">
+                                                    <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                                        <h6 class="modal-title small fw-bold">Reject Item</h6>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body py-2 text-start">
+                                                        <p class="small mb-2">Rejecting report for: <strong class="text-white"><%= item.itemName %></strong></p>
+                                                        <textarea class="form-control cyber-select py-1 px-2" name="reason" rows="2" 
+                                                                  placeholder="Reason for rejection..."></textarea>
+                                                    </div>
+                                                    <div class="modal-footer py-2" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                                                        <button type="button" class="btn btn-sm btn-outline-light border-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Claim Modal -->
+                                    <div class="modal fade" id="claimModal<%= item._id %>" tabindex="-1">
+                                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                                            <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+                                                <form action="/admin/items/<%= item._id %>/claim" method="POST">
+                                                    <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                                        <h6 class="modal-title small fw-bold">Mark as Claimed / Reunited</h6>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body py-2 text-start">
+                                                        <p class="small mb-2"><strong class="text-white"><%= item.itemName %></strong></p>
+                                                        <div class="mb-2">
+                                                            <input type="text" class="form-control cyber-select py-1 px-2" name="claimerName" placeholder="Claimer Name" required>
+                                                        </div>
+                                                        <div class="mb-2">
+                                                            <input type="email" class="form-control cyber-select py-1 px-2" name="claimerEmail" placeholder="Email Address" required>
+                                                        </div>
+                                                        <div>
+                                                            <input type="text" class="form-control cyber-select py-1 px-2" name="claimerPhone" placeholder="Phone (Optional)">
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer py-2" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                                                        <button type="button" class="btn btn-sm btn-outline-light border-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-sm btn-info text-dark fw-bold">Confirm</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal<%= item._id %>" tabindex="-1">
+                                        <div class="modal-dialog modal-sm modal-dialog-centered">
+                                            <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+                                                <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                                                    <h6 class="modal-title small fw-bold">Delete Item</h6>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body py-2 text-start">
+                                                    <p class="small mb-1">Permanently remove <strong class="text-white"><%= item.itemName %></strong>?</p>
+                                                    <p class="text-danger small mb-0" style="font-size: 0.7rem;">This action cannot be undone.</p>
+                                                </div>
+                                                <div class="modal-footer py-2" style="border-top: 1px solid rgba(255,255,255,0.08);">
+                                                    <button type="button" class="btn btn-sm btn-outline-light border-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="/admin/items/<%= item._id %>/delete" method="POST" class="d-inline mb-0">
+                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <% if (totalPages > 1) { %>
+                <div class="d-flex justify-content-center mt-3 pt-2" style="border-top: 1px solid rgba(255,255,255,0.06);">
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <li class="page-item <%= i === currentPage ? 'active' : '' %>">
+                                    <a class="page-link" href="?page=<%= i %><%= Object.keys(query).filter(k => k !== 'page').map(k => '&' + k + '=' + query[k]).join('') %>" style="background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.1); color: #cbd5e1;"><%= i %></a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
+                </div>
+            <% } %>
+        <% } else { %>
+            <div class="text-center py-5">
+                <div class="cyber-thumb-placeholder mx-auto mb-2" style="width: 50px; height: 50px; font-size: 1.3rem;">
+                    <i class="fas fa-inbox text-muted"></i>
+                </div>
+                <p class="text-muted small mb-0">No belongings found matching your search filters.</p>
+            </div>
+        <% } %>
     </div>
 </div>
