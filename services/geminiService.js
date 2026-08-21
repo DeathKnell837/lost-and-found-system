@@ -359,8 +359,58 @@ Return ONLY a valid JSON object in this exact format:
     };
 };
 
+/**
+ * Grounded Gemini Contextual Response — generates a smart, tailored response
+ * that explicitly references the retrieved items or lack thereof!
+ */
+const generateGroundingResponse = async (userMessage, matches = [], extracted = {}) => {
+    if (!genAI) {
+        if (matches && matches.length > 0) {
+            const top = matches[0];
+            return `I found ${matches.length} potential match(es) in our campus database! Take a look at "${top.itemName}" at ${top.location || 'Campus'} below.`;
+        }
+        return `I searched our campus lost & found records, but no matching items have been reported yet. You can submit a "Report Lost" form so we can alert you immediately when found!`;
+    }
+
+    const matchesSummary = matches.slice(0, 3).map((m, idx) => 
+        `[#${idx + 1}] Name: "${m.itemName}", Status/Type: ${m.type}, Location: "${m.location || 'Campus'}", Category: "${m.category || 'General'}", Details: "${(m.description || '').substring(0, 90)}"`
+    ).join('\n');
+
+    const prompt = `You are the Official Campus Lost & Found AI Assistant.
+User input: "${userMessage}"
+Identified details: ${JSON.stringify(extracted)}
+
+Campus Database Search Results (${matches.length} matching items found):
+${matchesSummary || 'No matching items currently found in inventory.'}
+
+Instructions:
+1. If matches WERE found: Write a concise, natural, 1-2 sentence response letting the user know you found a matching item in the campus database (mention the specific item name and location found), and invite them to check the card below to see if it is theirs.
+2. If NO matches were found: Write a friendly, reassuring 1-2 sentence response stating that no matching items have been turned in yet, and advising them to submit a "Report Lost Item" report or check with the campus security desk.
+
+Return ONLY the plain text response string.`;
+
+    const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
+    for (const modelName of modelsToTry) {
+        try {
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const result = await model.generateContent(prompt);
+            const text = result.response.text().trim();
+            if (text && text.length > 5) return text;
+        } catch (e) {
+            console.warn(`Gemini model ${modelName} in generateGroundingResponse:`, e.message);
+        }
+    }
+
+    if (matches && matches.length > 0) {
+        return `I found a potential match in our campus inventory: ${matches[0].itemName} at ${matches[0].location || 'Campus'}. Check the card below to view details!`;
+    }
+    return `I checked our campus lost & found records, but no matching items have been reported yet. I recommend filing a quick "Report Lost" form so you can be notified when found!`;
+};
+
 module.exports = {
     compareImages,
+    analyzeUploadedImage,
     parseSearchQuery,
-    analyzeUploadedImage
+    generateGroundingResponse,
+    generateIntelligentAIResponse
 };

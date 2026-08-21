@@ -124,6 +124,7 @@ const chatController = {
 
             let foundItems = [];
             try {
+                // Fetch potential candidates matching query conditions
                 foundItems = await Item.find(queryConditions)
                     .select('+embedding')
                     .populate('category')
@@ -132,12 +133,12 @@ const chatController = {
                     .maxTimeMS(2500);
 
                 if (foundItems.length === 0) {
-                    // Fallback to all approved items if strict search returns none
+                    // Fallback to recent approved items for fuzzy semantic matching
                     foundItems = await Item.find({ status: 'approved' })
                         .select('+embedding')
                         .populate('category')
                         .sort({ createdAt: -1 })
-                        .limit(6)
+                        .limit(8)
                         .maxTimeMS(2500);
                 }
             } catch (dbErr) {
@@ -172,9 +173,18 @@ const chatController = {
                 category: queryConditions.category || null
             };
 
+            const searchTokens = (userPrompt + ' ' + (extracted.keywords || []).join(' ')).toLowerCase().split(/\s+/).filter(t => t.length > 2);
+
             const rankedMatchesPromises = foundItems.map(async (item) => {
                 const scoreResult = calculateMatchScore(syntheticItem, item);
                 let finalScore = scoreResult.total;
+
+                // Check for token overlap in item name or description
+                const itemFullText = ((item.itemName || '') + ' ' + (item.description || '') + ' ' + (item.location || '')).toLowerCase();
+                const hasDirectWordMatch = searchTokens.some(tok => itemFullText.includes(tok));
+                if (hasDirectWordMatch) {
+                    finalScore = Math.max(finalScore, 40);
+                }
 
                 // If user uploaded an image and CLIP embedding exists, compute visual similarity
                 if (userImageEmbedding && item.imagePath) {
@@ -186,7 +196,6 @@ const chatController = {
                         if (itemEmb) {
                             const clipSim = clipService.computeCosineSimilarity(userImageEmbedding, itemEmb);
                             const clipScore = Math.round(clipSim * 100);
-                            // Combine text/keyword score (45%) with CLIP visual score (55%)
                             finalScore = Math.round((scoreResult.total * 0.45) + (clipScore * 0.55));
                         }
                     } catch (e) { /* fallback to scoreResult.total */ }
@@ -201,17 +210,33 @@ const chatController = {
                     description: item.description,
                     imagePath: item.imagePath,
                     dateLostFound: item.dateLostFound ? new Date(item.dateLostFound).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '',
-                    matchScore: finalScore
+                    matchScore: finalScore,
+                    hasDirectWordMatch
                 };
             });
 
             const resolvedMatches = await Promise.all(rankedMatchesPromises);
-            const rankedMatches = resolvedMatches.sort((a, b) => b.matchScore - a.matchScore).slice(0, 4);
+            
+            // Only keep true relevant matches (score >= 25 or direct word match)
+            const rankedMatches = resolvedMatches
+                .filter(m => m.matchScore >= 25 || m.hasDirectWordMatch)
+                .sort((a, b) => b.matchScore - a.matchScore)
+                .slice(0, 4);
+
+            // Generate smart, grounded conversational answer directly referencing matches!
+            let finalSmartResponse = conversationalResponse;
+            if (geminiService.generateGroundingResponse) {
+                try {
+                    finalSmartResponse = await geminiService.generateGroundingResponse(userPrompt, rankedMatches, extracted);
+                } catch (gErr) {
+                    console.warn('Grounding response generation error:', gErr.message);
+                }
+            }
 
             return res.json({
                 success: true,
                 isSearch: true,
-                response: conversationalResponse,
+                response: finalSmartResponse || conversationalResponse,
                 matches: rankedMatches
             });
 
