@@ -15,6 +15,14 @@ const chatController = {
             const message = req.body ? (req.body.message || '') : '';
             const imageFile = req.file;
 
+            let conversationHistory = [];
+            if (req.body && req.body.history) {
+                try {
+                    conversationHistory = typeof req.body.history === 'string' ? JSON.parse(req.body.history) : req.body.history;
+                    if (!Array.isArray(conversationHistory)) conversationHistory = [];
+                } catch (e) { conversationHistory = []; }
+            }
+
             if (!message.trim() && !imageFile) {
                 return res.json({
                     success: true,
@@ -38,8 +46,8 @@ const chatController = {
                 extracted = analysis.extracted || {};
                 conversationalResponse = analysis.conversationalResponse;
             } else {
-                // Text-only query analysis using Gemini 2.0 Flash
-                const geminiAnalysis = await geminiService.parseSearchQuery(userPrompt);
+                // Text-only query analysis with multi-turn conversation memory
+                const geminiAnalysis = await geminiService.parseSearchQuery(userPrompt, conversationHistory);
                 extracted = geminiAnalysis.extracted || {};
                 conversationalResponse = geminiAnalysis.conversationalResponse;
 
@@ -223,11 +231,11 @@ const chatController = {
                 .sort((a, b) => b.matchScore - a.matchScore)
                 .slice(0, 4);
 
-            // Generate smart, grounded conversational answer directly referencing matches!
+            // Generate smart, grounded conversational answer directly referencing matches and history!
             let finalSmartResponse = conversationalResponse;
             if (geminiService.generateGroundingResponse) {
                 try {
-                    finalSmartResponse = await geminiService.generateGroundingResponse(userPrompt, rankedMatches, extracted);
+                    finalSmartResponse = await geminiService.generateGroundingResponse(userPrompt, rankedMatches, extracted, conversationHistory);
                 } catch (gErr) {
                     console.warn('Grounding response generation error:', gErr.message);
                 }

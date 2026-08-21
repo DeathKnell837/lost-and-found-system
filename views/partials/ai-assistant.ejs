@@ -22,7 +22,12 @@
                     <small class="text-cyan"><i class="fas fa-circle text-success me-1 style-dot"></i> Online • Powered by Gemini AI</small>
                 </div>
             </div>
-            <button id="aiChatClose" class="btn-close btn-close-white btn-sm" aria-label="Close"></button>
+            <div class="d-flex align-items-center gap-1">
+                <button type="button" id="aiChatReset" class="btn btn-sm text-cyan p-1 text-decoration-none" title="Reset Chat / New Search">
+                    <i class="fas fa-redo-alt" style="font-size: 0.8rem;"></i>
+                </button>
+                <button id="aiChatClose" class="btn-close btn-close-white btn-sm ms-1" aria-label="Close"></button>
+            </div>
         </div>
 
         <!-- Chat Messages Container -->
@@ -550,6 +555,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    const resetBtn = document.getElementById('aiChatReset');
+    let conversationMemory = [];
+
+    // Reset Chat functionality
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            conversationMemory = [];
+            messagesContainer.innerHTML = `
+                <div class="ai-message bot-message">
+                    <div class="message-content">
+                        <p class="mb-1 fw-semibold ai-welcome-title">👋 Hi! I'm your Campus Lost & Found Assistant.</p>
+                        <p class="mb-0 small text-light-gray">Describe an item you lost or found (brand, color, location), or ask me how to claim a match!</p>
+                    </div>
+                </div>
+                <div class="ai-suggestion-chips mt-2">
+                    <button class="chip-btn" onclick="sendSuggestion('I lost a black leather wallet near library')">🔍 Lost black leather wallet</button>
+                    <button class="chip-btn" onclick="sendSuggestion('Found blue keys with silver lanyard')">📦 Found blue keys</button>
+                    <button class="chip-btn" onclick="sendSuggestion('How does AI visual matching work?')">⚡ How AI matching works</button>
+                </div>
+            `;
+            chatInput.value = '';
+            selectedFile = null;
+            if (imageInput) imageInput.value = '';
+            if (previewBar) previewBar.classList.add('d-none');
+            messagesContainer.scrollTop = 0;
+        });
+    }
+
     // Toggle Chat Panel
     function toggleChat() {
         const isHidden = chatPanel.classList.contains('d-none');
@@ -598,6 +631,10 @@ document.addEventListener('DOMContentLoaded', () => {
         userMsgDiv.innerHTML = userContentHtml;
         messagesContainer.appendChild(userMsgDiv);
 
+        if (userText) {
+            conversationMemory.push({ role: 'user', content: userText });
+        }
+
         // Reset input and file preview bar
         chatInput.value = '';
         selectedFile = null;
@@ -623,6 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             if (userText) formData.append('message', userText);
             if (fileToSend) formData.append('image', fileToSend);
+            formData.append('history', JSON.stringify(conversationMemory.slice(-6)));
 
             const res = await fetch('/api/chat', {
                 method: 'POST',
@@ -639,14 +677,15 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.matches && data.matches.length > 0) {
                 matchesHtml = '<div class="mt-2">';
                 data.matches.forEach(m => {
+                    const isFound = m.type === 'found';
                     matchesHtml += `
-                        <a href="/items/${m._id}" class="ai-match-card-mini">
+                        <a href="/items/${m._id}" class="ai-match-card-mini" title="${isFound ? 'Found Item - Click to View & Claim' : 'Reported Lost Item'}">
                             ${m.imagePath ? `<img src="${m.imagePath}" class="ai-match-thumb" alt="${escapeHtml(m.itemName)}">` : `<div class="ai-match-thumb d-flex align-items-center justify-content-center bg-dark text-cyan"><i class="fas fa-box"></i></div>`}
                             <div class="overflow-hidden flex-grow-1">
                                 <div class="fw-bold text-truncate text-white small">${escapeHtml(m.itemName)}</div>
                                 <div class="small text-muted text-truncate"><i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(m.location)}</div>
                             </div>
-                            <span class="badge bg-${m.type === 'lost' ? 'danger' : 'success'}">${m.type}</span>
+                            <span class="badge ${isFound ? 'bg-success' : 'bg-danger'}">${isFound ? 'FOUND' : 'LOST'}</span>
                         </a>
                     `;
                 });
@@ -664,6 +703,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             messagesContainer.appendChild(botMsgDiv);
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            if (data.response) {
+                conversationMemory.push({ role: 'assistant', content: data.response });
+            }
 
         } catch (err) {
             console.error('Chat submit error:', err);

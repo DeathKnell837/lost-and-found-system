@@ -233,27 +233,37 @@ const generateIntelligentAIResponse = (userMessage) => {
 };
 
 /**
- * Full Gemini AI Engine — 100% powered by Gemini 2.0 Flash AI
+ * Full Gemini AI Engine with Multi-Turn Conversation Memory
  * @param {string} userMessage - User input prompt
+ * @param {Array} conversationHistory - Array of { role, content }
  * @returns {Promise<Object>} - { isSearch, extracted, conversationalResponse }
  */
-const parseSearchQuery = async (userMessage) => {
+const parseSearchQuery = async (userMessage, conversationHistory = []) => {
     const textTrimmed = (userMessage || '').trim();
 
     if (!genAI) {
         return generateIntelligentAIResponse(textTrimmed);
     }
 
-    const systemPrompt = `You are the Official Campus Lost & Found AI Assistant — a smart, empathetic, open-ended conversational AI for students, faculty, and campus security.
+    let historyContext = '';
+    if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+        const recentTurns = conversationHistory.slice(-6);
+        historyContext = `Previous conversation history between User and Assistant:\n` +
+            recentTurns.map(t => `${t.role === 'user' ? 'User' : 'Assistant'}: "${t.content}"`).join('\n') +
+            `\n\n`;
+    }
 
-Analyze the user message: "${textTrimmed}"
+    const systemPrompt = `You are the Official Campus Lost & Found AI Assistant — a smart, empathetic conversational AI with conversational memory for students, faculty, and campus security.
 
-1. Determine if the user is searching for, asking about, or referencing any lost/found item, category, location, or campus inventory (e.g. "I lost my wallet", "find my blue keys", "what phones are in the system?", "tell me about the brief", "what is in Primera Hall?"):
-   - Set "isSearch" to true if ANY physical item, category (Electronics, Clothing, Keys, Wallet, Bag, etc.), brand, location, or inventory inquiry is mentioned.
-   - Extract "category", "color", "brand", "location", and "keywords" (including synonyms and root item words like phone, brief, keys, wallet, bottle, id, card, laptop).
+${historyContext}Current User Message: "${textTrimmed}"
+
+1. Use the conversation history to understand context, pronouns ("that item", "it", "the phone", "the wallet"), or follow-up questions.
+2. Determine if the user is searching for, asking about, or referencing any lost/found item, category, location, or campus inventory (e.g. "I lost my wallet", "find my blue keys", "what phones are in the system?", "tell me about the brief", "what's the info about that item", "what is in Primera Hall?"):
+   - Set "isSearch" to true if ANY physical item, follow-up on an item, category, brand, location, or inventory inquiry is mentioned.
+   - Extract "category", "color", "brand", "location", and "keywords" (incorporating referenced items from previous turns if this is a follow-up question!).
    - Only set "isSearch" to false for pure casual conversation/greetings (e.g. "hi", "how are you", "who made you", "thank you").
 
-2. Generate a warm, natural, empathetic, and intelligent response as a helpful AI assistant.
+3. Generate a warm, natural, empathetic, and intelligent response as a helpful AI assistant.
 
 Return ONLY a valid JSON object in this exact format (no markdown code fence):
 {
@@ -335,22 +345,22 @@ Return ONLY a valid JSON object in this exact format:
     for (const modelName of modelsToTry) {
         try {
             const model = genAI.getGenerativeModel({ model: modelName });
-            const result = await model.generateContent([prompt, imagePart]);
-            const text = result.response.text().trim();
-            const jsonMatch = text.match(/\{[\s\S]*\}/);
-            const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+            const result = await model.generateContent([imagePart, prompt]);
+            const responseText = result.response.text().trim();
+            const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
+            const jsonResult = JSON.parse(cleanedJsonText);
 
             return {
                 extracted: {
-                    category: parsed.category || '',
-                    color: parsed.color || '',
-                    brand: parsed.brand || '',
-                    keywords: Array.isArray(parsed.keywords) ? parsed.keywords : []
+                    category: jsonResult.category || '',
+                    color: jsonResult.color || '',
+                    brand: jsonResult.brand || '',
+                    keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : ['item']
                 },
-                conversationalResponse: parsed.conversationalResponse || "I analyzed your item photo and am checking our campus database for matches!"
+                conversationalResponse: jsonResult.conversationalResponse || "I analyzed your photo and searched our campus database for matches."
             };
-        } catch (err) {
-            console.warn(`Gemini model ${modelName} error in analyzeUploadedImage:`, err.message);
+        } catch (error) {
+            console.warn(`Gemini model ${modelName} error in analyzeUploadedImage:`, error.message);
         }
     }
 
@@ -361,34 +371,49 @@ Return ONLY a valid JSON object in this exact format:
 };
 
 /**
- * Grounded Gemini Contextual Response — generates a smart, tailored response
- * that explicitly references the retrieved items or lack thereof!
+ * Grounded Gemini Contextual Response with Multi-Turn Memory & Semantic Precision
  */
-const generateGroundingResponse = async (userMessage, matches = [], extracted = {}) => {
+const generateGroundingResponse = async (userMessage, matches = [], extracted = {}, conversationHistory = []) => {
     if (!genAI) {
         if (matches && matches.length > 0) {
             const top = matches[0];
-            return `I found ${matches.length} potential match(es) in our campus database! Take a look at "${top.itemName}" at ${top.location || 'Campus'} below.`;
+            const typeText = top.type === 'found' ? 'found and turned in' : 'reported lost';
+            return `I found ${matches.length} matching record(s) in our campus database: "${top.itemName}" (${typeText} at ${top.location || 'Campus'}).`;
         }
         return `I searched our campus lost & found records, but no matching items have been reported yet. You can submit a "Report Lost" form so we can alert you immediately when found!`;
     }
 
-    const matchesSummary = matches.slice(0, 3).map((m, idx) => 
-        `[#${idx + 1}] Name: "${m.itemName}", Status/Type: ${m.type}, Location: "${m.location || 'Campus'}", Category: "${m.category || 'General'}", Details: "${(m.description || '').substring(0, 90)}"`
+    let historyContext = '';
+    if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
+        const recentTurns = conversationHistory.slice(-6);
+        historyContext = `Recent conversation history:\n` +
+            recentTurns.map(t => `${t.role === 'user' ? 'User' : 'Assistant'}: "${t.content}"`).join('\n') +
+            `\n\n`;
+    }
+
+    const matchesSummary = matches.slice(0, 4).map((m, idx) => 
+        `[#${idx + 1}] Name: "${m.itemName}", Type/Status: ${m.type} (${m.type === 'found' ? 'FOUND and turned in' : 'REPORTED LOST by owner'}), Location: "${m.location || 'Campus'}", Category: "${m.category || 'General'}", Full Details/Description: "${m.description || 'No description provided.'}", Date: "${m.dateLostFound || ''}"`
     ).join('\n');
 
     const prompt = `You are the Official Campus Lost & Found AI Assistant.
-User input: "${userMessage}"
-Identified details: ${JSON.stringify(extracted)}
 
-Campus Database Search Results (${matches.length} matching items found):
-${matchesSummary || 'No matching items currently found in inventory.'}
+${historyContext}Current User Input: "${userMessage}"
+Extracted Search Details: ${JSON.stringify(extracted)}
 
-Instructions:
-1. If matches WERE found: Write a concise, natural, 1-2 sentence response letting the user know you found a matching item in the campus database (mention the specific item name and location found), and invite them to check the card below to see if it is theirs.
-2. If NO matches were found: Write a friendly, reassuring 1-2 sentence response stating that no matching items have been turned in yet, and advising them to submit a "Report Lost Item" report or check with the campus security desk.
+Campus Database Records (${matches.length} matching items found):
+${matchesSummary || 'No matching items currently found in database.'}
 
-Return ONLY the plain text response string.`;
+CRITICAL RULES ON LOST VS FOUND TERMINOLOGY & FOLLOW-UPS:
+1. STRICT TYPE DISTINCTION:
+   - If Type/Status is "found": It means someone FOUND the item and turned it in (e.g. "A [item] was found and turned in at [location]").
+   - If Type/Status is "lost": It means the owner REPORTED IT MISSING (e.g. "A [item] was reported lost at [location]"). DO NOT SAY IT WAS FOUND.
+2. FOLLOW-UP QUESTIONS & ITEM DETAILS:
+   - If the user asks for more info ("what's the info about that item", "tell me more", "who found it", "what color is it"), provide the exact details, description, date, and location from the record above!
+   - If they want to claim a found item, instruct them to click the card or visit Campus Security at the Admin Building Ground Floor with their Student ID.
+3. NO MATCHES:
+   - If no items match, politely state that no matching items have been recorded yet, and suggest submitting a "Report Lost Item" form.
+
+Write a natural, direct, 1-3 sentence response. Return ONLY the plain text response.`;
 
     const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
     for (const modelName of modelsToTry) {
@@ -403,9 +428,11 @@ Return ONLY the plain text response string.`;
     }
 
     if (matches && matches.length > 0) {
-        return `I found a potential match in our campus inventory: ${matches[0].itemName} at ${matches[0].location || 'Campus'}. Check the card below to view details!`;
+        const top = matches[0];
+        const statusLabel = top.type === 'found' ? 'was found and turned in' : 'was reported lost';
+        return `A ${top.itemName} ${statusLabel} at ${top.location || 'Campus'}. Description: "${top.description || 'N/A'}". Check the card below for details!`;
     }
-    return `I checked our campus lost & found records, but no matching items have been reported yet. I recommend filing a quick "Report Lost" form so you can be notified when found!`;
+    return `I checked our campus records, but no matching items have been reported yet. I recommend submitting a "Report Lost" form so you can be notified when found!`;
 };
 
 module.exports = {
