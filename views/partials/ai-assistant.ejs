@@ -29,7 +29,7 @@
         <div id="aiChatMessages" class="ai-chat-messages">
             <div class="ai-message bot-message">
                 <div class="message-content">
-                    <p class="mb-1 fw-semibold text-white">👋 Hi! I'm your Campus Lost & Found Assistant.</p>
+                    <p class="mb-1 fw-semibold ai-welcome-title">👋 Hi! I'm your Campus Lost & Found Assistant.</p>
                     <p class="mb-0 small text-light-gray">Describe an item you lost or found (brand, color, location), or ask me how to claim a match!</p>
                 </div>
             </div>
@@ -287,16 +287,39 @@
 }
 
 .bot-message .message-content {
-    background: rgba(30, 41, 59, 0.85);
-    border: 1px solid rgba(59, 130, 246, 0.25);
-    border-left: 3px solid #3b82f6;
-    color: #f8fafc;
+    background: rgba(30, 41, 59, 0.95) !important;
+    border: 1px solid rgba(59, 130, 246, 0.35) !important;
+    border-left: 3.5px solid #38bdf8 !important;
+    color: #f8fafc !important;
     border-top-left-radius: 4px;
 }
 
-.user-message .message-content {
-    background: linear-gradient(135deg, #3b82f6, #0284c7);
-    color: #ffffff;
+.bot-message .message-content p,
+.bot-message .message-content span,
+.bot-message .message-content div,
+.bot-message .message-content strong,
+.bot-message .message-content .fw-semibold {
+    color: #f8fafc !important;
+}
+
+.ai-welcome-title {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 0.92rem !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+.bot-message .message-content .text-light-gray {
+    color: #cbd5e1 !important;
+}
+
+.user-message .message-content,
+.user-message .message-content p,
+.user-message .message-content span {
+    background: linear-gradient(135deg, #3b82f6, #0284c7) !important;
+    color: #ffffff !important;
     border-top-right-radius: 4px;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
@@ -419,8 +442,23 @@ body.light-mode .bot-message .message-content {
 }
 
 body:not(.dark-mode) .bot-message .message-content p,
-body.light-mode .bot-message .message-content p {
-    color: #1e293b !important;
+body:not(.dark-mode) .bot-message .message-content span,
+body:not(.dark-mode) .bot-message .message-content div,
+body:not(.dark-mode) .bot-message .message-content strong,
+body:not(.dark-mode) .bot-message .message-content .fw-semibold,
+body:not(.dark-mode) .bot-message .message-content .ai-welcome-title,
+body.light-mode .bot-message .message-content p,
+body.light-mode .bot-message .message-content span,
+body.light-mode .bot-message .message-content div,
+body.light-mode .bot-message .message-content strong,
+body.light-mode .bot-message .message-content .fw-semibold,
+body.light-mode .bot-message .message-content .ai-welcome-title {
+    color: #0f172a !important;
+}
+
+body:not(.dark-mode) .bot-message .message-content .text-light-gray,
+body.light-mode .bot-message .message-content .text-light-gray {
+    color: #475569 !important;
 }
 
 body:not(.dark-mode) .ai-match-card-mini,
