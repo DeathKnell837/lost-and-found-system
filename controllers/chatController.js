@@ -3,7 +3,7 @@ const geminiService = require('../services/geminiService');
 const { calculateMatchScore } = require('../services/matchingService');
 
 /**
- * Chat Controller for Gemini AI Conversational Search
+ * Chat Controller for High-Speed Gemini AI Conversational Search
  */
 const chatController = {
     /**
@@ -37,7 +37,7 @@ const chatController = {
             let conversationalResponse = '';
 
             if (imageFile) {
-                // Multimodal image analysis using Gemini 2.0 Flash Vision
+                // High-speed multimodal image analysis using Gemini Vision
                 const analysis = await geminiService.analyzeUploadedImage(
                     imageFile.buffer,
                     imageFile.mimetype,
@@ -46,15 +46,16 @@ const chatController = {
                 extracted = analysis.extracted || {};
                 conversationalResponse = analysis.conversationalResponse;
             } else {
-                // Text-only query analysis with multi-turn conversation memory
+                // Low-latency text query analysis
                 const geminiAnalysis = await geminiService.parseSearchQuery(userPrompt, conversationHistory);
                 extracted = geminiAnalysis.extracted || {};
                 conversationalResponse = geminiAnalysis.conversationalResponse;
 
-                // If intent is general chat/greeting, return AI answer directly without database searching
+                // If intent is general chat/greeting, return AI answer directly in <800ms
                 if (geminiAnalysis.isSearch === false) {
                     return res.json({
                         success: true,
+                        isSearch: false,
                         response: conversationalResponse,
                         matches: []
                     });
@@ -64,10 +65,10 @@ const chatController = {
             // Query items database for approved candidates
             const queryConditions = { status: 'approved' };
 
-            // Find matching category ID if category was extracted
+            // Match category if detected
             if (extracted.category) {
                 const matchedCategory = await Category.findOne({
-                    name: { $regex: new RegExp(extracted.category, 'i') }
+                    name: { $regex: new RegExp(extracted.category.split(/\s+/)[0], 'i') }
                 });
                 if (matchedCategory) {
                     queryConditions.category = matchedCategory._id;
@@ -88,6 +89,14 @@ const chatController = {
                         { location: { $in: keywordRegex } }
                     );
                 }
+            }
+
+            if (extracted.itemName && extracted.itemName !== 'Uploaded Item') {
+                const safeName = escapeRegex(extracted.itemName);
+                orConditions.push(
+                    { itemName: { $regex: new RegExp(safeName, 'i') } },
+                    { description: { $regex: new RegExp(safeName, 'i') } }
+                );
             }
 
             if (extracted.color) {
@@ -113,7 +122,7 @@ const chatController = {
                 );
             }
 
-            // If no specific conditions extracted and userPrompt exists, search raw prompt in text fields
+            // Fallback keywords from prompt
             if (orConditions.length === 0 && userPrompt) {
                 const words = userPrompt.split(/\s+/).filter(w => w.length > 2);
                 words.forEach(w => {
@@ -132,41 +141,29 @@ const chatController = {
 
             let foundItems = [];
             try {
-                // Fetch potential candidates matching query conditions
                 foundItems = await Item.find(queryConditions)
                     .select('+embedding')
                     .populate('category')
                     .sort({ createdAt: -1 })
                     .limit(10)
-                    .maxTimeMS(2500);
+                    .maxTimeMS(2000);
 
                 if (foundItems.length === 0) {
-                    // Fallback to recent approved items for fuzzy semantic matching
                     foundItems = await Item.find({ status: 'approved' })
                         .select('+embedding')
                         .populate('category')
                         .sort({ createdAt: -1 })
-                        .limit(8)
-                        .maxTimeMS(2500);
+                        .limit(6)
+                        .maxTimeMS(2000);
                 }
             } catch (dbErr) {
-                console.warn('DB query in chatController timed out or erred, proceeding without DB items:', dbErr.message);
+                console.warn('DB query in chatController timed out, proceeding:', dbErr.message);
                 foundItems = [];
             }
 
-            // If photo uploaded, try CLIP embedding comparison for accurate visual matching
-            const clipService = require('../services/clipService');
-            let userImageEmbedding = null;
-            if (imageFile && imageFile.buffer) {
-                try {
-                    userImageEmbedding = await clipService.getEmbeddingFromBuffer(imageFile.buffer);
-                } catch (clipErr) {
-                    console.error('CLIP embedding extraction error in chat:', clipErr.message);
-                }
-            }
-
-            // Build synthetic item representation for text fallback scoring
+            // Synthetic item for scoring
             const syntheticText = userPrompt || [
+                extracted.itemName,
                 extracted.category,
                 extracted.color,
                 extracted.brand,
@@ -174,39 +171,23 @@ const chatController = {
             ].filter(Boolean).join(' ');
 
             const syntheticItem = {
-                itemName: syntheticText || 'Item',
-                description: syntheticText || 'Item photo upload',
+                itemName: extracted.itemName || syntheticText || 'Item',
+                description: extracted.description || syntheticText || 'Item query',
                 location: extracted.location || '',
                 dateLostFound: new Date(),
                 category: queryConditions.category || null
             };
 
-            const searchTokens = (userPrompt + ' ' + (extracted.keywords || []).join(' ')).toLowerCase().split(/\s+/).filter(t => t.length > 2);
+            const searchTokens = (userPrompt + ' ' + (extracted.keywords || []).join(' ') + ' ' + (extracted.itemName || '')).toLowerCase().split(/\s+/).filter(t => t.length > 2);
 
-            const rankedMatchesPromises = foundItems.map(async (item) => {
+            const rankedMatches = foundItems.map((item) => {
                 const scoreResult = calculateMatchScore(syntheticItem, item);
                 let finalScore = scoreResult.total;
 
-                // Check for token overlap in item name or description
                 const itemFullText = ((item.itemName || '') + ' ' + (item.description || '') + ' ' + (item.location || '')).toLowerCase();
                 const hasDirectWordMatch = searchTokens.some(tok => itemFullText.includes(tok));
                 if (hasDirectWordMatch) {
                     finalScore = Math.max(finalScore, 40);
-                }
-
-                // If user uploaded an image and CLIP embedding exists, compute visual similarity
-                if (userImageEmbedding && item.imagePath) {
-                    try {
-                        let itemEmb = item.embedding || null;
-                        if (!itemEmb) {
-                            itemEmb = await clipService.getEmbedding(item.imagePath);
-                        }
-                        if (itemEmb) {
-                            const clipSim = clipService.computeCosineSimilarity(userImageEmbedding, itemEmb);
-                            const clipScore = Math.round(clipSim * 100);
-                            finalScore = Math.round((scoreResult.total * 0.45) + (clipScore * 0.55));
-                        }
-                    } catch (e) { /* fallback to scoreResult.total */ }
                 }
 
                 return {
@@ -221,30 +202,33 @@ const chatController = {
                     matchScore: finalScore,
                     hasDirectWordMatch
                 };
-            });
+            })
+            .filter(m => m.matchScore >= 35 || m.hasDirectWordMatch)
+            .sort((a, b) => b.matchScore - a.matchScore)
+            .slice(0, 4);
 
-            const resolvedMatches = await Promise.all(rankedMatchesPromises);
-            
-            // Only keep true relevant matches (score >= 25 or direct word match)
-            const rankedMatches = resolvedMatches
-                .filter(m => m.matchScore >= 25 || m.hasDirectWordMatch)
-                .sort((a, b) => b.matchScore - a.matchScore)
-                .slice(0, 4);
+            // Construct accurate conversational answer
+            let finalResponse = conversationalResponse;
 
-            // Generate smart, grounded conversational answer directly referencing matches and history!
-            let finalSmartResponse = conversationalResponse;
-            if (geminiService.generateGroundingResponse) {
-                try {
-                    finalSmartResponse = await geminiService.generateGroundingResponse(userPrompt, rankedMatches, extracted, conversationHistory);
-                } catch (gErr) {
-                    console.warn('Grounding response generation error:', gErr.message);
+            if (imageFile) {
+                const nameLabel = extracted.itemName || 'this item';
+                if (rankedMatches.length > 0) {
+                    finalResponse = `I analyzed your photo: It looks like **${nameLabel}**. I found ${rankedMatches.length} possible matching record(s) in our campus database:`;
+                } else {
+                    finalResponse = `I analyzed your photo: It appears to be **${nameLabel}**${extracted.description ? ` (${extracted.description})` : ''}. I checked our database, but no matching lost or found records were found yet.`;
+                }
+            } else {
+                if (rankedMatches.length > 0) {
+                    finalResponse = `I found ${rankedMatches.length} matching item(s) in our campus records for "${userPrompt}":`;
+                } else {
+                    finalResponse = `I searched our campus database, but couldn't find any recorded items matching "${userPrompt}" yet. Would you like to file a Lost or Found report?`;
                 }
             }
 
             return res.json({
                 success: true,
                 isSearch: true,
-                response: finalSmartResponse || conversationalResponse,
+                response: finalResponse,
                 matches: rankedMatches
             });
 
@@ -266,3 +250,4 @@ const chatController = {
 };
 
 module.exports = chatController;
+

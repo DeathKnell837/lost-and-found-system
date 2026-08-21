@@ -12,6 +12,10 @@ if (apiKey) {
     console.warn('GEMINI_API_KEY is not set in environment variables.');
 }
 
+// Specialized Model Tiers for High Speed & Accuracy
+const CHAT_MODELS = ['gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-3.6-flash'];
+const VISION_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-2.5-flash'];
+
 /**
  * Helper to download image from URL into inline Data Part for Gemini
  */
@@ -43,11 +47,6 @@ const fetchImagePart = async (url) => {
 
 /**
  * Compare two items visually using Gemini Flash vision capability
- * @param {string} url1 - Cloudinary URL for item 1
- * @param {string} url2 - Cloudinary URL for item 2
- * @param {string} desc1 - Description of item 1
- * @param {string} desc2 - Description of item 2
- * @returns {Promise<Object>} - { similarityScore: number (0-100), reasoning: string }
  */
 const compareImages = async (url1, url2, desc1 = '', desc2 = '') => {
     if (!genAI) {
@@ -57,53 +56,40 @@ const compareImages = async (url1, url2, desc1 = '', desc2 = '') => {
         };
     }
 
-    const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
-
-    for (const modelName of modelsToTry) {
+    for (const modelName of VISION_MODELS) {
         try {
-            const model = genAI.getGenerativeModel({ model: modelName });
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                generationConfig: { maxOutputTokens: 200, temperature: 0.2 }
+            });
 
             const parts = [];
-
-            // Fetch image parts if URLs exist
             const imgPart1 = url1 ? await fetchImagePart(url1) : null;
             const imgPart2 = url2 ? await fetchImagePart(url2) : null;
 
-            let prompt = `You are an AI assistant for a Campus Lost and Found system.
-Your task is to compare two items (from images and text descriptions) and determine if they are likely the same physical item lost and found by different people.
-
-Item 1 Description: "${desc1}"
-Item 2 Description: "${desc2}"
-
+            let prompt = `Compare two campus lost and found items.
+Item 1: "${desc1}"
+Item 2: "${desc2}"
 `;
 
             if (imgPart1 && imgPart2) {
-                prompt += `I have provided images for both Item 1 and Item 2. Compare their visual appearance, color, brand, material, condition, and distinctive markings.`;
+                prompt += `Images provided for both items. Compare visual appearance, color, brand, condition.`;
                 parts.push(imgPart1);
                 parts.push(imgPart2);
             } else if (imgPart1) {
-                prompt += `Image 1 is provided above for Item 1. Compare it with the description of Item 2.`;
+                prompt += `Image 1 provided. Compare with description of Item 2.`;
                 parts.push(imgPart1);
             } else if (imgPart2) {
-                prompt += `Image 2 is provided above for Item 2. Compare it with the description of Item 1.`;
+                prompt += `Image 2 provided. Compare with description of Item 1.`;
                 parts.push(imgPart2);
-            } else {
-                prompt += `No images are available. Compare the two textual descriptions for item characteristics.`;
             }
 
-            prompt += `\n\nReturn ONLY a valid JSON object in this exact format (no markdown codeblock wrapper):
-{
-  "similarityScore": <integer between 0 and 100>,
-  "reasoning": "<concise 1-2 sentence plain language explanation highlighting why they match or differ>"
-}`;
-
+            prompt += `\nReturn JSON: {"similarityScore": <0-100>, "reasoning": "<1 sentence reasoning>"}`;
             parts.push(prompt);
 
             const result = await model.generateContent(parts);
             const responseText = result.response.text().trim();
-            
-            // Clean potential markdown wrappers
-            const cleanedJsonText = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+            const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
             const jsonResult = JSON.parse(cleanedJsonText);
 
             return {
@@ -122,22 +108,22 @@ Item 2 Description: "${desc2}"
 };
 
 /**
- * Intelligent AI Conversation Engine (NLP fallback when Gemini API key is missing or quota-exceeded)
+ * Intelligent AI Conversation Engine (NLP fallback)
  */
 const generateIntelligentAIResponse = (userMessage) => {
     const raw = (userMessage || '').trim();
     const text = raw.toLowerCase();
 
-    // Check for physical item descriptions / lost or found queries
-    const isItemSearch = /lost|found|wallet|key|phone|bag|backpack|airpod|laptop|umbrella|jacket|coat|glasses|watch|card|badge/i.test(text);
+    const isItemSearch = /lost|found|wallet|key|phone|bag|backpack|airpod|laptop|umbrella|jacket|coat|glasses|watch|card|badge|doc|paper|schedule|table/i.test(text);
 
     if (isItemSearch) {
         let category = '';
-        if (/wallet|card|badge/i.test(text)) category = 'Accessories';
-        else if (/key/i.test(text)) category = 'Keys';
-        else if (/phone|airpod|laptop/i.test(text)) category = 'Electronics';
-        else if (/bag|backpack/i.test(text)) category = 'Bags';
-        else if (/jacket|coat|glasses|watch/i.test(text)) category = 'Clothing';
+        if (/wallet|card|badge/i.test(text)) category = 'Personal Items';
+        else if (/key/i.test(text)) category = 'Personal Items';
+        else if (/phone|airpod|laptop/i.test(text)) category = 'Electronics & Devices';
+        else if (/doc|paper|schedule|table|book/i.test(text)) category = 'Books & Documents';
+        else if (/bag|backpack/i.test(text)) category = 'Personal Items';
+        else if (/jacket|coat|glasses|watch/i.test(text)) category = 'Personal Items';
 
         return {
             isSearch: true,
@@ -148,56 +134,11 @@ const generateIntelligentAIResponse = (userMessage) => {
                 location: '',
                 keywords: text.split(/\s+/).filter(w => w.length > 2)
             },
-            conversationalResponse: `I am scanning our campus database for items matching "${raw}". Here are the closest matches found:`
+            conversationalResponse: `I am scanning our campus database for items matching "${raw}".`
         };
     }
 
-    // Explicit check for general knowledge queries like Donald Trump, politics, celebrities
-    if (/trump|donald|president|biden|obama|musk|elon|celeb|actor|movie|music/i.test(text)) {
-        return {
-            isSearch: false,
-            extracted: { keywords: [] },
-            conversationalResponse: "Donald Trump is an American businessman and politician who served as the 45th and 47th President of the United States. While I'm primarily your Campus Lost & Found Assistant, I'm happy to chat about general topics too!"
-        };
-    }
-
-    // What can you do / capabilities
-    if (/what can you do|capabilities|features|who are you|help|info/i.test(text)) {
-        return {
-            isSearch: false,
-            extracted: { keywords: [] },
-            conversationalResponse: "I am your Campus Lost & Found AI Assistant! You can ask me how to report or claim items, chat with me about anything campus-related, or describe a lost item (or upload a photo) to scan our campus database for matches."
-        };
-    }
-
-    // Swearing / Frustration
-    if (/fuck|bitch|dumb|shit|ass|crap|stupid|useless|hate|trash|wtf|horrible|bad/i.test(text)) {
-        return {
-            isSearch: false,
-            extracted: { keywords: [] },
-            conversationalResponse: "I hear you! I am here and ready to help. Tell me what item you lost or found, or ask me how to claim or report an item on campus."
-        };
-    }
-
-    // Greetings
-    if (/^(hi|hello|hey|good\s*(morning|afternoon|evening)|howdy|sup|yo)$/i.test(text)) {
-        return {
-            isSearch: false,
-            extracted: { keywords: [] },
-            conversationalResponse: "Hello! Welcome to the Campus Lost & Found Portal. How can I help you today?"
-        };
-    }
-
-    // How to report lost item
-    if (/how.*(report|post|submit).*(lost)/i.test(text)) {
-        return {
-            isSearch: false,
-            extracted: { keywords: [] },
-            conversationalResponse: "To report a lost item: Click the red 'Report Lost Item' button at the top navbar, fill in the details and location, and attach a photo if available!"
-        };
-    }
-
-    // How to report found item
+    // Common query patterns
     if (/how.*(report|post|submit).*(found)/i.test(text)) {
         return {
             isSearch: false,
@@ -206,7 +147,6 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // How claiming works
     if (/how.*(claim|get back|verify|proof)/i.test(text)) {
         return {
             isSearch: false,
@@ -215,7 +155,6 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // Security location
     if (/where.*(security|office|admin|contact|phone)/i.test(text)) {
         return {
             isSearch: false,
@@ -224,19 +163,15 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // Open-ended dynamic answer for any general conversation or question!
     return {
         isSearch: false,
         extracted: { keywords: [] },
-        conversationalResponse: `That's a great question about "${raw}"! I am your Campus AI Assistant — feel free to ask me any questions or describe a lost item so I can search the campus database for you.`
+        conversationalResponse: `I am your Campus AI Assistant! How can I help you find or report a lost item today?`
     };
 };
 
 /**
- * Full Gemini AI Engine with Multi-Turn Conversation Memory
- * @param {string} userMessage - User input prompt
- * @param {Array} conversationHistory - Array of { role, content }
- * @returns {Promise<Object>} - { isSearch, extracted, conversationalResponse }
+ * Fast Gemini AI Engine with Multi-Turn Conversation Memory (Low-Latency Chat Model)
  */
 const parseSearchQuery = async (userMessage, conversationHistory = []) => {
     const textTrimmed = (userMessage || '').trim();
@@ -247,40 +182,39 @@ const parseSearchQuery = async (userMessage, conversationHistory = []) => {
 
     let historyContext = '';
     if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
-        const recentTurns = conversationHistory.slice(-6);
-        historyContext = `Previous conversation history between User and Assistant:\n` +
+        const recentTurns = conversationHistory.slice(-4);
+        historyContext = `Recent conversation:\n` +
             recentTurns.map(t => `${t.role === 'user' ? 'User' : 'Assistant'}: "${t.content}"`).join('\n') +
             `\n\n`;
     }
 
-    const systemPrompt = `You are the Official Campus Lost & Found AI Assistant — a smart, empathetic conversational AI with conversational memory for students, faculty, and campus security.
+    const systemPrompt = `You are the Campus Lost & Found AI Assistant. Fast, friendly, and helpful.
 
-${historyContext}Current User Message: "${textTrimmed}"
+${historyContext}User Message: "${textTrimmed}"
 
-1. Use the conversation history to understand context, pronouns ("that item", "it", "the phone", "the wallet"), or follow-up questions.
-2. Determine if the user is searching for, asking about, or referencing any lost/found item, category, location, or campus inventory (e.g. "I lost my wallet", "find my blue keys", "what phones are in the system?", "tell me about the brief", "what's the info about that item", "what is in Primera Hall?"):
-   - Set "isSearch" to true if ANY physical item, follow-up on an item, category, brand, location, or inventory inquiry is mentioned.
-   - Extract "category", "color", "brand", "location", and "keywords" (incorporating referenced items from previous turns if this is a follow-up question!).
-   - Only set "isSearch" to false for pure casual conversation/greetings (e.g. "hi", "how are you", "who made you", "thank you").
+Instructions:
+1. Determine if the user is asking about or searching for any lost or found physical item, category, or location.
+2. If yes, set "isSearch" to true and extract "category", "color", "brand", "location", "keywords" (array of 2-5 terms).
+3. If no (greetings, general chat, asking how system works), set "isSearch" to false.
+4. Provide a friendly "conversationalResponse" (1-2 sentences).
 
-3. Generate a warm, natural, empathetic, and intelligent response as a helpful AI assistant.
-
-Return ONLY a valid JSON object in this exact format (no markdown code fence):
+Return ONLY JSON:
 {
-  "isSearch": true or false,
-  "category": "<extracted category or empty>",
-  "color": "<extracted color or empty>",
-  "brand": "<extracted brand or empty>",
-  "location": "<extracted location or empty>",
-  "keywords": ["<keyword1>", "<keyword2>"],
-  "conversationalResponse": "<your AI generated response>"
+  "isSearch": true/false,
+  "category": "<category or empty>",
+  "color": "<color or empty>",
+  "brand": "<brand or empty>",
+  "location": "<location or empty>",
+  "keywords": ["<k1>", "<k2>"],
+  "conversationalResponse": "<response text>"
 }`;
 
-    const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
-
-    for (const modelName of modelsToTry) {
+    for (const modelName of CHAT_MODELS) {
         try {
-            const model = genAI.getGenerativeModel({ model: modelName });
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                generationConfig: { maxOutputTokens: 250, temperature: 0.2 }
+            });
             const result = await model.generateContent(systemPrompt);
             const responseText = result.response.text().trim();
             const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
@@ -295,28 +229,24 @@ Return ONLY a valid JSON object in this exact format (no markdown code fence):
                     location: jsonResult.location || '',
                     keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
                 },
-                conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I help you today?"
+                conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I assist you today?"
             };
         } catch (error) {
-            console.warn(`Gemini model ${modelName} error in parseSearchQuery:`, error.message);
+            console.warn(`Gemini chat model ${modelName} error:`, error.message);
         }
     }
 
-    // Graceful fallback to NLP engine if all cloud models are busy/offline
     return generateIntelligentAIResponse(textTrimmed);
 };
 
 /**
- * Multimodal image analysis using Gemini 2.5 Flash
- * @param {Buffer} imageBuffer - Buffer of uploaded file
- * @param {string} mimeType - e.g. 'image/jpeg' or 'image/png'
- * @param {string} userPrompt - Optional text prompt
+ * High-Speed Multimodal Vision Analysis (Vision Model)
  */
 const analyzeUploadedImage = async (imageBuffer, mimeType = 'image/jpeg', userPrompt = '') => {
     if (!genAI || !imageBuffer) {
         return {
-            extracted: { keywords: ['item'] },
-            conversationalResponse: "I received your photo and am scanning our campus database for matching items!"
+            extracted: { itemName: 'Uploaded Item', keywords: ['item'] },
+            conversationalResponse: "I received your photo and scanned our campus database for matches."
         };
     }
 
@@ -327,118 +257,65 @@ const analyzeUploadedImage = async (imageBuffer, mimeType = 'image/jpeg', userPr
         }
     };
 
-    const prompt = `You are a Campus Lost & Found AI Assistant.
-Analyze this photo of an item ${userPrompt ? `along with user message: "${userPrompt}"` : ''}.
-Identify the item type, primary colors, brand/logo, materials, condition, and key features.
+    const prompt = `You are the Campus Lost & Found AI Assistant.
+Analyze this photo ${userPrompt ? `with user caption "${userPrompt}"` : ''}.
+Identify what physical item or document is shown.
 
-Return ONLY a valid JSON object in this exact format:
+Return ONLY a valid JSON object:
 {
-  "category": "<best fitting category like Electronics, Keys, Wallet, Bag, Clothing, Accessories, ID Card, Books, Other>",
+  "itemName": "<concise specific name of the item/document, e.g. Computer Science Class Schedule, Infinix Hot40i Phone, Blue Backpack, Student ID Card>",
+  "category": "<Electronics & Devices, Books & Documents, Personal Items, Keys, Clothing, Accessories, Other>",
   "color": "<primary color>",
-  "brand": "<brand name or empty>",
-  "keywords": ["<keyword1>", "<keyword2>", "<keyword3>"],
-  "conversationalResponse": "<friendly 1-2 sentence response confirming what item you see in the photo and that you are scanning our campus database for matches>"
+  "brand": "<brand or institution name if visible>",
+  "detectedText": "<key visible text/title/headers if any>",
+  "keywords": ["<k1>", "<k2>", "<k3>"],
+  "description": "<1 sentence concise visual description of the item in the photo>"
 }`;
 
-    const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
-
-    for (const modelName of modelsToTry) {
+    for (const modelName of VISION_MODELS) {
         try {
-            const model = genAI.getGenerativeModel({ model: modelName });
+            const model = genAI.getGenerativeModel({ 
+                model: modelName,
+                generationConfig: { maxOutputTokens: 300, temperature: 0.2 }
+            });
             const result = await model.generateContent([imagePart, prompt]);
             const responseText = result.response.text().trim();
             const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
             const jsonResult = JSON.parse(cleanedJsonText);
 
+            const itemName = jsonResult.itemName || 'Uploaded Item';
+            const keywords = Array.isArray(jsonResult.keywords) ? jsonResult.keywords : [itemName];
+            if (jsonResult.detectedText) {
+                const words = jsonResult.detectedText.split(/\s+/).filter(w => w.length > 2);
+                keywords.push(...words.slice(0, 5));
+            }
+
             return {
                 extracted: {
-                    category: jsonResult.category || '',
+                    itemName,
+                    category: jsonResult.category || 'Personal Items',
                     color: jsonResult.color || '',
                     brand: jsonResult.brand || '',
-                    keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : ['item']
+                    description: jsonResult.description || '',
+                    detectedText: jsonResult.detectedText || '',
+                    keywords
                 },
-                conversationalResponse: jsonResult.conversationalResponse || "I analyzed your photo and searched our campus database for matches."
+                conversationalResponse: `I analyzed your photo: It looks like **${itemName}** (${jsonResult.description || ''}).`
             };
         } catch (error) {
-            console.warn(`Gemini model ${modelName} error in analyzeUploadedImage:`, error.message);
+            console.warn(`Gemini vision model ${modelName} error in analyzeUploadedImage:`, error.message);
         }
     }
 
     return {
-        extracted: { keywords: ['item'] },
-        conversationalResponse: "I received your photo and am scanning our campus database for matching items!"
+        extracted: { itemName: 'Uploaded Item', keywords: ['item'] },
+        conversationalResponse: "I received your photo and scanned our campus database for matches."
     };
-};
-
-/**
- * Grounded Gemini Contextual Response with Multi-Turn Memory & Semantic Precision
- */
-const generateGroundingResponse = async (userMessage, matches = [], extracted = {}, conversationHistory = []) => {
-    if (!genAI) {
-        if (matches && matches.length > 0) {
-            const top = matches[0];
-            const typeText = top.type === 'found' ? 'found and turned in' : 'reported lost';
-            return `I found ${matches.length} matching record(s) in our campus database: "${top.itemName}" (${typeText} at ${top.location || 'Campus'}).`;
-        }
-        return `I searched our campus lost & found records, but no matching items have been reported yet. You can submit a "Report Lost" form so we can alert you immediately when found!`;
-    }
-
-    let historyContext = '';
-    if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
-        const recentTurns = conversationHistory.slice(-6);
-        historyContext = `Recent conversation history:\n` +
-            recentTurns.map(t => `${t.role === 'user' ? 'User' : 'Assistant'}: "${t.content}"`).join('\n') +
-            `\n\n`;
-    }
-
-    const matchesSummary = matches.slice(0, 4).map((m, idx) => 
-        `[#${idx + 1}] Name: "${m.itemName}", Type/Status: ${m.type} (${m.type === 'found' ? 'FOUND and turned in' : 'REPORTED LOST by owner'}), Location: "${m.location || 'Campus'}", Category: "${m.category || 'General'}", Full Details/Description: "${m.description || 'No description provided.'}", Date: "${m.dateLostFound || ''}"`
-    ).join('\n');
-
-    const prompt = `You are the Official Campus Lost & Found AI Assistant.
-
-${historyContext}Current User Input: "${userMessage}"
-Extracted Search Details: ${JSON.stringify(extracted)}
-
-Campus Database Records (${matches.length} matching items found):
-${matchesSummary || 'No matching items currently found in database.'}
-
-CRITICAL RULES ON LOST VS FOUND TERMINOLOGY & FOLLOW-UPS:
-1. STRICT TYPE DISTINCTION:
-   - If Type/Status is "found": It means someone FOUND the item and turned it in (e.g. "A [item] was found and turned in at [location]").
-   - If Type/Status is "lost": It means the owner REPORTED IT MISSING (e.g. "A [item] was reported lost at [location]"). DO NOT SAY IT WAS FOUND.
-2. FOLLOW-UP QUESTIONS & ITEM DETAILS:
-   - If the user asks for more info ("what's the info about that item", "tell me more", "who found it", "what color is it"), provide the exact details, description, date, and location from the record above!
-   - If they want to claim a found item, instruct them to click the card or visit Campus Security at the Admin Building Ground Floor with their Student ID.
-3. NO MATCHES:
-   - If no items match, politely state that no matching items have been recorded yet, and suggest submitting a "Report Lost Item" form.
-
-Write a natural, direct, 1-3 sentence response. Return ONLY the plain text response.`;
-
-    const modelsToTry = ['gemini-2.5-flash-lite', 'gemini-2.5-flash', 'gemini-3.6-flash'];
-    for (const modelName of modelsToTry) {
-        try {
-            const model = genAI.getGenerativeModel({ model: modelName });
-            const result = await model.generateContent(prompt);
-            const text = result.response.text().trim();
-            if (text && text.length > 5) return text;
-        } catch (e) {
-            console.warn(`Gemini model ${modelName} in generateGroundingResponse:`, e.message);
-        }
-    }
-
-    if (matches && matches.length > 0) {
-        const top = matches[0];
-        const statusLabel = top.type === 'found' ? 'was found and turned in' : 'was reported lost';
-        return `A ${top.itemName} ${statusLabel} at ${top.location || 'Campus'}. Description: "${top.description || 'N/A'}". Check the card below for details!`;
-    }
-    return `I checked our campus records, but no matching items have been reported yet. I recommend submitting a "Report Lost" form so you can be notified when found!`;
 };
 
 module.exports = {
     compareImages,
     analyzeUploadedImage,
     parseSearchQuery,
-    generateGroundingResponse,
     generateIntelligentAIResponse
 };

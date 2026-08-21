@@ -744,7 +744,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             botMsgDiv.innerHTML = `
                 <div class="message-content">
-                    <p class="mb-1">${escapeHtml(data.response || 'Here are the candidate matches:')}</p>
+                    <p class="mb-1">${formatAiResponse(data.response || 'I analyzed your query and scanned our database.')}</p>
                     ${matchesHtml}
                 </div>
             `;
@@ -767,6 +767,18 @@ document.addEventListener('DOMContentLoaded', () => {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
     });
+
+    function formatAiResponse(str) {
+        if (!str) return '';
+        let escaped = escapeHtml(str);
+        // Format **bold**
+        escaped = escaped.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>');
+        // Format *italic*
+        escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        // Format linebreaks
+        escaped = escaped.replace(/\n/g, '<br>');
+        return escaped;
+    }
 
     function escapeHtml(str) {
         if (!str) return '';
