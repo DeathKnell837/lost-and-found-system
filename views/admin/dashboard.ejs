@@ -3,10 +3,10 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div>
             <h4 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="letter-spacing: -0.02em;">
-                <i class="fas fa-shield-halved text-cyan"></i>
-                Campus Security Operations Center
+                <i class="fas fa-th-large text-cyan"></i>
+                Lost &amp; Found Operations Dashboard
             </h4>
-            <span class="text-muted small" style="font-size: 0.76rem;">Intelligent Belonging Surveillance, Verification & Reunification System</span>
+            <span class="text-muted small" style="font-size: 0.76rem;">Campus Item Tracking, Verification &amp; AI Reunification Management</span>
         </div>
         <div class="d-flex align-items-center gap-2">
             <% if (stats.pendingItems > 0) { %>
@@ -15,28 +15,28 @@
             </a>
             <% } %>
             <a href="/admin/matching" class="btn btn-sm btn-outline-info text-cyan border-secondary py-1 px-3 d-flex align-items-center gap-2" style="font-size: 0.76rem;">
-                <i class="fas fa-wand-magic-sparkles"></i> AI Visual Match
+                <i class="fas fa-magic"></i> AI Visual Match
             </a>
             <a href="/admin/statistics" class="btn btn-sm btn-outline-light border-secondary py-1 px-2" style="font-size: 0.76rem;">
-                <i class="fas fa-chart-line me-1"></i> Analytics
+                <i class="fas fa-chart-bar me-1"></i> Statistics
             </a>
         </div>
     </div>
     
     <!-- Top 4 KPI Metric Cards -->
     <div class="cyber-kpi-grid">
-        <!-- Card 1: Total Belongings -->
+        <!-- Card 1: Total Reported Items -->
         <div class="cyber-card cyber-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="cyber-icon-box">
-                    <i class="fas fa-boxes-stacked"></i>
+                    <i class="fas fa-boxes text-info"></i>
                 </div>
                 <span class="trend-badge trend-up">
-                    <i class="fas fa-arrow-up"></i> 10%
+                    <i class="fas fa-database"></i> Total
                 </span>
             </div>
             <div>
-                <div class="cyber-metric-lbl">Total Belongings</div>
+                <div class="cyber-metric-lbl">Total Items Reported</div>
                 <div class="cyber-metric-val"><%= stats.totalItems || 0 %></div>
             </div>
         </div>
@@ -45,10 +45,10 @@
         <div class="cyber-card cyber-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="cyber-icon-box">
-                    <i class="fas fa-hourglass-half text-warning"></i>
+                    <i class="fas fa-clock text-warning"></i>
                 </div>
                 <span class="trend-badge <%= (stats.pendingItems > 0) ? 'trend-down' : 'trend-up' %>">
-                    <i class="fas <%= (stats.pendingItems > 0) ? 'fa-arrow-down' : 'fa-check' %>"></i> <%= (stats.pendingItems > 0) ? 'Action' : 'Clear' %>
+                    <i class="fas <%= (stats.pendingItems > 0) ? 'fa-hourglass-half' : 'fa-check' %>"></i> <%= (stats.pendingItems > 0) ? 'Action Needed' : 'All Clear' %>
                 </span>
             </div>
             <div>
@@ -57,34 +57,34 @@
             </div>
         </div>
 
-        <!-- Card 3: Active Lost -->
+        <!-- Card 3: Active Lost Items -->
         <div class="cyber-card cyber-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="cyber-icon-box">
-                    <i class="fas fa-search-location text-danger"></i>
+                    <i class="fas fa-search text-danger"></i>
                 </div>
-                <span class="trend-badge trend-up">
-                    <i class="fas fa-arrow-up"></i> 10%
+                <span class="trend-badge trend-down">
+                    <i class="fas fa-search"></i> Lost
                 </span>
             </div>
             <div>
-                <div class="cyber-metric-lbl">Active Lost Inquiries</div>
+                <div class="cyber-metric-lbl">Active Lost Reports</div>
                 <div class="cyber-metric-val"><%= stats.lostItems || 0 %></div>
             </div>
         </div>
 
-        <!-- Card 4: Secured Found -->
+        <!-- Card 4: Found Items in Custody -->
         <div class="cyber-card cyber-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="cyber-icon-box">
-                    <i class="fas fa-vault text-success"></i>
+                    <i class="fas fa-check-circle text-success"></i>
                 </div>
                 <span class="trend-badge trend-up">
-                    <i class="fas fa-arrow-up"></i> 10%
+                    <i class="fas fa-hand-holding-heart"></i> Found
                 </span>
             </div>
             <div>
-                <div class="cyber-metric-lbl">Secured in Vault</div>
+                <div class="cyber-metric-lbl">Found in Custody</div>
                 <div class="cyber-metric-val"><%= stats.foundItems || 0 %></div>
             </div>
         </div>
@@ -92,89 +92,89 @@
 
     <!-- Main Operations Grid -->
     <div class="cyber-ops-grid">
-        <!-- Left: Recent Belongings Activity Feed -->
+        <!-- Left: Recent Item Activity Feed -->
         <div class="cyber-card p-3 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size: 0.85rem;">
-                        <i class="fas fa-clock-rotate-left text-cyan"></i> Recent Belongings Feed
-                    </h6>
-                    <a href="/admin/items" class="text-muted text-decoration-none hover-white" style="font-size: 0.72rem;">
-                        View All Belongings <i class="fas fa-chevron-right ms-1"></i>
-                    </a>
-                </div>
-
-                <% if (recentItems && recentItems.length > 0) { %>
-                <div class="table-responsive">
-                    <table class="cyber-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 44px;"></th>
-                                <th>Item Details</th>
-                                <th>Type</th>
-                                <th>Status</th>
-                                <th class="text-end">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% recentItems.slice(0, 6).forEach(item => { %>
-                            <tr>
-                                <td>
-                                    <% if (item.imagePath) { %>
-                                        <img src="<%= item.imagePath %>" class="cyber-thumb" alt="<%= item.itemName %>">
-                                    <% } else { %>
-                                        <div class="cyber-thumb-placeholder">
-                                            <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
-                                        </div>
-                                    <% } %>
-                                </td>
-                                <td>
-                                    <div class="fw-bold text-white text-truncate" style="max-width: 180px;"><%= item.itemName %></div>
-                                    <small class="text-muted d-block" style="font-size: 0.7rem;">
-                                        <i class="fas fa-map-marker-alt me-1 text-secondary"></i><%= item.location || 'Campus' %>
-                                    </small>
-                                </td>
-                                <td>
-                                    <span class="cyber-badge <%= item.type === 'lost' ? 'cyber-badge-lost' : 'cyber-badge-found' %>">
-                                        <i class="fas <%= item.type === 'lost' ? 'fa-circle-exclamation' : 'fa-circle-check' %>"></i>
-                                        <%= item.type %>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="cyber-badge <%= 
-                                        item.status === 'approved' ? 'cyber-badge-found' : 
-                                        item.status === 'pending' ? 'cyber-badge-pending' : 
-                                        item.status === 'claimed' ? 'cyber-badge-claimed' : 'cyber-badge-lost' 
-                                    %>">
-                                        <%= item.status %>
-                                    </span>
-                                </td>
-                                <td class="text-end">
-                                    <a href="/admin/items/<%= item._id %>/edit" class="btn btn-sm btn-outline-light border-secondary py-0 px-2" style="font-size: 0.7rem;" title="View & Edit">
-                                        <i class="fas fa-pen-to-square"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-                <% } else { %>
-                <div class="text-center py-5">
-                    <div class="cyber-thumb-placeholder mx-auto mb-2" style="width: 50px; height: 50px; font-size: 1.3rem;">
-                        <i class="fas fa-inbox text-muted"></i>
-                    </div>
-                    <p class="text-muted small mb-0">No item activity recorded yet.</p>
-                </div>
-                <% } %>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size: 0.85rem;">
+                    <i class="fas fa-history text-cyan"></i> Recent Item Activity
+                </h6>
+                <a href="/admin/items" class="text-muted text-decoration-none hover-white" style="font-size: 0.72rem;">
+                    View All Items <i class="fas fa-chevron-right ms-1"></i>
+                </a>
             </div>
 
-        <!-- Right: Action Queue & System Pulse -->
+            <% if (recentItems && recentItems.length > 0) { %>
+            <div class="table-responsive">
+                <table class="cyber-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 44px;"></th>
+                            <th>Item Details</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% recentItems.slice(0, 6).forEach(item => { %>
+                        <tr>
+                            <td>
+                                <% if (item.imagePath) { %>
+                                    <img src="<%= item.imagePath %>" class="cyber-thumb" alt="<%= item.itemName %>">
+                                <% } else { %>
+                                    <div class="cyber-thumb-placeholder">
+                                        <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
+                                    </div>
+                                <% } %>
+                            </td>
+                            <td>
+                                <div class="fw-bold text-white text-truncate" style="max-width: 180px;"><%= item.itemName %></div>
+                                <small class="text-muted d-block" style="font-size: 0.7rem;">
+                                    <i class="fas fa-map-marker-alt me-1 text-secondary"></i><%= item.location || 'Campus' %>
+                                </small>
+                            </td>
+                            <td>
+                                <span class="cyber-badge <%= item.type === 'lost' ? 'cyber-badge-lost' : 'cyber-badge-found' %>">
+                                    <i class="fas <%= item.type === 'lost' ? 'fa-exclamation-triangle' : 'fa-check-circle' %>"></i>
+                                    <%= item.type %>
+                                </span>
+                            </td>
+                            <td>
+                                <span class="cyber-badge <%= 
+                                    item.status === 'approved' ? 'cyber-badge-found' : 
+                                    item.status === 'pending' ? 'cyber-badge-pending' : 
+                                    item.status === 'claimed' ? 'cyber-badge-claimed' : 'cyber-badge-lost' 
+                                %>">
+                                    <%= item.status %>
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a href="/admin/items/<%= item._id %>/edit" class="btn btn-sm btn-outline-light border-secondary py-0 px-2" style="font-size: 0.7rem;" title="View & Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+            <% } else { %>
+            <div class="text-center py-5">
+                <div class="cyber-thumb-placeholder mx-auto mb-2" style="width: 50px; height: 50px; font-size: 1.3rem;">
+                    <i class="fas fa-inbox text-muted"></i>
+                </div>
+                <p class="text-muted small mb-0">No item activity recorded yet.</p>
+            </div>
+            <% } %>
+        </div>
+
+        <!-- Right: Action Queue & System Overview -->
         <div class="d-flex flex-column gap-2">
             <!-- Pending Review Queue -->
             <div class="cyber-card p-3">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <h6 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="font-size: 0.85rem;">
-                        <i class="fas fa-triangle-exclamation text-warning"></i> Verification Queue
+                        <i class="fas fa-clock text-warning"></i> Items Awaiting Approval
                     </h6>
                     <span class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50" style="font-size: 0.68rem;">
                         <%= stats.pendingItems || 0 %> Pending
@@ -213,17 +213,17 @@
                     </div>
                 <% } else { %>
                     <div class="p-3 text-center rounded-3 mt-1" style="background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15);">
-                        <i class="fas fa-shield-check text-success fs-4 mb-1"></i>
-                        <div class="fw-bold text-white small">All Inquiries Cleared</div>
+                        <i class="fas fa-check-circle text-success fs-4 mb-1"></i>
+                        <div class="fw-bold text-white small">All Reports Reviewed</div>
                         <p class="text-muted mb-0" style="font-size: 0.7rem;">Zero pending reports awaiting administrator approval.</p>
                     </div>
                 <% } %>
             </div>
 
-            <!-- Quick System Pulse -->
+            <!-- System Overview -->
             <div class="cyber-card p-3 flex-grow-1">
                 <h6 class="mb-2 fw-bold text-white d-flex align-items-center gap-2" style="font-size: 0.85rem;">
-                    <i class="fas fa-server text-primary"></i> System Status & Summary
+                    <i class="fas fa-info-circle text-primary"></i> System Overview
                 </h6>
                 <div class="row g-2 text-center mt-1">
                     <div class="col-4">
@@ -248,7 +248,7 @@
 
                 <div class="d-flex gap-2 mt-3">
                     <a href="/admin/matching" class="btn btn-sm btn-outline-info text-cyan border-secondary flex-fill py-1" style="font-size: 0.72rem;">
-                        <i class="fas fa-wand-magic-sparkles me-1"></i> AI Match
+                        <i class="fas fa-magic me-1"></i> AI Match
                     </a>
                     <a href="/admin/categories" class="btn btn-sm btn-outline-light border-secondary flex-fill py-1" style="font-size: 0.72rem;">
                         <i class="fas fa-tags me-1"></i> Categories

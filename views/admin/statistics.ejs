@@ -3,89 +3,83 @@
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
         <div>
             <h4 class="mb-0 fw-bold text-white d-flex align-items-center gap-2" style="letter-spacing: -0.02em;">
-                <i class="fas fa-shield-halved text-cyan"></i>
-                AI Campus Security & Analytics Center
+                <i class="fas fa-chart-bar text-cyan"></i>
+                Campus Lost &amp; Found Analytics
             </h4>
-            <span class="text-muted small" style="font-size: 0.76rem;">Real-time AI item surveillance, matching precision & student reunification analytics</span>
+            <span class="text-muted small" style="font-size: 0.76rem;">Real-time insights on reported items, category distributions &amp; claim recovery rates</span>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <select class="form-select cyber-select py-1 px-2" id="timeRangeFilter" style="font-size: 0.76rem;">
-                <option value="24h" selected>Last 24 hours</option>
-                <option value="7d">Last 7 days</option>
-                <option value="30d">Last 30 days</option>
-                <option value="all">All Time</option>
-            </select>
-            <a href="/admin/export/statistics" class="btn btn-sm btn-outline-info text-cyan border-secondary py-1 px-2" style="font-size: 0.76rem;">
-                <i class="fas fa-file-export me-1"></i> Export
+            <a href="/admin/export/statistics" class="btn btn-sm btn-outline-info text-cyan border-secondary py-1 px-3" style="font-size: 0.76rem;">
+                <i class="fas fa-file-export me-1"></i> Export Data
             </a>
-            <button onclick="window.print()" class="btn btn-sm btn-outline-light border-secondary py-1 px-2" style="font-size: 0.76rem;">
-                <i class="fas fa-print me-1"></i> Print
+            <button onclick="window.print()" class="btn btn-sm btn-outline-light border-secondary py-1 px-3" style="font-size: 0.76rem;">
+                <i class="fas fa-print me-1"></i> Print Report
             </button>
         </div>
     </div>
 
     <!-- Top 4 KPI Metric Cards -->
     <div class="cyber-kpi-grid">
-        <!-- KPI 1: Total Assets -->
+        <!-- KPI 1: Total Items Logged -->
         <div class="cyber-card cyber-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="cyber-icon-box">
-                    <i class="fas fa-layer-group"></i>
+                    <i class="fas fa-boxes text-info"></i>
                 </div>
                 <span class="trend-badge trend-up">
-                    <i class="fas fa-arrow-up"></i> 10%
+                    <i class="fas fa-database"></i> Total
                 </span>
             </div>
             <div>
-                <div class="cyber-metric-lbl">Total Assets Logged</div>
+                <div class="cyber-metric-lbl">Total Items Reported</div>
                 <div class="cyber-metric-val"><%= stats.totalItems || 0 %></div>
             </div>
         </div>
 
-        <!-- KPI 2: Active Lost -->
+        <!-- KPI 2: Active Lost Items -->
         <div class="cyber-card cyber-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="cyber-icon-box">
-                    <i class="fas fa-search-location text-danger"></i>
+                    <i class="fas fa-search text-danger"></i>
                 </div>
-                <span class="trend-badge trend-up">
-                    <i class="fas fa-arrow-up"></i> 10%
+                <span class="trend-badge trend-down">
+                    <i class="fas fa-search"></i> Lost
                 </span>
             </div>
             <div>
-                <div class="cyber-metric-lbl">Active Inquiries (Lost)</div>
+                <div class="cyber-metric-lbl">Active Lost Items</div>
                 <div class="cyber-metric-val"><%= stats.lostItems || 0 %></div>
             </div>
         </div>
 
-        <!-- KPI 3: Action Required / Pending -->
+        <!-- KPI 3: Pending Approval -->
         <div class="cyber-card cyber-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="cyber-icon-box">
-                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    <i class="fas fa-clock text-warning"></i>
                 </div>
                 <span class="trend-badge <%= (stats.pendingItems > 0) ? 'trend-down' : 'trend-up' %>">
-                    <i class="fas <%= (stats.pendingItems > 0) ? 'fa-arrow-down' : 'fa-check' %>"></i> <%= (stats.pendingItems > 0) ? 'Action' : 'Clear' %>
+                    <i class="fas <%= (stats.pendingItems > 0) ? 'fa-hourglass-half' : 'fa-check' %>"></i> <%= (stats.pendingItems > 0) ? 'Needs Action' : 'All Clear' %>
                 </span>
             </div>
             <div>
-                <div class="cyber-metric-lbl">Action Required (Pending)</div>
+                <div class="cyber-metric-lbl">Pending Approval</div>
                 <div class="cyber-metric-val"><%= stats.pendingItems || 0 %></div>
             </div>
         </div>
 
-        <!-- KPI 4: Resolved / Reunited -->
+        <!-- KPI 4: Claimed & Reunited -->
         <div class="cyber-card cyber-kpi-card">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="cyber-icon-box">
-                    <i class="fas fa-circle-check text-success"></i>
+                    <i class="fas fa-handshake text-success"></i>
                 </div>
                 <span class="trend-badge trend-up">
-                    <i class="fas fa-arrow-up"></i> 10%
+                    <i class="fas fa-check"></i> <%= stats.successRate || 0 %>% Rate
                 </span>
             </div>
             <div>
-                <div class="cyber-metric-lbl">Resolved (Reunited)</div>
+                <div class="cyber-metric-lbl">Claimed &amp; Reunited</div>
                 <div class="cyber-metric-val"><%= stats.claimedItems || 0 %></div>
             </div>
         </div>
@@ -93,10 +87,10 @@
 
     <!-- Middle Row (Two Cards Side-by-Side) -->
     <div class="cyber-stats-grid">
-        <!-- Left: Account Health Summary (Donut Chart) -->
+        <!-- Left: Item Status & Recovery Breakdown (Donut Chart) -->
         <div class="cyber-card p-3 h-100">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0 fw-bold text-white font-sans" style="font-size: 0.85rem;">Resolution Health Summary</h6>
+                <h6 class="mb-0 fw-bold text-white font-sans" style="font-size: 0.85rem;">Item Status &amp; Recovery Breakdown</h6>
                 <a href="/admin/items" class="text-muted text-decoration-none hover-white" style="font-size: 0.72rem;">View All <i class="fas fa-chevron-right ms-1"></i></a>
             </div>
             
@@ -106,95 +100,101 @@
                         <canvas id="healthDonutChart" width="130" height="130"></canvas>
                         <div class="donut-inner-stat">
                             <h4><%= stats.successRate || 0 %>%</h4>
-                            <small>Health</small>
+                            <small>Recovery</small>
                         </div>
                     </div>
                 </div>
                 <div class="col-7">
                     <div class="cyber-legend-item">
                         <span class="text-muted d-flex align-items-center" style="font-size: 0.75rem;">
-                            <span class="cyber-legend-dot dot-purple"></span> Active Issues
+                            <span class="cyber-legend-dot dot-purple"></span> Active Lost
                         </span>
                         <span class="fw-bold text-white" style="font-size: 0.75rem;"><%= stats.lostItems || 0 %> items</span>
                     </div>
                     <div class="cyber-legend-item">
                         <span class="text-muted d-flex align-items-center" style="font-size: 0.75rem;">
-                            <span class="cyber-legend-dot dot-green"></span> Secured Vault
+                            <span class="cyber-legend-dot dot-green"></span> Secured Found
                         </span>
                         <span class="fw-bold text-white" style="font-size: 0.75rem;"><%= stats.foundItems || 0 %> items</span>
                     </div>
                     <div class="cyber-legend-item">
                         <span class="text-muted d-flex align-items-center" style="font-size: 0.75rem;">
-                            <span class="cyber-legend-dot dot-cyan"></span> Resolved Claims
+                            <span class="cyber-legend-dot dot-cyan"></span> Claimed / Reunited
                         </span>
-                        <span class="fw-bold text-white" style="font-size: 0.75rem;"><%= stats.claimedItems || 0 %> reunited</span>
+                        <span class="fw-bold text-white" style="font-size: 0.75rem;"><%= stats.claimedItems || 0 %> items</span>
                     </div>
                     <div class="cyber-legend-item">
                         <span class="text-muted d-flex align-items-center" style="font-size: 0.75rem;">
                             <span class="cyber-legend-dot dot-slate"></span> Pending Review
                         </span>
-                        <span class="fw-bold text-white" style="font-size: 0.75rem;"><%= stats.pendingItems || 0 %> pending</span>
+                        <span class="fw-bold text-white" style="font-size: 0.75rem;"><%= stats.pendingItems || 0 %> items</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right: Top Alert Categories (Horizontal Progress Gauges) -->
+        <!-- Right: Items by Campus Category (Horizontal Progress Gauges) -->
         <div class="cyber-card p-3 h-100">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0 fw-bold text-white font-sans" style="font-size: 0.85rem;">Top Alert Categories</h6>
-                <span class="badge bg-dark border border-secondary text-muted" style="font-size: 0.68rem;">Live Categories</span>
+                <h6 class="mb-0 fw-bold text-white font-sans" style="font-size: 0.85rem;">Items by Campus Category</h6>
+                <span class="badge bg-dark border border-secondary text-muted" style="font-size: 0.68rem;">
+                    <%= (typeof itemsByCategory !== 'undefined' && itemsByCategory.length > 0) ? itemsByCategory.length : 0 %> Categories
+                </span>
             </div>
 
             <div class="cyber-gauges-container mt-1">
                 <% 
                 const categoriesToDisplay = (typeof itemsByCategory !== 'undefined' && itemsByCategory.length > 0)
                     ? itemsByCategory.slice(0, 5)
-                    : [
-                        { name: 'Electronics & Devices', count: stats.totalItems > 0 ? stats.totalItems : 1 },
-                        { name: 'Identification & Cards', count: 0 },
-                        { name: 'Bags & Personal Items', count: 0 },
-                        { name: 'Keys & Badges', count: 0 },
-                        { name: 'Books & Supplies', count: 0 }
-                    ];
+                    : [];
                 const maxCatCount = Math.max(...categoriesToDisplay.map(c => c.count || 0), 1);
                 %>
-                <% categoriesToDisplay.forEach(cat => { 
-                    const pct = Math.max(Math.round(((cat.count || 0) / maxCatCount) * 100), (cat.count > 0 ? 15 : 4));
-                %>
-                <div class="cyber-gauge-row">
-                    <div class="cyber-gauge-name" title="<%= cat.name %>"><%= cat.name %></div>
-                    <div class="cyber-gauge-track">
-                        <div class="cyber-gauge-fill" style="width: <%= pct %>%;">
-                            <%= cat.count || 0 %>
+                <% if (categoriesToDisplay.length > 0) { %>
+                    <% categoriesToDisplay.forEach(cat => { 
+                        const pct = Math.max(Math.round(((cat.count || 0) / maxCatCount) * 100), (cat.count > 0 ? 15 : 4));
+                    %>
+                    <div class="cyber-gauge-row">
+                        <div class="cyber-gauge-name" title="<%= cat.name %>">
+                            <i class="fas <%= cat.icon ? cat.icon : 'fa-box' %> me-1 text-secondary"></i>
+                            <%= cat.name %>
+                        </div>
+                        <div class="cyber-gauge-track">
+                            <div class="cyber-gauge-fill" style="width: <%= pct %>%;">
+                                <%= cat.count || 0 %>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <% }) %>
+                    <% }) %>
 
-                <div class="cyber-gauge-scale">
-                    <span>0</span>
-                    <span><%= Math.round(maxCatCount * 0.25) %></span>
-                    <span><%= Math.round(maxCatCount * 0.5) %></span>
-                    <span><%= Math.round(maxCatCount * 0.75) %></span>
-                    <span><%= maxCatCount %></span>
-                </div>
+                    <div class="cyber-gauge-scale">
+                        <span>0</span>
+                        <span><%= Math.round(maxCatCount * 0.25) %></span>
+                        <span><%= Math.round(maxCatCount * 0.5) %></span>
+                        <span><%= Math.round(maxCatCount * 0.75) %></span>
+                        <span><%= maxCatCount %></span>
+                    </div>
+                <% } else { %>
+                    <div class="text-center py-4 text-muted small">
+                        <i class="fas fa-tags mb-2 d-block fa-2x"></i>
+                        No category data recorded yet.
+                    </div>
+                <% } %>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Full Width Card: Monthly Activity & Trends -->
+    <!-- Bottom Full Width Card: Monthly Item Trends -->
     <div class="row g-2">
         <div class="col-12">
             <div class="cyber-card p-3">
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
-                    <h6 class="mb-0 fw-bold text-white font-sans" style="font-size: 0.85rem;">Incident & Reunification Monthly Trends</h6>
+                    <h6 class="mb-0 fw-bold text-white font-sans" style="font-size: 0.85rem;">Monthly Item &amp; Reunification Trends (Last 6 Months)</h6>
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50" style="font-size: 0.68rem;">
                             <i class="fas fa-circle me-1" style="color: #8b5cf6; font-size: 0.5rem;"></i> Reported Items
                         </span>
                         <span class="badge bg-info bg-opacity-25 text-info border border-info border-opacity-50" style="font-size: 0.68rem;">
-                            <i class="fas fa-circle me-1" style="color: #06b6d4; font-size: 0.5rem;"></i> Reunited
+                            <i class="fas fa-circle me-1" style="color: #06b6d4; font-size: 0.5rem;"></i> Claimed &amp; Reunited
                         </span>
                     </div>
                 </div>
@@ -224,7 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
         new Chart(donutCtx, {
             type: 'doughnut',
             data: {
-                labels: ['Active Lost', 'Secured Vault', 'Reunited', 'Pending'],
+                labels: ['Active Lost', 'Secured Found', 'Claimed & Reunited', 'Pending Approval'],
                 datasets: [{
                     data: chartData,
                     backgroundColor: [
@@ -264,13 +264,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <% 
         const mLabels = (typeof monthlyData !== 'undefined' && monthlyData.length > 0)
             ? monthlyData.map(d => `${d.month}`)
-            : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+            : [];
         const mLost = (typeof monthlyData !== 'undefined' && monthlyData.length > 0)
             ? monthlyData.map(d => (d.lost || 0) + (d.found || 0))
-            : [4, 6, 8, 5, 9, (stats.totalItems || 4)];
+            : [];
         const mClaimed = (typeof monthlyData !== 'undefined' && monthlyData.length > 0)
             ? monthlyData.map(d => d.claimed || 0)
-            : [1, 2, 4, 3, 5, (stats.claimedItems || 1)];
+            : [];
         %>
 
         const labels = <%- JSON.stringify(mLabels) %>;
@@ -290,19 +290,19 @@ document.addEventListener('DOMContentLoaded', () => {
         new Chart(barCtx, {
             type: 'bar',
             data: {
-                labels: labels,
+                labels: labels.length > 0 ? labels : ['No Data'],
                 datasets: [
                     {
-                        label: 'Reported Incidents',
-                        data: lostData,
+                        label: 'Reported Items',
+                        data: lostData.length > 0 ? lostData : [0],
                         backgroundColor: purpleGrad,
                         borderRadius: 4,
                         barPercentage: 0.4,
                         categoryPercentage: 0.6
                     },
                     {
-                        label: 'Reunited Belongings',
-                        data: claimedData,
+                        label: 'Claimed & Reunited',
+                        data: claimedData.length > 0 ? claimedData : [0],
                         backgroundColor: cyanGrad,
                         borderRadius: 4,
                         barPercentage: 0.4,
@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ticks: {
                             color: '#64748b',
                             font: { size: 10 },
-                            stepSize: 2
+                            stepSize: 1
                         },
                         grid: {
                             color: 'rgba(255, 255, 255, 0.04)',

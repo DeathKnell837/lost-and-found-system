@@ -8,75 +8,75 @@
     
     <nav class="sidebar-nav">
         <ul class="nav flex-column">
-            <li class="nav-section">MENU</li>
+            <li class="nav-section">MAIN MENU</li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'dashboard' ? 'active' : '' %>" href="/admin/dashboard">
-                    <i class="fas fa-grid-2 me-2"></i>
+                    <i class="fas fa-th-large me-2"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'statistics' ? 'active' : '' %>" href="/admin/statistics">
-                    <i class="fas fa-chart-line-up me-2"></i>
-                    <span>Security & Analytics</span>
+                    <i class="fas fa-chart-bar me-2"></i>
+                    <span>Statistics & Trends</span>
                 </a>
             </li>
             
-            <li class="nav-section">CAMPUS VAULT</li>
+            <li class="nav-section">ITEM MANAGEMENT</li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'pending' ? 'active' : '' %>" href="/admin/items/pending">
-                    <i class="fas fa-clock-rotate-left me-2"></i>
+                    <i class="fas fa-clock text-warning me-2"></i>
                     <span>Pending Review</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'items' ? 'active' : '' %>" href="/admin/items">
-                    <i class="fas fa-boxes-stacked me-2"></i>
-                    <span>All Belongings</span>
+                    <i class="fas fa-boxes me-2"></i>
+                    <span>All Items</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/admin/items?type=lost&status=approved">
-                    <i class="fas fa-circle-exclamation text-danger me-2"></i>
+                    <i class="fas fa-exclamation-triangle text-danger me-2"></i>
                     <span>Lost Items</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/admin/items?type=found&status=approved">
-                    <i class="fas fa-circle-check text-success me-2"></i>
+                    <i class="fas fa-check-circle text-success me-2"></i>
                     <span>Found Items</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/admin/items?status=claimed">
-                    <i class="fas fa-handshake-angle text-info me-2"></i>
-                    <span>Reunited Items</span>
+                    <i class="fas fa-handshake text-info me-2"></i>
+                    <span>Claimed / Reunited</span>
                 </a>
             </li>
 
-            <li class="nav-section">AI INTELLIGENCE</li>
+            <li class="nav-section">AI MATCHING</li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'matching' ? 'active' : '' %>" href="/admin/matching">
-                    <i class="fas fa-wand-magic-sparkles text-cyan me-2"></i>
+                    <i class="fas fa-magic text-cyan me-2"></i>
                     <span>AI Visual Matching</span>
                 </a>
             </li>
             
-            <li class="nav-section">REUNIFICATION DESK</li>
+            <li class="nav-section">CLAIM REQUESTS</li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'claims' ? 'active' : '' %>" href="/admin/claims">
-                    <i class="fas fa-id-card-clip me-2"></i>
-                    <span>Claim Requests</span>
+                    <i class="fas fa-hand-holding me-2"></i>
+                    <span>All Claims</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/admin/claims?status=pending">
                     <i class="fas fa-hourglass-half text-warning me-2"></i>
-                    <span>Pending Verification</span>
+                    <span>Pending Claims</span>
                 </a>
             </li>
             
-            <li class="nav-section">SYSTEM & PREFERENCES</li>
+            <li class="nav-section">SYSTEM CONFIGURATION</li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'categories' ? 'active' : '' %>" href="/admin/categories">
                     <i class="fas fa-tags me-2"></i>
@@ -85,7 +85,7 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'locations' ? 'active' : '' %>" href="/admin/locations">
-                    <i class="fas fa-location-dot me-2"></i>
+                    <i class="fas fa-map-marker-alt me-2"></i>
                     <span>Locations</span>
                     <% if (typeof pendingLocationCount !== 'undefined' && pendingLocationCount > 0) { %>
                         <span class="badge bg-warning text-dark ms-auto"><%= pendingLocationCount %></span>
@@ -94,22 +94,22 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link <%= typeof currentPage !== 'undefined' && currentPage === 'users' ? 'active' : '' %>" href="/admin/users">
-                    <i class="fas fa-users-gear me-2"></i>
+                    <i class="fas fa-users me-2"></i>
                     <span>Users & Access</span>
                 </a>
             </li>
             
-            <li class="nav-section">Quick Links</li>
+            <li class="nav-section">QUICK LINKS</li>
             
             <li class="nav-item">
                 <a class="nav-link" href="/" target="_blank">
-                    <i class="fas fa-globe"></i>
+                    <i class="fas fa-globe me-2"></i>
                     <span>View Website</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link text-danger" href="/admin/logout">
-                    <i class="fas fa-sign-out-alt"></i>
+                    <i class="fas fa-sign-out-alt me-2"></i>
                     <span>Sign Out</span>
                 </a>
             </li>
