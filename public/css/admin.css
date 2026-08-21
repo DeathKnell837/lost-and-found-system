@@ -1718,40 +1718,34 @@ body.dark-mode .text-white-50 {
 }
 
 /* ==========================================================================
-   ADMIN PANEL - LIGHT MODE THEME (body:not(.dark-mode) & body.light-mode)
+   ADMIN PANEL - LIGHT MODE THEME (body.light-mode only)
    ========================================================================== */
-body:not(.dark-mode),
 body.light-mode {
     background: #f8fafc !important;
     background-color: #f8fafc !important;
     color: #0f172a !important;
 }
 
-body:not(.dark-mode) .admin-sidebar,
 body.light-mode .admin-sidebar {
     background: #ffffff !important;
     border-right: 1px solid #e2e8f0 !important;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.03) !important;
 }
 
-body:not(.dark-mode) .admin-sidebar .sidebar-brand,
 body.light-mode .admin-sidebar .sidebar-brand {
     color: #1d4ed8 !important;
     border-bottom: 1px solid #e2e8f0 !important;
 }
 
-body:not(.dark-mode) .admin-sidebar .nav-link,
 body.light-mode .admin-sidebar .nav-link {
     color: #475569 !important;
 }
 
-body:not(.dark-mode) .admin-sidebar .nav-link:hover,
 body.light-mode .admin-sidebar .nav-link:hover {
     background: #f1f5f9 !important;
     color: #1d4ed8 !important;
 }
 
-body:not(.dark-mode) .admin-sidebar .nav-link.active,
 body.light-mode .admin-sidebar .nav-link.active {
     background: #eff6ff !important;
     color: #2563eb !important;
@@ -1759,7 +1753,6 @@ body.light-mode .admin-sidebar .nav-link.active {
     border-left: 3px solid #2563eb !important;
 }
 
-body:not(.dark-mode) .admin-header,
 body.light-mode .admin-header {
     background: #ffffff !important;
     border-bottom: 1px solid #e2e8f0 !important;
@@ -1767,11 +1760,6 @@ body.light-mode .admin-header {
     color: #0f172a !important;
 }
 
-body:not(.dark-mode) .admin-header h1,
-body:not(.dark-mode) .admin-header h2,
-body:not(.dark-mode) .admin-header h3,
-body:not(.dark-mode) .admin-header h4,
-body:not(.dark-mode) .admin-header h5,
 body.light-mode .admin-header h1,
 body.light-mode .admin-header h2,
 body.light-mode .admin-header h3,
@@ -1780,12 +1768,6 @@ body.light-mode .admin-header h5 {
     color: #0f172a !important;
 }
 
-body:not(.dark-mode) .admin-main h1,
-body:not(.dark-mode) .admin-main h2,
-body:not(.dark-mode) .admin-main h3,
-body:not(.dark-mode) .admin-main h4,
-body:not(.dark-mode) .admin-main h5,
-body:not(.dark-mode) .admin-main h6,
 body.light-mode .admin-main h1,
 body.light-mode .admin-main h2,
 body.light-mode .admin-main h3,
@@ -1795,7 +1777,6 @@ body.light-mode .admin-main h6 {
     color: #0f172a !important;
 }
 
-body:not(.dark-mode) .card,
 body.light-mode .card {
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
@@ -1803,40 +1784,33 @@ body.light-mode .card {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
 }
 
-body:not(.dark-mode) .card-header,
 body.light-mode .card-header {
     background: #f8fafc !important;
     border-bottom: 1px solid #e2e8f0 !important;
     color: #0f172a !important;
 }
 
-body:not(.dark-mode) .table,
 body.light-mode .table {
     color: #1e293b !important;
     background: #ffffff !important;
 }
 
-body:not(.dark-mode) .table thead th,
 body.light-mode .table thead th {
     background: #f8fafc !important;
     color: #334155 !important;
     border-bottom: 2px solid #e2e8f0 !important;
 }
 
-body:not(.dark-mode) .table tbody td,
 body.light-mode .table tbody td {
     background: #ffffff !important;
     color: #334155 !important;
     border-top: 1px solid #f1f5f9 !important;
 }
 
-body:not(.dark-mode) .table tbody tr:hover,
 body.light-mode .table tbody tr:hover {
     background: #f8fafc !important;
 }
 
-body:not(.dark-mode) .form-control,
-body:not(.dark-mode) .form-select,
 body.light-mode .form-control,
 body.light-mode .form-select {
     background: #ffffff !important;
@@ -1844,7 +1818,6 @@ body.light-mode .form-select {
     color: #0f172a !important;
 }
 
-body:not(.dark-mode) .user-dropdown,
 body.light-mode .user-dropdown {
     background: #f8fafc !important;
     border: 1px solid #cbd5e1 !important;

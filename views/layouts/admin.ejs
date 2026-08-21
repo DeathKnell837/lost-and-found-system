@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="background-color: #070d1e;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,8 +12,20 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/css/admin.css?v=<%= Date.now() %>">
     <%- typeof style !== 'undefined' ? style : '' %>
+    <script>
+        (function() {
+            var savedMode = localStorage.getItem('adminDarkMode');
+            if (savedMode === 'false') {
+                document.documentElement.classList.add('light-mode');
+                document.documentElement.style.backgroundColor = '#f8fafc';
+            } else {
+                document.documentElement.classList.add('dark-mode');
+                document.documentElement.style.backgroundColor = '#070d1e';
+            }
+        })();
+    </script>
 </head>
-<body class="admin-body">
+<body class="admin-body dark-mode" style="background-color: #070d1e;">
     <% if (typeof admin !== 'undefined' && admin) { %>
         <%- include('../partials/admin-sidebar') %>
     <% } %>
