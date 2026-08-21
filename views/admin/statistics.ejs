@@ -85,7 +85,7 @@
             <div class="cyber-card cyber-kpi-card">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div class="cyber-icon-box">
-                        <i class="fas fa-shield-check text-success"></i>
+                        <i class="fas fa-circle-check text-success"></i>
                     </div>
                     <span class="trend-badge trend-up">
                         <i class="fas fa-arrow-up"></i> 10%
@@ -99,10 +99,10 @@
         </div>
     </div>
 
-    <!-- Middle Row (Two Cards) -->
-    <div class="row g-4 mb-4">
+    <!-- Middle Row (Two Cards Side-by-Side) -->
+    <div class="row g-3 mb-4">
         <!-- Left: Account Health Summary (Donut Chart) -->
-        <div class="col-12 col-lg-5">
+        <div class="col-lg-5 col-12">
             <div class="cyber-card p-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0 fw-bold text-white font-sans">Resolution Health Summary</h5>
@@ -110,16 +110,16 @@
                 </div>
                 
                 <div class="row align-items-center g-3">
-                    <div class="col-sm-5">
+                    <div class="col-12 col-sm-5 text-center">
                         <div class="donut-wrapper">
-                            <canvas id="healthDonutChart" width="170" height="170"></canvas>
+                            <canvas id="healthDonutChart" width="160" height="160"></canvas>
                             <div class="donut-inner-stat">
                                 <h4><%= stats.successRate > 0 ? stats.successRate : '98.4' %>%</h4>
                                 <small>Health</small>
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-7">
+                    <div class="col-12 col-sm-7">
                         <div class="cyber-legend-item">
                             <span class="small text-muted d-flex align-items-center">
                                 <span class="cyber-legend-dot dot-purple"></span> Active Issues
@@ -150,7 +150,7 @@
         </div>
 
         <!-- Right: Top Alert Categories (Horizontal Progress Gauges) -->
-        <div class="col-12 col-lg-7">
+        <div class="col-lg-7 col-12">
             <div class="cyber-card p-4 h-100">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h5 class="mb-0 fw-bold text-white font-sans">Top Alert Categories</h5>
