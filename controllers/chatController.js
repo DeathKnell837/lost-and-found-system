@@ -207,21 +207,29 @@ const chatController = {
             .sort((a, b) => b.matchScore - a.matchScore)
             .slice(0, 4);
 
-            // Construct accurate conversational answer
+            // Construct accurate conversational answer without overwriting Gemini's intelligence
             let finalResponse = conversationalResponse;
 
             if (imageFile) {
                 const nameLabel = extracted.itemName || 'this item';
                 if (rankedMatches.length > 0) {
-                    finalResponse = `I analyzed your photo: It looks like **${nameLabel}**. I found ${rankedMatches.length} possible matching record(s) in our campus database:`;
+                    finalResponse = conversationalResponse
+                        ? `${conversationalResponse}\n\nI found **${rankedMatches.length} matching candidate(s)** in our campus records:`
+                        : `I analyzed your photo: It looks like **${nameLabel}**. I found ${rankedMatches.length} possible matching record(s) in our campus database:`;
                 } else {
-                    finalResponse = `I analyzed your photo: It appears to be **${nameLabel}**${extracted.description ? ` (${extracted.description})` : ''}. I checked our database, but no matching lost or found records were found yet.`;
+                    finalResponse = conversationalResponse
+                        ? `${conversationalResponse}\n\n*(Note: No direct matches were found in our current database records yet. You can file an official Lost or Found report at any time.)*`
+                        : `I analyzed your photo: It appears to be **${nameLabel}**${extracted.description ? ` (${extracted.description})` : ''}. I checked our database, but no matching lost or found records were found yet.`;
                 }
             } else {
                 if (rankedMatches.length > 0) {
-                    finalResponse = `I found ${rankedMatches.length} matching item(s) in our campus records for "${userPrompt}":`;
+                    finalResponse = conversationalResponse 
+                        ? `${conversationalResponse}\n\nHere are **${rankedMatches.length} matching record(s)** from our campus database:`
+                        : `I found ${rankedMatches.length} matching item(s) in our campus records for "${userPrompt}":`;
                 } else {
-                    finalResponse = `I searched our campus database, but couldn't find any recorded items matching "${userPrompt}" yet. Would you like to file a Lost or Found report?`;
+                    finalResponse = conversationalResponse 
+                        ? `${conversationalResponse}`
+                        : `I searched our campus database, but couldn't find any recorded items matching "${userPrompt}" yet. Would you like to file a Lost or Found report?`;
                 }
             }
 

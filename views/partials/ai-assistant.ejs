@@ -755,7 +755,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             if (userText) formData.append('message', userText);
             if (fileToSend) formData.append('image', fileToSend);
-            formData.append('history', JSON.stringify(conversationMemory.slice(-6)));
+            formData.append('history', JSON.stringify(conversationMemory.slice(-10)));
 
             const res = await fetch('/api/chat', {
                 method: 'POST',

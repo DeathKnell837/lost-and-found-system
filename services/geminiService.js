@@ -182,38 +182,50 @@ const parseSearchQuery = async (userMessage, conversationHistory = []) => {
 
     let historyContext = '';
     if (Array.isArray(conversationHistory) && conversationHistory.length > 0) {
-        const recentTurns = conversationHistory.slice(-4);
-        historyContext = `Recent conversation:\n` +
+        const recentTurns = conversationHistory.slice(-8);
+        historyContext = `Conversation History (Context from previous messages):\n` +
             recentTurns.map(t => `${t.role === 'user' ? 'User' : 'Assistant'}: "${t.content}"`).join('\n') +
             `\n\n`;
     }
 
-    const systemPrompt = `You are the Campus Lost & Found AI Assistant. Fast, friendly, and helpful.
+    const systemPrompt = `You are the Campus Lost & Found AI Assistant for Notre Dame of Midsayap College (NDMC).
+You are an intelligent, friendly, polite conversational assistant. You talk in clear, natural human English. NEVER output code, scripts, markdown code fences, or JSON formatting directly to the user.
 
-${historyContext}User Message: "${textTrimmed}"
+${historyContext}Current User Message: "${textTrimmed}"
 
 Instructions:
-1. Determine if the user is asking about or searching for any lost or found physical item, category, or location.
-2. If yes, set "isSearch" to true and extract "category", "color", "brand", "location", "keywords" (array of 2-5 terms).
-3. If no (greetings, general chat, asking how system works), set "isSearch" to false.
-4. Provide a friendly "conversationalResponse" (1-2 sentences).
+1. Multi-Turn Context: Remember and use context from earlier messages (such as what item the user lost, names, locations, or questions).
+2. Intent Classification:
+   - Set "isSearch" to true ONLY IF the user is describing, searching for, or asking to find a specific physical item in the campus database (e.g. "I lost my black wallet", "did anyone find keys?", "searching for iphone").
+   - Set "isSearch" to false for greetings, conversational follow-ups, general questions (e.g. "what is my name?", "who are you?", "how do I report?", "where is the office?", "thank you", "tell me more").
+3. Feature Extraction (if searching for a physical item):
+   - "itemName": specific name of the item
+   - "category": ("Electronics & Devices", "Personal Items", "Books & Documents", "Clothing", "Keys", "Other")
+   - "color": item color if mentioned
+   - "brand": brand name if mentioned
+   - "location": campus location if mentioned
+   - "keywords": array of 2-5 relevant search keywords
+4. Natural Conversational Response:
+   - Provide a natural, helpful, human-like response in "conversationalResponse" (1-3 sentences).
+   - If the user asks a question (like remembering their name, asking how things work, or asking about campus rules), answer it directly and warmly.
 
-Return ONLY JSON:
+Return ONLY a valid JSON object matching this schema:
 {
   "isSearch": true/false,
+  "itemName": "<item name or empty>",
   "category": "<category or empty>",
   "color": "<color or empty>",
   "brand": "<brand or empty>",
   "location": "<location or empty>",
   "keywords": ["<k1>", "<k2>"],
-  "conversationalResponse": "<response text>"
+  "conversationalResponse": "<your direct conversational response>"
 }`;
 
     for (const modelName of CHAT_MODELS) {
         try {
             const model = genAI.getGenerativeModel({ 
                 model: modelName,
-                generationConfig: { maxOutputTokens: 250, temperature: 0.2 }
+                generationConfig: { maxOutputTokens: 300, temperature: 0.3 }
             });
             const result = await model.generateContent(systemPrompt);
             const responseText = result.response.text().trim();
@@ -223,13 +235,14 @@ Return ONLY JSON:
             return {
                 isSearch: jsonResult.isSearch === true,
                 extracted: {
+                    itemName: jsonResult.itemName || '',
                     category: jsonResult.category || '',
                     color: jsonResult.color || '',
                     brand: jsonResult.brand || '',
                     location: jsonResult.location || '',
                     keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
                 },
-                conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I assist you today?"
+                conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I assist you with campus lost and found items today?"
             };
         } catch (error) {
             console.warn(`Gemini chat model ${modelName} error:`, error.message);
