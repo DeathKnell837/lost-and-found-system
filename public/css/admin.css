@@ -2206,3 +2206,119 @@ body.light-mode .user-dropdown {
     }
 }
 
+/* ==========================================================================
+   ADMIN LIGHT MODE - COMPREHENSIVE OVERRIDES FOR CYBER DASHBOARD & TABLES
+   ========================================================================== */
+body.light-mode .cyber-dashboard {
+    color: #1e293b;
+}
+
+body.light-mode .cyber-dashboard h1,
+body.light-mode .cyber-dashboard h2,
+body.light-mode .cyber-dashboard h3,
+body.light-mode .cyber-dashboard h4,
+body.light-mode .cyber-dashboard h5,
+body.light-mode .cyber-dashboard h6,
+body.light-mode .cyber-dashboard .text-white {
+    color: #0f172a !important;
+}
+
+body.light-mode .cyber-dashboard .text-muted,
+body.light-mode .cyber-dashboard .cyber-subtitle {
+    color: #64748b !important;
+}
+
+body.light-mode .cyber-card {
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+}
+
+body.light-mode .cyber-card:hover {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.12) !important;
+}
+
+body.light-mode .cyber-icon-box {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #2563eb !important;
+}
+
+body.light-mode .cyber-metric-lbl {
+    color: #64748b !important;
+    font-weight: 700;
+}
+
+body.light-mode .cyber-metric-val {
+    color: #0f172a !important;
+}
+
+body.light-mode .cyber-table thead th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body.light-mode .cyber-table tbody td {
+    background: #ffffff !important;
+    color: #334155 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+}
+
+body.light-mode .cyber-table tbody tr:hover td {
+    background: #f8fafc !important;
+}
+
+body.light-mode .cyber-select {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+body.light-mode .cyber-thumb-placeholder {
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #64748b !important;
+}
+
+body.light-mode .modal-content.cyber-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2) !important;
+    color: #0f172a !important;
+}
+
+body.light-mode .modal-header {
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body.light-mode .modal-footer {
+    border-top: 1px solid #e2e8f0 !important;
+}
+
+body.light-mode .cyber-badge-lost {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #dc2626 !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+body.light-mode .cyber-badge-found {
+    background: rgba(16, 185, 129, 0.12) !important;
+    color: #059669 !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+body.light-mode .cyber-badge-pending {
+    background: rgba(245, 158, 11, 0.12) !important;
+    color: #d97706 !important;
+    border: 1px solid rgba(245, 158, 11, 0.3) !important;
+}
+
+body.light-mode .cyber-badge-claimed {
+    background: rgba(6, 182, 212, 0.12) !important;
+    color: #0891b2 !important;
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+}
+
+

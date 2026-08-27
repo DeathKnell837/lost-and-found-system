@@ -3024,3 +3024,28 @@ body.light-mode .bg-white {
     background-color: #ffffff !important;
     color: #0f172a !important;
 }
+
+body:not(.dark-mode) .badge.bg-dark,
+body.light-mode .badge.bg-dark {
+    background: #eff6ff !important;
+    border-color: #3b82f6 !important;
+    color: #1d4ed8 !important;
+}
+
+body:not(.dark-mode) .modal-content,
+body.light-mode .modal-content {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+body:not(.dark-mode) .modal-header,
+body.light-mode .modal-header {
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+body:not(.dark-mode) .modal-footer,
+body.light-mode .modal-footer {
+    border-top: 1px solid #e2e8f0 !important;
+}
+

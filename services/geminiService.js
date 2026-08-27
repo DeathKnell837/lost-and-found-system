@@ -12,9 +12,9 @@ if (apiKey) {
     console.warn('GEMINI_API_KEY is not set in environment variables.');
 }
 
-// Specialized Model Tiers for High Speed & Accuracy
-const CHAT_MODELS = ['gemini-3.5-flash-lite', 'gemini-2.5-flash-lite', 'gemini-3.6-flash'];
-const VISION_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-2.5-flash'];
+// Lightweight 100% Free-Tier Models (Zero Cost, Low-Token Consumption)
+const CHAT_MODELS = ['gemini-2.5-flash-lite', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
+const VISION_MODELS = ['gemini-2.5-flash-lite', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
 
 /**
  * Helper to download image from URL into inline Data Part for Gemini
