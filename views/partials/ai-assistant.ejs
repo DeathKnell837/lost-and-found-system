@@ -105,6 +105,26 @@
     color: #ffffff;
     box-shadow: 0 0 16px rgba(6, 182, 212, 0.5);
     transform: translateX(-2px);
+.ai-assistant-widget.chat-open .ai-toggle-pill,
+.ai-assistant-widget.chat-open #aiTogglePill,
+.ai-assistant-widget.chat-open .ai-pulse-ring,
+.ai-assistant-widget.chat-open .ai-online-dot {
+    display: none !important;
+}
+
+.ai-assistant-widget.chat-open .ai-chat-toggle {
+    width: 42px;
+    height: 42px;
+    margin-left: auto;
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+.ai-assistant-widget.chat-open .ai-chat-toggle:hover {
+    background: #ef4444;
+    border-color: #ef4444;
+    color: #ffffff;
 }
 
 .pulse-dot {
@@ -596,9 +616,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedFile = null;
     let conversationMemory = [];
 
+    const widget = document.getElementById('aiAssistantWidget');
+
     function openChat() {
         if (!chatPanel) return;
         chatPanel.classList.remove('d-none');
+        if (widget) widget.classList.add('chat-open');
         if (logoImg) logoImg.classList.add('d-none');
         if (closeIcon) closeIcon.classList.remove('d-none');
         if (togglePill) togglePill.classList.add('d-none');
@@ -608,6 +631,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function closeChat() {
         if (!chatPanel) return;
         chatPanel.classList.add('d-none');
+        if (widget) widget.classList.remove('chat-open');
         if (logoImg) logoImg.classList.remove('d-none');
         if (closeIcon) closeIcon.classList.add('d-none');
         if (togglePill) togglePill.classList.remove('d-none');
