@@ -53,7 +53,7 @@
                 <!-- Edit Modal -->
                 <div class="modal fade" id="editModal<%= cat._id %>" tabindex="-1">
                     <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+                        <div class="modal-content cyber-card">
                             <form action="/admin/categories/<%= cat._id %>" method="POST">
                                 <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
                                     <h6 class="modal-title small fw-bold">Edit Category</h6>
@@ -94,7 +94,7 @@
                 <!-- Delete Modal -->
                 <div class="modal fade" id="deleteModal<%= cat._id %>" tabindex="-1">
                     <div class="modal-dialog modal-sm modal-dialog-centered">
-                        <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+                        <div class="modal-content cyber-card">
                             <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
                                 <h6 class="modal-title small fw-bold">Delete Category</h6>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -120,7 +120,7 @@
 <!-- Add Category Modal -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+        <div class="modal-content cyber-card">
             <form action="/admin/categories" method="POST">
                 <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
                     <h6 class="modal-title small fw-bold">Add New Category</h6>

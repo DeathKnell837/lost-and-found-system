@@ -73,7 +73,7 @@
                             <!-- Approve Modal -->
                             <div class="modal fade" id="approveModal<%= loc._id %>" tabindex="-1">
                                 <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+                                    <div class="modal-content cyber-card">
                                         <form action="/admin/locations/<%= loc._id %>/approve" method="POST">
                                             <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
                                                 <h6 class="modal-title small fw-bold text-success">
@@ -157,7 +157,7 @@
                     <!-- Edit Modal -->
                     <div class="modal fade" id="editModal<%= loc._id %>" tabindex="-1">
                         <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+                            <div class="modal-content cyber-card">
                                 <form action="/admin/locations/<%= loc._id %>" method="POST">
                                     <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
                                         <h6 class="modal-title small fw-bold">Edit Location</h6>
@@ -194,7 +194,7 @@
                     <!-- Delete Modal -->
                     <div class="modal fade" id="deleteModal<%= loc._id %>" tabindex="-1">
                         <div class="modal-dialog modal-sm modal-dialog-centered">
-                            <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+                            <div class="modal-content cyber-card">
                                 <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
                                     <h6 class="modal-title small fw-bold">Delete Location</h6>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -221,7 +221,7 @@
 <!-- Add Location Modal -->
 <div class="modal fade" id="addLocationModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background: #0f172a; border: 1px solid rgba(255,255,255,0.12); color: #fff;">
+        <div class="modal-content cyber-card">
             <form action="/admin/locations" method="POST">
                 <div class="modal-header py-2" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
                     <h6 class="modal-title small fw-bold">Add New Location</h6>
