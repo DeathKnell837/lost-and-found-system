@@ -1079,28 +1079,40 @@ body.dark-mode .dropdown-menu {
 }
 
 body.dark-mode .dropdown-item {
-    color: var(--text-light);
+    color: #f1f5f9 !important;
+    font-weight: 500;
+    cursor: pointer;
 }
 
 body.dark-mode .dropdown-item:hover {
-    background: var(--sidebar-hover);
-    color: var(--text);
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #ffffff !important;
 }
 
 body.dark-mode .dropdown-item i {
-    color: var(--text-muted);
+    color: #38bdf8 !important;
+}
+
+body.dark-mode .dropdown-item:hover i {
+    color: #60a5fa !important;
 }
 
 body.dark-mode .dropdown-divider {
-    border-color: var(--border);
+    border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
-body.dark-mode .dropdown-item.text-danger {
-    color: var(--danger) !important;
+body.dark-mode .dropdown-item.text-danger,
+body.dark-mode .dropdown-item.text-danger i {
+    color: #f87171 !important;
 }
 
 body.dark-mode .dropdown-item.text-danger:hover {
-    background: var(--danger-light);
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+}
+
+body.dark-mode .dropdown-item.text-danger:hover i {
+    color: #fca5a5 !important;
 }
 
 /* Dark Mode - Modals */

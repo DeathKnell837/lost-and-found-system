@@ -67,44 +67,45 @@
                     </button>
                 </li>
                 
-                <% if (typeof user !== 'undefined' && user) { %>
+                <% const currentUser = (typeof user !== 'undefined' && user) ? user : ((typeof admin !== 'undefined' && admin) ? admin : null); %>
+                <% if (currentUser) { %>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i> <%= user.username %>
+                        <a class="nav-link dropdown-toggle d-flex align-items-center fw-medium" href="#" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> <%= currentUser.username %>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
                             <li>
                                 <a class="dropdown-item" href="/user/dashboard">
-                                    <i class="fas fa-tachometer-alt me-2"></i> My Dashboard
+                                    <i class="fas fa-tachometer-alt me-2 text-cyan"></i> My Dashboard
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="/user/my-items">
-                                    <i class="fas fa-list me-2"></i> My Items
+                                    <i class="fas fa-list me-2 text-cyan"></i> My Items
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="/claims/my-claims">
-                                    <i class="fas fa-hand-holding me-2"></i> My Claims
+                                    <i class="fas fa-hand-holding me-2 text-cyan"></i> My Claims
                                 </a>
                             </li>
                             <li>
                                 <a class="dropdown-item" href="/user/settings">
-                                    <i class="fas fa-cog me-2"></i> Settings
+                                    <i class="fas fa-cog me-2 text-cyan"></i> Settings
                                 </a>
                             </li>
-                            <% if (user.role === 'admin') { %>
+                            <% if (currentUser.role === 'admin') { %>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/admin/dashboard">
-                                        <i class="fas fa-shield-alt me-2"></i> Admin Panel
+                                        <i class="fas fa-shield-alt me-2 text-primary"></i> Admin Panel
                                     </a>
                                 </li>
                             <% } %>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <a class="dropdown-item text-danger" href="/auth/logout">
-                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                <a class="dropdown-item text-danger fw-semibold" href="/auth/logout">
+                                    <i class="fas fa-sign-out-alt me-2 text-danger"></i> Logout
                                 </a>
                             </li>
                         </ul>

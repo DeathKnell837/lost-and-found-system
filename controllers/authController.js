@@ -436,10 +436,14 @@ exports.resetPassword = async (req, res) => {
  * Purpose: End user session
  */
 exports.logout = (req, res) => {
-    // Remove user data from session
+    // Remove both user and admin data from session
     delete req.session.user;
-    req.flash('success', 'You have been logged out');
-    res.redirect('/');
+    delete req.session.admin;
+    req.session.save((err) => {
+        if (err) console.error('Session save error on logout:', err);
+        req.flash('success', 'You have been logged out');
+        res.redirect('/');
+    });
 };
 
 /**

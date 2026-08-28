@@ -325,39 +325,63 @@ a:hover {
 
 /* Dropdown Menu */
 .dropdown-menu {
-    background: rgba(15, 16, 21, 0.95);
+    background: rgba(15, 23, 42, 0.98);
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
-    border: 1px solid rgba(201, 138, 75, 0.3);
+    border: 1px solid rgba(59, 130, 246, 0.3);
     border-radius: var(--radius);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(201, 138, 75, 0.15);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(59, 130, 246, 0.2);
     padding: 0.5rem;
     animation: fadeIn 0.2s ease;
+    z-index: 1060;
 }
 
 .dropdown-item {
-    color: var(--gray-300);
+    color: #f1f5f9;
     font-size: 0.9rem;
-    padding: 0.6rem 1rem;
+    font-weight: 500;
+    padding: 0.65rem 1rem;
     border-radius: var(--radius-sm);
     transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }
 
 .dropdown-item:hover {
-    background: rgba(201, 138, 75, 0.18);
-    color: var(--copper-light);
+    background: rgba(59, 130, 246, 0.2);
+    color: #ffffff;
     transform: translateX(4px);
 }
 
 .dropdown-item i {
     width: 20px;
     margin-right: 8px;
-    color: var(--copper);
+    color: #38bdf8;
+    transition: color var(--transition-fast);
+}
+
+.dropdown-item:hover i {
+    color: #60a5fa;
 }
 
 .dropdown-divider {
-    border-color: rgba(201, 138, 75, 0.2);
+    border-color: rgba(255, 255, 255, 0.12);
     margin: 0.5rem 0;
+}
+
+.dropdown-item.text-danger,
+.dropdown-item.text-danger i {
+    color: #f87171 !important;
+}
+
+.dropdown-item.text-danger:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+}
+
+.dropdown-item.text-danger:hover i {
+    color: #fca5a5 !important;
 }
 
 /* ================================
@@ -1581,25 +1605,46 @@ body.dark-mode .dark-mode-toggle:hover {
 
 /* Dark Mode - Dropdown */
 body.dark-mode .dropdown-menu {
-    background: var(--bg-secondary);
-    border-color: var(--border-color);
+    background: rgba(15, 23, 42, 0.98) !important;
+    border: 1px solid rgba(59, 130, 246, 0.3) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 0 0 15px rgba(59, 130, 246, 0.2) !important;
+    z-index: 1060;
 }
 
 body.dark-mode .dropdown-item {
-    color: var(--text-secondary);
+    color: #f1f5f9 !important;
+    cursor: pointer;
 }
 
 body.dark-mode .dropdown-item:hover {
-    background: var(--bg-tertiary);
-    color: var(--primary-light);
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: #ffffff !important;
 }
 
 body.dark-mode .dropdown-item i {
-    color: var(--text-muted);
+    color: #38bdf8 !important;
+}
+
+body.dark-mode .dropdown-item:hover i {
+    color: #60a5fa !important;
 }
 
 body.dark-mode .dropdown-divider {
-    border-color: var(--border-color);
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+body.dark-mode .dropdown-item.text-danger,
+body.dark-mode .dropdown-item.text-danger i {
+    color: #f87171 !important;
+}
+
+body.dark-mode .dropdown-item.text-danger:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    color: #fca5a5 !important;
+}
+
+body.dark-mode .dropdown-item.text-danger:hover i {
+    color: #fca5a5 !important;
 }
 
 /* Dark Mode - Cards */
@@ -2915,18 +2960,49 @@ body:not(.dark-mode) .dropdown-menu,
 body.light-mode .dropdown-menu {
     background: #ffffff !important;
     border: 1px solid #e2e8f0 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12) !important;
+    z-index: 1060;
 }
 
 body:not(.dark-mode) .dropdown-item,
 body.light-mode .dropdown-item {
     color: #1e293b !important;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+body:not(.dark-mode) .dropdown-item i,
+body.light-mode .dropdown-item i {
+    color: #2563eb !important;
 }
 
 body:not(.dark-mode) .dropdown-item:hover,
 body.light-mode .dropdown-item:hover {
-    background: #f1f5f9 !important;
+    background: #eff6ff !important;
     color: #1d4ed8 !important;
+}
+
+body:not(.dark-mode) .dropdown-item:hover i,
+body.light-mode .dropdown-item:hover i {
+    color: #1d4ed8 !important;
+}
+
+body:not(.dark-mode) .dropdown-item.text-danger,
+body:not(.dark-mode) .dropdown-item.text-danger i,
+body.light-mode .dropdown-item.text-danger,
+body.light-mode .dropdown-item.text-danger i {
+    color: #dc2626 !important;
+}
+
+body:not(.dark-mode) .dropdown-item.text-danger:hover,
+body.light-mode .dropdown-item.text-danger:hover {
+    background: #fef2f2 !important;
+    color: #991b1b !important;
+}
+
+body:not(.dark-mode) .dropdown-item.text-danger:hover i,
+body.light-mode .dropdown-item.text-danger:hover i {
+    color: #991b1b !important;
 }
 
 body:not(.dark-mode) .table,

@@ -56,11 +56,15 @@ exports.login = async (req, res) => {
     }
 };
 
-// Admin logout (only destroys admin session, keeps user session)
+// Admin logout (destroys admin session and user session)
 exports.logout = (req, res) => {
     delete req.session.admin;
-    req.flash('success', 'Logged out from admin panel');
-    res.redirect('/admin/login');
+    delete req.session.user;
+    req.session.save((err) => {
+        if (err) console.error('Admin logout session save error:', err);
+        req.flash('success', 'Logged out from admin panel');
+        res.redirect('/admin/login');
+    });
 };
 
 // Dashboard
