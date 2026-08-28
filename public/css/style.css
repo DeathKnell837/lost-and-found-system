@@ -2421,23 +2421,72 @@ body.dark-mode .loading-overlay {
 }
 
 /* ================================
-   Mobile Menu Improvements
+   Responsive Navbar & Search Bar Engine (Mobile, Laptop, PC)
    ================================ */
-@media (max-width: 991.98px) {
+.nav-search-form {
+    min-width: 140px;
+    max-width: 220px;
+    flex-shrink: 1;
+}
+
+.nav-search-form .input-group {
+    flex-wrap: nowrap !important;
+}
+
+.nav-search-input {
+    min-width: 100px;
+    width: 100% !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+.nav-search-btn {
+    flex-shrink: 0 !important;
+    white-space: nowrap !important;
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/* Medium Laptops & Desktops (1200px - 1399px) */
+@media (min-width: 1200px) and (max-width: 1399px) {
+    .navbar-nav .nav-link {
+        padding: 0.45rem 0.55rem !important;
+        font-size: 0.86rem !important;
+    }
+    .navbar-brand {
+        font-size: 1.15rem !important;
+    }
+    .nav-search-form {
+        max-width: 160px;
+    }
+}
+
+/* Mobile & Small Tablet Menu Collapse (<1200px) */
+@media (max-width: 1199.98px) {
     .navbar-collapse {
-        background: var(--primary-dark);
-        border-radius: 0 0 var(--radius) var(--radius);
-        padding: 1rem;
+        background: rgba(15, 23, 42, 0.98);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-radius: 0 0 16px 16px;
+        padding: 1rem 1.25rem 1.25rem;
         margin-top: 0.5rem;
-        max-height: 80vh;
+        max-height: 85vh;
         overflow-y: auto;
-        animation: menuSlideDown 0.3s ease;
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-top: none;
+        animation: menuSlideDown 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     @keyframes menuSlideDown {
         from {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(-8px);
         }
         to {
             opacity: 1;
@@ -2445,42 +2494,82 @@ body.dark-mode .loading-overlay {
         }
     }
 
+    body:not(.dark-mode) .navbar-collapse,
+    body.light-mode .navbar-collapse {
+        background: #ffffff !important;
+        border: 1px solid #cbd5e1 !important;
+        border-top: none !important;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12) !important;
+    }
+
     .navbar-nav .nav-link {
-        padding: 0.75rem 1rem !important;
-        border-radius: var(--radius-sm);
-        margin-bottom: 2px;
+        padding: 0.7rem 0.85rem !important;
+        border-radius: 8px;
+        margin-bottom: 3px;
+        font-size: 0.95rem;
     }
 
-    .navbar-nav .nav-link:hover,
-    .navbar-nav .nav-link:focus {
-        background: rgba(255, 255, 255, 0.1);
+    body:not(.dark-mode) .navbar-nav .nav-link,
+    body.light-mode .navbar-nav .nav-link {
+        color: #1e293b !important;
     }
 
-    .navbar .d-flex {
-        width: 100%;
-        margin: 0.5rem 0;
+    body:not(.dark-mode) .navbar-nav .nav-link:hover,
+    body.light-mode .navbar-nav .nav-link:hover {
+        background: #f1f5f9 !important;
+        color: #1d4ed8 !important;
     }
 
-    .navbar .d-flex .form-control {
+    .nav-search-form {
         width: 100% !important;
+        max-width: 100% !important;
+        margin: 0.75rem 0 !important;
+    }
+
+    .nav-search-input {
+        width: 100% !important;
+        height: 38px;
+        font-size: 0.9rem;
+    }
+
+    .nav-search-btn {
+        height: 38px;
+        padding: 0 14px;
     }
 
     .navbar .dropdown-menu {
-        background: rgba(255, 255, 255, 0.1);
-        border: none;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
         box-shadow: none;
-        padding-left: 1rem;
+        padding: 0.5rem;
+        margin-left: 0.5rem;
+    }
+
+    body:not(.dark-mode) .navbar .dropdown-menu,
+    body.light-mode .navbar .dropdown-menu {
+        background: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
     }
 
     .navbar .dropdown-menu .dropdown-item {
         color: rgba(255, 255, 255, 0.9);
-        border-radius: var(--radius-sm);
+        border-radius: 6px;
+        padding: 0.5rem 0.75rem;
     }
 
-    .navbar .dropdown-menu .dropdown-item:hover {
-        background: rgba(255, 255, 255, 0.15);
+    body:not(.dark-mode) .navbar .dropdown-menu .dropdown-item,
+    body.light-mode .navbar .dropdown-menu .dropdown-item {
+        color: #1e293b !important;
+    }
+
+    body:not(.dark-mode) .navbar .dropdown-menu .dropdown-item:hover,
+    body.light-mode .navbar .dropdown-menu .dropdown-item:hover {
+        background: #eff6ff !important;
+        color: #1d4ed8 !important;
     }
 }
+
 
 /* How It Works Dark Glass Styling */
 .how-it-works-section {

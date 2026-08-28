@@ -1,16 +1,16 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top py-2">
+<nav class="navbar navbar-expand-xl navbar-dark bg-primary sticky-top py-2">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="/">
             <i class="fas fa-search-location me-2"></i>
             <span>Lost & Found</span>
         </a>
         
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <ul class="navbar-nav me-auto mb-2 mb-xl-0">
                 <li class="nav-item">
                     <a class="nav-link d-flex align-items-center" href="/">
                         <i class="fas fa-home me-1"></i> Home
@@ -50,10 +50,10 @@
                 </li>
             </ul>
             
-            <form class="d-flex me-2" action="/search" method="GET">
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" name="q" placeholder="Search items..." style="width: 160px;">
-                    <button class="btn btn-light btn-sm" type="submit">
+            <form class="nav-search-form d-flex align-items-center me-xl-2 my-2 my-xl-0" action="/search" method="GET">
+                <div class="input-group input-group-sm flex-nowrap w-100">
+                    <input type="text" class="form-control nav-search-input" name="q" placeholder="Search items...">
+                    <button class="btn btn-light btn-sm nav-search-btn" type="submit" aria-label="Search">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
