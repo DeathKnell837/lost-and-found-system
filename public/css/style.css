@@ -124,9 +124,16 @@ body::before {
     z-index: 0;
 }
 
-.main-content, .navbar, footer, section {
+.main-content, footer, section {
     position: relative;
     z-index: 1;
+}
+
+nav.navbar,
+.navbar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1040 !important;
 }
 
 ::selection {
@@ -209,6 +216,9 @@ a:hover {
    Navbar
    ================================ */
 .navbar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1040 !important;
     background: rgba(11, 12, 16, 0.85) !important;
     -webkit-backdrop-filter: blur(14px);
     backdrop-filter: blur(14px);
