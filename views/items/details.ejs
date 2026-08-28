@@ -237,7 +237,7 @@
                             <div class="d-flex mb-3 pb-3 border-bottom">
                                 <% if (related.imagePath) { %>
                                     <img src="<%= related.imagePath %>" class="related-item-img me-3"
-                                        alt="<%= related.itemName %>">
+                                        alt="<%= related.itemName %>" style="width: 60px; height: 60px; min-width: 60px; max-width: 60px; max-height: 60px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">
                                     <% } else { %>
                                         <div
                                             class="related-item-placeholder me-3 <%= related.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
