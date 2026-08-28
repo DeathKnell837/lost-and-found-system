@@ -17,15 +17,26 @@
             var savedMode = localStorage.getItem('adminDarkMode');
             if (savedMode === 'false') {
                 document.documentElement.classList.add('light-mode');
-                document.documentElement.style.backgroundColor = '#f8fafc';
+                document.documentElement.classList.remove('dark-mode');
+                document.documentElement.style.backgroundColor = '#f1f5f9';
             } else {
                 document.documentElement.classList.add('dark-mode');
+                document.documentElement.classList.remove('light-mode');
                 document.documentElement.style.backgroundColor = '#070d1e';
             }
         })();
     </script>
 </head>
-<body class="admin-body dark-mode" style="background-color: #070d1e;">
+<body class="admin-body">
+    <script>
+        if (localStorage.getItem('adminDarkMode') === 'false') {
+            document.body.classList.add('light-mode');
+            document.body.style.backgroundColor = '#f1f5f9';
+        } else {
+            document.body.classList.add('dark-mode');
+            document.body.style.backgroundColor = '#070d1e';
+        }
+    </script>
     <% if (typeof admin !== 'undefined' && admin) { %>
         <%- include('../partials/admin-sidebar') %>
     <% } %>

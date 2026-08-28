@@ -2241,6 +2241,13 @@ body.light-mode .user-dropdown {
 /* ==========================================================================
    ADMIN LIGHT MODE - COMPREHENSIVE OVERRIDES FOR CYBER DASHBOARD & TABLES
    ========================================================================== */
+html.light-mode,
+body.light-mode {
+    background: #f1f5f9 linear-gradient(180deg, #f8fafc 0%, #edf2f7 50%, #f1f5f9 100%) fixed !important;
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+}
+
 body.light-mode .cyber-dashboard {
     color: #1e293b;
 }
@@ -2251,18 +2258,32 @@ body.light-mode .cyber-dashboard h3,
 body.light-mode .cyber-dashboard h4,
 body.light-mode .cyber-dashboard h5,
 body.light-mode .cyber-dashboard h6,
-body.light-mode .cyber-dashboard .text-white {
+body.light-mode .cyber-dashboard .text-white,
+body.light-mode strong.text-white,
+body.light-mode small.text-white,
+body.light-mode span.text-white {
     color: #0f172a !important;
 }
 
 body.light-mode .cyber-dashboard .text-muted,
-body.light-mode .cyber-dashboard .cyber-subtitle {
+body.light-mode .cyber-dashboard .cyber-subtitle,
+body.light-mode small.text-muted,
+body.light-mode span.text-muted {
+    color: #64748b !important;
+}
+
+body.light-mode .text-cyan,
+body.light-mode .text-info {
+    color: #2563eb !important;
+}
+
+body.light-mode .text-secondary {
     color: #64748b !important;
 }
 
 body.light-mode .cyber-card {
     background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
     box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05), 0 1px 2px rgba(15, 23, 42, 0.03) !important;
     border-radius: 14px !important;
 }
@@ -2309,10 +2330,53 @@ body.light-mode .cyber-metric-val {
     font-weight: 800;
 }
 
+/* Category Badges in Light Mode */
+body.light-mode .badge.bg-dark {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #1e3a8a !important;
+    font-weight: 700 !important;
+}
+
+body.light-mode .badge.bg-primary.bg-opacity-25 {
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+    color: #1d4ed8 !important;
+    font-weight: 700 !important;
+}
+
+/* Buttons in Light Mode */
+body.light-mode .btn-outline-info {
+    background: #f0f9ff !important;
+    border-color: #7dd3fc !important;
+    color: #0284c7 !important;
+    font-weight: 600;
+}
+
+body.light-mode .btn-outline-info:hover {
+    background: #0284c7 !important;
+    border-color: #0284c7 !important;
+    color: #ffffff !important;
+}
+
+body.light-mode .btn-outline-light {
+    background: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #334155 !important;
+    font-weight: 600;
+}
+
+body.light-mode .btn-outline-light:hover {
+    background: #f1f5f9 !important;
+    border-color: #94a3b8 !important;
+    color: #0f172a !important;
+}
+
+/* Tables in Light Mode */
 body.light-mode .cyber-table thead th {
     background: #f8fafc !important;
     color: #334155 !important;
-    border-bottom: 2px solid #e2e8f0 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
     font-weight: 700;
 }
 
@@ -2330,11 +2394,21 @@ body.light-mode .cyber-select {
     background: #ffffff !important;
     border: 1.5px solid #cbd5e1 !important;
     color: #0f172a !important;
+    font-weight: 500;
+}
+
+body.light-mode .cyber-select option {
+    background: #ffffff !important;
+    color: #0f172a !important;
+}
+
+body.light-mode .cyber-thumb {
+    border: 1px solid #cbd5e1 !important;
 }
 
 body.light-mode .cyber-thumb-placeholder {
     background: #f1f5f9 !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid #cbd5e1 !important;
     color: #64748b !important;
 }
 
@@ -2376,6 +2450,33 @@ body.light-mode .cyber-badge-claimed {
     color: #0891b2 !important;
     border: 1px solid rgba(6, 182, 212, 0.3) !important;
 }
+
+/* Header & Breadcrumb in Light Mode */
+body.light-mode .breadcrumb-item a {
+    color: #2563eb !important;
+}
+
+body.light-mode .breadcrumb-item.active {
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+body.light-mode .breadcrumb-item + .breadcrumb-item::before {
+    color: #94a3b8 !important;
+}
+
+body.light-mode .dark-mode-toggle {
+    color: #475569 !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+body.light-mode .sidebar-toggle {
+    color: #475569 !important;
+    background: #f1f5f9 !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
 
 
 
