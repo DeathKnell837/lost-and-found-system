@@ -3176,4 +3176,141 @@ body.light-mode .modal-footer {
     border-top: 1px solid #e2e8f0 !important;
 }
 
+/* Light Mode - How It Works Section & Step Cards */
+body:not(.dark-mode) .how-it-works-section,
+body.light-mode .how-it-works-section {
+    background: #eef2f6 linear-gradient(180deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+    border-top: 1px solid #cbd5e1 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+}
+
+body:not(.dark-mode) .how-it-works-section .section-title,
+body.light-mode .how-it-works-section .section-title {
+    color: #0f172a !important;
+}
+
+body:not(.dark-mode) .how-it-works-section p.text-secondary,
+body.light-mode .how-it-works-section p.text-secondary {
+    color: #475569 !important;
+}
+
+body:not(.dark-mode) .step-card,
+body.light-mode .step-card {
+    background: #ffffff !important;
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08) !important;
+    border-radius: 16px !important;
+}
+
+body:not(.dark-mode) .step-card:hover,
+body.light-mode .step-card:hover {
+    border-color: #2563eb !important;
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.15) !important;
+    transform: translateY(-6px);
+}
+
+body:not(.dark-mode) .step-pill,
+body.light-mode .step-pill {
+    background: #eff6ff !important;
+    border: 1px solid #bfdbfe !important;
+    color: #1d4ed8 !important;
+}
+
+body:not(.dark-mode) .step-icon-portal,
+body.light-mode .step-icon-portal {
+    background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%) !important;
+    border: 1.5px solid #93c5fd !important;
+    color: #2563eb !important;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.15) !important;
+}
+
+body:not(.dark-mode) .step-card:hover .step-icon-portal,
+body.light-mode .step-card:hover .step-icon-portal {
+    background: linear-gradient(135deg, #2563eb 0%, #0284c7 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.35) !important;
+}
+
+body:not(.dark-mode) .step-title,
+body.light-mode .step-title {
+    color: #0f172a !important;
+    font-weight: 700 !important;
+}
+
+body:not(.dark-mode) .step-desc,
+body.light-mode .step-desc {
+    color: #475569 !important;
+    font-size: 0.95rem !important;
+    line-height: 1.6 !important;
+}
+
+/* Light Mode - Breadcrumbs & Details */
+body:not(.dark-mode) .breadcrumb-item,
+body:not(.dark-mode) .breadcrumb-item a,
+body.light-mode .breadcrumb-item,
+body.light-mode .breadcrumb-item a {
+    color: #2563eb !important;
+}
+
+body:not(.dark-mode) .breadcrumb-item.active,
+body.light-mode .breadcrumb-item.active {
+    color: #64748b !important;
+}
+
+body:not(.dark-mode) .contact-value,
+body.light-mode .contact-value,
+body:not(.dark-mode) .item-value,
+body.light-mode .item-value {
+    color: #0f172a !important;
+}
+
+/* Global Footer - Deep Obsidian Navy for High-Contrast Clean Separation */
+footer, .footer,
+body:not(.dark-mode) footer,
+body:not(.dark-mode) .footer,
+body.light-mode footer,
+body.light-mode .footer {
+    background: #090d16 !important;
+    background-color: #090d16 !important;
+    border-top: 1px solid #1e293b !important;
+    color: #94a3b8 !important;
+}
+
+footer h5, footer h6,
+.footer h5, .footer h6,
+body:not(.dark-mode) footer h5,
+body:not(.dark-mode) footer h6,
+body.light-mode footer h5,
+body.light-mode footer h6 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+footer p, .footer p,
+footer .text-muted, .footer .text-muted,
+body:not(.dark-mode) footer p,
+body:not(.dark-mode) footer .text-muted,
+body.light-mode footer p,
+body.light-mode footer .text-muted {
+    color: #94a3b8 !important;
+}
+
+footer a, .footer a,
+body:not(.dark-mode) footer a,
+body.light-mode footer a {
+    color: #94a3b8 !important;
+}
+
+footer a:hover, .footer a:hover,
+body:not(.dark-mode) footer a:hover,
+body.light-mode footer a:hover {
+    color: #38bdf8 !important;
+}
+
+footer .border-secondary,
+.footer .border-secondary {
+    border-color: #1e293b !important;
+}
+
+
 
