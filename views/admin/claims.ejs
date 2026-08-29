@@ -54,10 +54,10 @@
                 <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Filter by Status</label>
                 <select name="status" class="form-select cyber-select py-1 px-2" onchange="this.form.submit()" style="font-size: 0.76rem;">
                     <option value="all" <%= currentStatus === 'all' ? 'selected' : '' %>>All Claims</option>
-                    <option value="pending" <%= currentStatus === 'pending' ? 'selected' : '' %>>⏳ Pending Verification</option>
-                    <option value="under_review" <%= currentStatus === 'under_review' ? 'selected' : '' %>>🔍 Under Review</option>
-                    <option value="approved" <%= currentStatus === 'approved' ? 'selected' : '' %>>✓ Approved &amp; Handed Over</option>
-                    <option value="rejected" <%= currentStatus === 'rejected' ? 'selected' : '' %>>✗ Rejected</option>
+                    <option value="pending" <%= currentStatus === 'pending' ? 'selected' : '' %>>Pending Verification</option>
+                    <option value="under_review" <%= currentStatus === 'under_review' ? 'selected' : '' %>>Under Review</option>
+                    <option value="approved" <%= currentStatus === 'approved' ? 'selected' : '' %>>Approved &amp; Handed Over</option>
+                    <option value="rejected" <%= currentStatus === 'rejected' ? 'selected' : '' %>>Rejected</option>
                 </select>
             </div>
             <div class="col-12 col-md-6">

@@ -12,35 +12,53 @@
         </a>
     </div>
     
+    <!-- Quick Category Filter Pills -->
+    <div class="category-pills-bar d-flex align-items-center gap-2 overflow-auto pb-2 mb-3 no-scrollbar">
+        <a href="/items/found<%= query.q ? '?q=' + encodeURIComponent(query.q) : '' %>" 
+           class="category-pill-btn <%= !query.category ? 'active' : '' %>">
+            <i class="fas fa-th-large me-1"></i>
+            <span>All Categories</span>
+            <span class="category-pill-badge"><%= totalActiveItems %></span>
+        </a>
+        <% categories.forEach(function(cat) { %>
+            <a href="/items/found?category=<%= cat._id %><%= query.q ? '&q=' + encodeURIComponent(query.q) : '' %>" 
+               class="category-pill-btn <%= query.category === cat._id.toString() ? 'active' : '' %>">
+                <i class="fas <%= cat.icon || 'fa-box' %> me-1"></i>
+                <span><%= cat.name %></span>
+                <span class="category-pill-badge"><%= cat.count || 0 %></span>
+            </a>
+        <% }); %>
+    </div>
+
     <!-- Filters -->
     <div class="filter-card shadow-sm mb-3">
         <form action="/items/found" method="GET" class="row g-2 align-items-end">
             <div class="col-md-3 col-sm-6">
-                <label class="form-label">Category</label>
+                <label class="form-label small fw-bold">Category</label>
                 <select class="form-select form-select-sm" name="category">
                     <option value="">All Categories</option>
                     <% categories.forEach(function(cat) { %>
                         <option value="<%= cat._id %>" <%= query.category === cat._id.toString() ? 'selected' : '' %>>
-                            <%= cat.name %>
+                            <%= cat.name %> (<%= cat.count || 0 %>)
                         </option>
                     <% }); %>
                 </select>
             </div>
             <div class="col-md-2 col-sm-6">
-                <label class="form-label">From</label>
+                <label class="form-label small fw-bold">From</label>
                 <input type="date" class="form-control form-control-sm" name="dateFrom" value="<%= query.dateFrom || '' %>">
             </div>
             <div class="col-md-2 col-sm-6">
-                <label class="form-label">To</label>
+                <label class="form-label small fw-bold">To</label>
                 <input type="date" class="form-control form-control-sm" name="dateTo" value="<%= query.dateTo || '' %>">
             </div>
             <div class="col-md-3 col-sm-6">
-                <label class="form-label">Search</label>
-                <input type="text" class="form-control form-control-sm" name="q" placeholder="Search..." value="<%= query.q || '' %>">
+                <label class="form-label small fw-bold">Keyword Search</label>
+                <input type="text" class="form-control form-control-sm" name="q" placeholder="Search keywords..." value="<%= query.q || '' %>">
             </div>
             <div class="col-md-2 col-sm-12">
-                <button type="submit" class="btn btn-primary btn-sm w-100">
-                    <i class="fas fa-filter me-1"></i> Filter
+                <button type="submit" class="btn btn-success btn-sm w-100">
+                    <i class="fas fa-filter me-1"></i> Apply Filter
                 </button>
             </div>
         </form>

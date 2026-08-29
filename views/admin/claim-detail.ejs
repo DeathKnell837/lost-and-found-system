@@ -31,16 +31,42 @@
     <div class="row g-3">
         <!-- Main Content (Left) -->
         <div class="col-12 col-lg-8">
-            <!-- Header Summary Card -->
+            <!-- Header Summary Card with Stepper -->
             <div class="cyber-card p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div>
-                        <span class="text-muted small" style="font-size: 0.72rem;">Claimant Information</span>
+                        <span class="text-muted small" style="font-size: 0.72rem;">Claimant Profile</span>
                         <h6 class="text-white mb-0 fw-bold"><%= claim.claimant.username %> (<%= claim.claimant.email %>)</h6>
                     </div>
                     <span class="text-muted small" style="font-size: 0.72rem;">
                         <i class="fas fa-calendar me-1"></i> Submitted: <%= new Date(claim.createdAt).toLocaleDateString() %>
                     </span>
+                </div>
+
+                <!-- 4-Step Claim Status Stepper -->
+                <div class="claim-stepper-wrap p-2 rounded-3 border">
+                    <div class="d-flex justify-content-between position-relative claim-stepper">
+                        <div class="claim-step <%= (claim.status === 'pending' || claim.status === 'under_review' || claim.status === 'approved') ? 'step-completed' : '' %>">
+                            <div class="step-icon-circle"><i class="fas fa-file-signature"></i></div>
+                            <div class="step-label">1. Claim Filed</div>
+                            <div class="step-sublabel"><%= new Date(claim.createdAt).toLocaleDateString() %></div>
+                        </div>
+                        <div class="claim-step <%= (claim.status === 'under_review' || claim.status === 'approved') ? 'step-completed' : (claim.status === 'pending' ? 'step-active' : (claim.status === 'rejected' ? 'step-rejected' : '')) %>">
+                            <div class="step-icon-circle"><i class="fas fa-shield-alt"></i></div>
+                            <div class="step-label">2. Reviewing</div>
+                            <div class="step-sublabel"><%= claim.status === 'pending' ? 'In Queue' : 'Admin Checking' %></div>
+                        </div>
+                        <div class="claim-step <%= claim.status === 'approved' ? 'step-completed' : (claim.status === 'under_review' ? 'step-active' : (claim.status === 'rejected' ? 'step-rejected' : '')) %>">
+                            <div class="step-icon-circle"><i class="fas fa-user-check"></i></div>
+                            <div class="step-label">3. Verified</div>
+                            <div class="step-sublabel"><%= claim.status === 'approved' ? 'Proof Accepted' : 'Evidence Review' %></div>
+                        </div>
+                        <div class="claim-step <%= claim.status === 'approved' ? 'step-completed' : (claim.status === 'rejected' ? 'step-rejected' : '') %>">
+                            <div class="step-icon-circle"><i class="fas <%= claim.status === 'rejected' ? 'fa-times' : 'fa-handshake' %>"></i></div>
+                            <div class="step-label">4. Handover</div>
+                            <div class="step-sublabel"><%= claim.status === 'approved' ? 'Custody Released' : (claim.status === 'rejected' ? 'Claim Rejected' : 'Final Step') %></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 

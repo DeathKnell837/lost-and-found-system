@@ -3401,5 +3401,260 @@ footer .border-secondary,
     border-color: #1e293b !important;
 }
 
+/* ==========================================================================
+   Category Filter Pills Bar (Tactile & Responsive)
+   ========================================================================== */
+.category-pills-bar {
+    display: flex;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    padding: 4px 0 8px 0;
+}
 
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
 
+.category-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #475569;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 9999px;
+    text-decoration: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    flex-shrink: 0;
+}
+
+.category-pill-btn:hover {
+    color: #1d4ed8;
+    background: #eff6ff;
+    border-color: #93c5fd;
+    transform: translateY(-1px);
+}
+
+.category-pill-btn.active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%) !important;
+    border-color: #1d4ed8 !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
+}
+
+.category-pill-badge {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 9999px;
+    background: #f1f5f9;
+    color: #475569;
+    transition: all 0.2s ease;
+}
+
+.category-pill-btn.active .category-pill-badge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+/* Dark Mode - Category Pills */
+body.dark-mode .category-pill-btn {
+    color: #cbd5e1;
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .category-pill-btn:hover {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.3);
+}
+
+body.dark-mode .category-pill-btn.active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+    border-color: #38bdf8 !important;
+}
+
+body.dark-mode .category-pill-badge {
+    background: rgba(255, 255, 255, 0.08);
+    color: #94a3b8;
+}
+
+/* ==========================================================================
+   4-Step Claim Status Stepper (Interactive Timeline)
+   ========================================================================== */
+.claim-stepper-wrap {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+body.dark-mode .claim-stepper-wrap {
+    background: rgba(15, 23, 42, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.claim-stepper {
+    position: relative;
+    z-index: 1;
+}
+
+.claim-stepper::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 40px;
+    right: 40px;
+    height: 3px;
+    background: #e2e8f0;
+    z-index: -1;
+}
+
+body.dark-mode .claim-stepper::before {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.claim-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    flex: 1;
+    position: relative;
+}
+
+.step-icon-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: 2px solid #cbd5e1;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 2px;
+}
+
+.step-sublabel {
+    font-size: 0.68rem;
+    color: #94a3b8;
+}
+
+/* Completed Step (Emerald) */
+.claim-step.step-completed .step-icon-circle {
+    background: #10b981;
+    border-color: #059669;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.claim-step.step-completed .step-label {
+    color: #059669;
+}
+
+/* Active Step (Royal Blue with Pulse) */
+.claim-step.step-active .step-icon-circle {
+    background: #2563eb;
+    border-color: #1d4ed8;
+    color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+    animation: stepPulse 2s infinite;
+}
+
+.claim-step.step-active .step-label {
+    color: #1d4ed8;
+}
+
+/* Rejected Step (Crimson) */
+.claim-step.step-rejected .step-icon-circle {
+    background: #ef4444;
+    border-color: #dc2626;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.claim-step.step-rejected .step-label {
+    color: #dc2626;
+}
+
+@keyframes stepPulse {
+    0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+    70% { box-shadow: 0 0 0 8px rgba(37, 99, 235, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+@media (max-width: 576px) {
+    .step-icon-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 0.85rem;
+    }
+    .step-label {
+        font-size: 0.68rem;
+    }
+    .step-sublabel {
+        display: none;
+    }
+    .claim-stepper::before {
+        top: 18px;
+        left: 20px;
+        right: 20px;
+    }
+}
+
+/* ==========================================================================
+   Image Inspection & Zoom Lightbox
+   ========================================================================== */
+.item-detail-img-container {
+    border-radius: 12px 12px 0 0;
+    background: #0f172a;
+}
+
+.zoomable-image {
+    transition: transform 0.3s ease;
+}
+
+.item-detail-img-container:hover .zoomable-image {
+    transform: scale(1.02);
+}
+
+.zoom-badge-btn {
+    font-size: 0.74rem;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.zoom-badge-btn:hover {
+    background: #000000 !important;
+    border-color: #38bdf8;
+    color: #38bdf8;
+}
+
+/* Hover Elevation Utility */
+.hover-elevate {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-elevate:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.12) !important;
+}

@@ -94,7 +94,22 @@ exports.getLostItems = async (req, res) => {
                 .limit(limit);
 
             total = await Item.countDocuments(query);
-            categories = await Category.find({ isActive: true });
+            const activeCategories = await Category.find({ isActive: true }).sort({ name: 1 });
+            
+            // Dynamic count aggregation for lost items
+            const countsAggregate = await Item.aggregate([
+                { $match: { type: 'lost', status: 'approved' } },
+                { $group: { _id: '$category', count: { $sum: 1 } } }
+            ]);
+            const countsMap = {};
+            countsAggregate.forEach(c => {
+                if (c._id) countsMap[c._id.toString()] = c.count;
+            });
+            const totalActiveItems = await Item.countDocuments({ type: 'lost', status: 'approved' });
+            categories = activeCategories.map(cat => ({
+                ...cat.toObject(),
+                count: countsMap[cat._id.toString()] || 0
+            }));
         }
     } catch (error) {
         console.error('Error loading lost items:', error.message);
@@ -107,6 +122,7 @@ exports.getLostItems = async (req, res) => {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
         totalItems: total,
+        totalActiveItems: typeof totalActiveItems !== 'undefined' ? totalActiveItems : total,
         query: req.query || {}
     });
 };
@@ -120,6 +136,7 @@ exports.getFoundItems = async (req, res) => {
     let items = [];
     let total = 0;
     let categories = [];
+    let totalActiveItems = 0;
 
     try {
         if (mongoose.connection.readyState === 1) {
@@ -155,7 +172,22 @@ exports.getFoundItems = async (req, res) => {
                 .limit(limit);
 
             total = await Item.countDocuments(query);
-            categories = await Category.find({ isActive: true });
+            const activeCategories = await Category.find({ isActive: true }).sort({ name: 1 });
+
+            // Dynamic count aggregation for found items
+            const countsAggregate = await Item.aggregate([
+                { $match: { type: 'found', status: 'approved' } },
+                { $group: { _id: '$category', count: { $sum: 1 } } }
+            ]);
+            const countsMap = {};
+            countsAggregate.forEach(c => {
+                if (c._id) countsMap[c._id.toString()] = c.count;
+            });
+            totalActiveItems = await Item.countDocuments({ type: 'found', status: 'approved' });
+            categories = activeCategories.map(cat => ({
+                ...cat.toObject(),
+                count: countsMap[cat._id.toString()] || 0
+            }));
         }
     } catch (error) {
         console.error('Error loading found items:', error.message);
@@ -168,6 +200,7 @@ exports.getFoundItems = async (req, res) => {
         currentPage: page,
         totalPages: Math.ceil(total / limit),
         totalItems: total,
+        totalActiveItems,
         query: req.query || {}
     });
 };
@@ -350,8 +383,23 @@ exports.reportLostItem = async (req, res) => {
             }
         }
 
-        req.flash('success', 'Your lost item report has been submitted and is pending approval.');
-        res.redirect('/items/lost');
+        // Perform instant match scan against approved found items
+        let instantMatches = [];
+        try {
+            const populatedItem = await Item.findById(item._id).populate('category');
+            const matchingService = require('../services/matchingService');
+            instantMatches = await matchingService.findMatchesForItem(populatedItem, 35);
+        } catch (matchErr) {
+            console.error('Instant match check error:', matchErr.message);
+        }
+
+        const populatedItem = await Item.findById(item._id).populate('category');
+        return res.render('items/report-success', {
+            title: 'Report Submitted - Lost & Found',
+            item: populatedItem,
+            reportType: 'lost',
+            matches: (instantMatches || []).slice(0, 4)
+        });
     } catch (error) {
         console.error('Error reporting lost item:', error);
         // Clean up uploaded file from Cloudinary if exists
@@ -423,8 +471,23 @@ exports.reportFoundItem = async (req, res) => {
             }
         }
 
-        req.flash('success', 'Your found item report has been submitted and is pending approval.');
-        res.redirect('/items/found');
+        // Perform instant match scan against approved lost items
+        let instantMatches = [];
+        try {
+            const populatedItem = await Item.findById(item._id).populate('category');
+            const matchingService = require('../services/matchingService');
+            instantMatches = await matchingService.findMatchesForFoundItem(populatedItem, 35);
+        } catch (matchErr) {
+            console.error('Instant match check error:', matchErr.message);
+        }
+
+        const populatedItem = await Item.findById(item._id).populate('category');
+        return res.render('items/report-success', {
+            title: 'Report Submitted - Lost & Found',
+            item: populatedItem,
+            reportType: 'found',
+            matches: (instantMatches || []).slice(0, 4)
+        });
     } catch (error) {
         console.error('Error reporting found item:', error);
         // Clean up uploaded file from Cloudinary if exists

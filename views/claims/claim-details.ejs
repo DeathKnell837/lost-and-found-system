@@ -43,17 +43,61 @@
                         </span>
                     </div>
 
+                    <!-- 4-Step Claim Status Stepper -->
+                    <div class="claim-stepper-wrap my-4 p-3 rounded-4 bg-light border">
+                        <div class="d-flex justify-content-between position-relative claim-stepper">
+                            <!-- Step 1 -->
+                            <div class="claim-step <%= (claim.status === 'pending' || claim.status === 'under_review' || claim.status === 'approved') ? 'step-completed' : '' %>">
+                                <div class="step-icon-circle">
+                                    <i class="fas fa-file-signature"></i>
+                                </div>
+                                <div class="step-label">1. Claim Filed</div>
+                                <div class="step-sublabel"><%= new Date(claim.createdAt).toLocaleDateString() %></div>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="claim-step <%= (claim.status === 'under_review' || claim.status === 'approved') ? 'step-completed' : (claim.status === 'pending' ? 'step-active' : (claim.status === 'rejected' ? 'step-rejected' : '')) %>">
+                                <div class="step-icon-circle">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="step-label">2. Verification</div>
+                                <div class="step-sublabel"><%= claim.status === 'pending' ? 'In Queue' : (claim.status === 'under_review' ? 'Evaluating' : (claim.status === 'approved' ? 'Verified' : 'Closed')) %></div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="claim-step <%= claim.status === 'approved' ? 'step-completed' : (claim.status === 'under_review' ? 'step-active' : (claim.status === 'rejected' ? 'step-rejected' : '')) %>">
+                                <div class="step-icon-circle">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <div class="step-label">3. Proof Verified</div>
+                                <div class="step-sublabel"><%= claim.status === 'approved' ? 'Confirmed' : 'Security Proof' %></div>
+                            </div>
+
+                            <!-- Step 4 -->
+                            <div class="claim-step <%= claim.status === 'approved' ? 'step-completed' : (claim.status === 'rejected' ? 'step-rejected' : '') %>">
+                                <div class="step-icon-circle">
+                                    <i class="fas <%= claim.status === 'rejected' ? 'fa-times' : 'fa-handshake' %>"></i>
+                                </div>
+                                <div class="step-label">4. Handover &amp; Release</div>
+                                <div class="step-sublabel"><%= claim.status === 'approved' ? 'Ready at Office' : (claim.status === 'rejected' ? 'Claim Rejected' : 'Final Step') %></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <% if (claim.status === 'rejected' && claim.rejectionReason) { %>
-                        <div class="alert alert-danger">
-                            <h6><i class="fas fa-info-circle me-2"></i>Rejection Reason</h6>
-                            <p class="mb-0"><%= claim.rejectionReason %></p>
+                        <div class="alert alert-danger rounded-3">
+                            <h6 class="fw-bold"><i class="fas fa-exclamation-circle me-2"></i>Rejection Reason</h6>
+                            <p class="mb-0 small"><%= claim.rejectionReason %></p>
                         </div>
                     <% } %>
 
                     <% if (claim.status === 'approved') { %>
-                        <div class="alert alert-success">
-                            <h6><i class="fas fa-check-circle me-2"></i>Claim Approved!</h6>
-                            <p class="mb-0">Congratulations! Your claim has been approved. Please contact the admin to collect your item.</p>
+                        <div class="alert alert-success rounded-3 border-success border-opacity-25">
+                            <h6 class="fw-bold"><i class="fas fa-check-circle me-2"></i>Claim Approved &amp; Ready for Handover!</h6>
+                            <p class="mb-2 small">Congratulations! Your proof of ownership has been verified by campus security.</p>
+                            <div class="p-2 rounded bg-white bg-opacity-75 small text-dark">
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i> Please visit the <strong>Main Admin Building Ground Floor Security Office</strong> (Mon-Fri 8:00 AM - 6:00 PM) and bring a valid NDMC Student ID to collect your item.
+                            </div>
                         </div>
                     <% } %>
                 </div>

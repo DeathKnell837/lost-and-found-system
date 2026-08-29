@@ -17,22 +17,25 @@
             </nav>
 
             <div class="card shadow">
-                <!-- Image -->
+                <!-- Image with Interactive Zoom Lightbox Trigger -->
                 <% if (item.imagePath) { %>
-                    <img src="<%= item.imagePath %>" class="card-img-top item-detail-image" alt="<%= item.itemName %>">
-                    <% } else { %>
-                        <div
-                            class="item-detail-placeholder <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
-                            <div class="placeholder-pattern"></div>
-                            <div class="placeholder-icon-wrap placeholder-icon-lg">
-                                <i
-                                    class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
-                            </div>
-                            <span class="placeholder-label">
-                                <%= (item.category && item.category.name) ? item.category.name : 'No Image' %>
-                            </span>
+                    <div class="position-relative item-detail-img-container overflow-hidden">
+                        <img src="<%= item.imagePath %>" class="card-img-top item-detail-image zoomable-image" id="mainItemImage" alt="<%= item.itemName %>" onclick="openImageLightbox('<%= item.imagePath %>', '<%= item.itemName %>')" style="cursor: zoom-in;">
+                        <button type="button" class="btn btn-dark btn-sm position-absolute bottom-0 end-0 m-3 shadow rounded-pill px-3 py-1 bg-opacity-75 backdrop-blur zoom-badge-btn" onclick="openImageLightbox('<%= item.imagePath %>', '<%= item.itemName %>')">
+                            <i class="fas fa-search-plus me-1"></i> Inspect &amp; Zoom
+                        </button>
+                    </div>
+                <% } else { %>
+                    <div class="item-detail-placeholder <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
+                        <div class="placeholder-pattern"></div>
+                        <div class="placeholder-icon-wrap placeholder-icon-lg">
+                            <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-box' %>"></i>
                         </div>
-                        <% } %>
+                        <span class="placeholder-label">
+                            <%= (item.category && item.category.name) ? item.category.name : 'No Image Available' %>
+                        </span>
+                    </div>
+                <% } %>
 
                             <div class="card-body">
                                 <!-- Status Badges -->
@@ -737,3 +740,107 @@
         }
     }
 </style>
+
+<!-- Interactive Image Zoom Lightbox Modal -->
+<div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 rounded-4 overflow-hidden shadow-lg bg-dark text-white">
+            <div class="modal-header border-0 py-2 px-3 bg-black bg-opacity-50">
+                <h6 class="modal-title small fw-bold text-truncate text-white" id="lightboxTitle">
+                    <i class="fas fa-search me-1 text-primary"></i> Item Visual Inspection
+                </h6>
+                <div class="d-flex align-items-center gap-2">
+                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="zoomLightboxImage(1.25)" title="Zoom In">
+                        <i class="fas fa-search-plus"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="zoomLightboxImage(0.8)" title="Zoom Out">
+                        <i class="fas fa-search-minus"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="resetLightboxZoom()" title="Reset Zoom">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0 d-flex align-items-center justify-content-center bg-black overflow-hidden" style="min-height: 420px; max-height: 75vh; cursor: grab;" id="lightboxBody">
+                <img id="lightboxImg" src="" alt="" class="img-fluid transition-all" style="max-height: 70vh; object-fit: contain; transform: scale(1); user-select: none;">
+            </div>
+            <div class="modal-footer border-0 py-2 px-3 bg-black bg-opacity-50 justify-content-between text-muted small" style="font-size: 0.72rem;">
+                <span class="text-white-50"><i class="fas fa-mouse me-1 text-info"></i> Use zoom controls to inspect scratches, serial numbers &amp; identifiers</span>
+                <span class="badge bg-secondary">Esc to Close</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentZoom = 1;
+let isDragging = false;
+let startX, startY, translateX = 0, translateY = 0;
+
+function openImageLightbox(src, title) {
+    const modalEl = document.getElementById('imageLightboxModal');
+    if (!modalEl) return;
+    const imgEl = document.getElementById('lightboxImg');
+    const titleEl = document.getElementById('lightboxTitle');
+    
+    if (imgEl) imgEl.src = src;
+    if (titleEl) titleEl.innerHTML = '<i class="fas fa-search me-1 text-primary"></i> ' + (title || 'Item Visual Inspection');
+    
+    resetLightboxZoom();
+    const modal = new bootstrap.Modal(modalEl);
+    modal.show();
+}
+
+function zoomLightboxImage(factor) {
+    const imgEl = document.getElementById('lightboxImg');
+    if (!imgEl) return;
+    currentZoom = Math.min(Math.max(currentZoom * factor, 0.5), 4);
+    applyTransform();
+}
+
+function resetLightboxZoom() {
+    currentZoom = 1;
+    translateX = 0;
+    translateY = 0;
+    applyTransform();
+}
+
+function applyTransform() {
+    const imgEl = document.getElementById('lightboxImg');
+    if (imgEl) {
+        imgEl.style.transform = `scale(${currentZoom}) translate(${translateX / currentZoom}px, ${translateY / currentZoom}px)`;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const bodyEl = document.getElementById('lightboxBody');
+    const imgEl = document.getElementById('lightboxImg');
+    
+    if (bodyEl && imgEl) {
+        bodyEl.addEventListener('mousedown', function(e) {
+            if (currentZoom > 1) {
+                isDragging = true;
+                startX = e.clientX - translateX;
+                startY = e.clientY - translateY;
+                bodyEl.style.cursor = 'grabbing';
+            }
+        });
+
+        window.addEventListener('mousemove', function(e) {
+            if (isDragging) {
+                translateX = e.clientX - startX;
+                translateY = e.clientY - startY;
+                applyTransform();
+            }
+        });
+
+        window.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                bodyEl.style.cursor = 'grab';
+            }
+        });
+    }
+});
+</script>

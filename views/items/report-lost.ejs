@@ -1,123 +1,195 @@
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <nav aria-label="breadcrumb" class="mb-3">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/">Home</a></li>
-                    <li class="breadcrumb-item active">Report Lost Item</li>
-                </ol>
-            </nav>
-            
-            <div class="card shadow">
-                <div class="card-header bg-danger text-white">
-                    <h4 class="mb-0">
-                        <i class="fas fa-exclamation-triangle me-2"></i> Report Lost Item
+<div class="container py-4 py-md-5">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/"><i class="fas fa-home me-1"></i>Home</a></li>
+            <li class="breadcrumb-item"><a href="/items/lost">Lost Items</a></li>
+            <li class="breadcrumb-item active">Report Lost Item</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <!-- Left: Intake Form -->
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-danger text-white py-3">
+                    <h4 class="mb-0 fw-bold d-flex align-items-center gap-2" style="font-size: 1.15rem;">
+                        <i class="fas fa-exclamation-triangle"></i> Report Lost Item
                     </h4>
                 </div>
                 <div class="card-body p-4">
-                    <p class="text-muted mb-4">
-                        Fill out the form below to report a lost item. Your report will be reviewed 
-                        by an admin before being published.
+                    <p class="text-muted small mb-4">
+                        Please provide detailed descriptions and visual identifiers. Our AI matching engine correlates these details against verified found belongings.
                     </p>
                     
-                    <form action="/report/lost" method="POST" enctype="multipart/form-data">
+                    <form action="/report/lost" method="POST" enctype="multipart/form-data" id="lostReportForm">
                         <!-- Item Details -->
-                        <h5 class="mb-3 border-bottom pb-2">
-                            <i class="fas fa-box me-2"></i> Item Details
-                        </h5>
+                        <h6 class="fw-bold mb-3 border-bottom pb-2 text-uppercase text-muted" style="font-size: 0.76rem; letter-spacing: 0.5px;">
+                            <i class="fas fa-box text-danger me-1"></i> Item Identification
+                        </h6>
                         
                         <div class="row g-3 mb-4">
-                            <div class="col-md-6">
-                                <label class="form-label">Item Name <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="itemName" required 
-                                       placeholder="e.g., Blue Backpack, iPhone 13, etc." maxlength="100">
+                            <div class="col-md-7">
+                                <label class="form-label small fw-bold">Item Name <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="itemName" id="inputItemName" required 
+                                       placeholder="e.g., Black Leather Wallet, Acer Laptop" maxlength="100">
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Category <span class="text-danger">*</span></label>
-                                <select class="form-select" name="category" required>
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold">Category <span class="text-danger">*</span></label>
+                                <select class="form-select" name="category" id="inputCategory" required>
                                     <option value="">Select Category</option>
                                     <% categories.forEach(function(cat) { %>
-                                        <option value="<%= cat._id %>"><%= cat.name %></option>
+                                        <option value="<%= cat._id %>" data-icon="<%= cat.icon || 'fa-box' %>" data-name="<%= cat.name %>"><%= cat.name %></option>
                                     <% }); %>
                                 </select>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Description <span class="text-danger">*</span></label>
-                                <textarea class="form-control" name="description" rows="4" required 
-                                          placeholder="Describe the item in detail (color, brand, size, distinguishing features, etc.)"
+                                <label class="form-label small fw-bold">Detailed Description <span class="text-danger">*</span></label>
+                                <textarea class="form-control" name="description" id="inputDescription" rows="3" required 
+                                          placeholder="Describe colors, brand, serial numbers, stickers, keychains, scratches..."
                                           maxlength="1000"></textarea>
-                                <small class="text-muted">Max 1000 characters</small>
+                                <div class="text-muted small" style="font-size: 0.72rem;">Include unique identifiers to make AI correlation faster</div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Location Last Seen <span class="text-danger">*</span></label>
+                                <label class="form-label small fw-bold">Last Seen Location <span class="text-danger">*</span></label>
                                 <select class="form-select" name="location" id="locationSelect" required>
-                                    <option value="">Select Location</option>
+                                    <option value="">Select Campus Zone</option>
                                     <% if (locations && locations.length > 0) { %>
                                         <% locations.forEach(function(loc) { %>
                                             <option value="<%= loc.name %>"><%= loc.name %></option>
                                         <% }); %>
                                     <% } %>
-                                    <option value="__other__">Other (type manually)</option>
+                                    <option value="__other__">Other (Type custom location)</option>
                                 </select>
                                 <input type="text" class="form-control mt-2" name="locationCustom" id="locationCustom"
-                                       placeholder="Type your location" maxlength="200" style="display: none;">
-                                <small class="text-muted">Select from list or choose "Other" to type your own</small>
+                                       placeholder="Enter specific room or area" maxlength="200" style="display: none;">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Date Lost <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" name="dateLostFound" required 
+                                <label class="form-label small fw-bold">Date Lost <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="dateLostFound" id="inputDate" required 
                                        max="<%= new Date().toISOString().split('T')[0] %>">
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Item Image (Optional)</label>
-                                <input type="file" class="form-control" name="image" accept="image/*">
-                                <small class="text-muted">Accepted formats: JPG, PNG, GIF, WebP. Max size: 5MB</small>
+                                <label class="form-label small fw-bold">Photo Attachment (Optional)</label>
+                                <input type="file" class="form-control" name="image" id="inputImage" accept="image/*">
+                                <small class="text-muted" style="font-size: 0.72rem;">JPG, PNG, WebP up to 5MB. Clear photos significantly improve AI matching score.</small>
                             </div>
                         </div>
                         
                         <!-- Contact Information -->
-                        <h5 class="mb-3 border-bottom pb-2">
-                            <i class="fas fa-user me-2"></i> Contact Information
-                        </h5>
+                        <h6 class="fw-bold mb-3 border-bottom pb-2 text-uppercase text-muted" style="font-size: 0.76rem; letter-spacing: 0.5px;">
+                            <i class="fas fa-user-shield text-danger me-1"></i> Reporter Verification Info
+                        </h6>
                         
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label">Your Name <span class="text-danger">*</span></label>
+                                <label class="form-label small fw-bold">Full Name <span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="reporterName" required 
                                        value="<%= typeof user !== 'undefined' && user ? user.username : '' %>"
-                                       placeholder="Enter your full name" maxlength="100">
+                                       placeholder="Enter your student / staff name" maxlength="100">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Your Email <span class="text-danger">*</span></label>
+                                <label class="form-label small fw-bold">Email Address <span class="text-danger">*</span></label>
                                 <input type="email" class="form-control" name="reporterEmail" required 
                                        value="<%= typeof user !== 'undefined' && user ? user.email : '' %>"
-                                       placeholder="Enter your email address">
+                                       placeholder="your.email@ndmc.edu.ph">
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Additional Contact Info <span class="text-muted">(Optional)</span></label>
+                                <label class="form-label small fw-bold">Contact Number / Hotline <span class="text-muted">(Optional)</span></label>
                                 <input type="text" class="form-control" name="contactInfo"
-                                       placeholder="Phone number or alternative contact method" maxlength="200">
+                                       placeholder="0912-345-6789 or Department" maxlength="200">
                             </div>
                         </div>
                         
-                        <!-- Terms -->
-                        <div class="form-check mb-4">
-                            <input class="form-check-input" type="checkbox" id="terms" required>
-                            <label class="form-check-label dark-mode-label" for="terms">
-                                I confirm that the information provided is accurate and I understand that my report 
-                                will be reviewed before publishing.
+                        <!-- Terms & Confirmation -->
+                        <div class="form-check mb-4 p-3 rounded-3 bg-light border">
+                            <input class="form-check-input ms-0 me-2" type="checkbox" id="terms" required>
+                            <label class="form-check-label small text-muted" for="terms">
+                                I certify that the information provided is accurate and authentic for campus verification.
                             </label>
                         </div>
                         
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-danger btn-lg">
-                                <i class="fas fa-paper-plane me-2"></i> Submit Report
+                            <button type="submit" class="btn btn-danger btn-lg px-4 shadow-sm flex-grow-1">
+                                <i class="fas fa-paper-plane me-2"></i> Submit Lost Report
                             </button>
-                            <a href="javascript:history.back()" class="btn btn-outline-secondary btn-lg">
-                                <i class="fas fa-arrow-left me-1"></i> Go Back
+                            <a href="/items/lost" class="btn btn-outline-secondary btn-lg px-3">
+                                <i class="fas fa-times"></i>
                             </a>
                         </div>
                     </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Real-Time Live Preview Card -->
+        <div class="col-lg-5">
+            <div class="sticky-top" style="top: 85px; z-index: 10;">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px;">
+                        <i class="fas fa-eye text-primary me-1"></i> Live Catalog Preview
+                    </span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size: 0.68rem;">
+                        <i class="fas fa-sync-alt fa-spin me-1"></i> Real-Time Sync
+                    </span>
+                </div>
+
+                <!-- Preview Card Widget -->
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-3" style="background: var(--card-bg, #ffffff);">
+                    <div class="position-relative">
+                        <!-- Image Area -->
+                        <div id="previewImageWrapper" class="d-flex align-items-center justify-content-center bg-light border-bottom" style="height: 200px; overflow: hidden;">
+                            <img id="previewImage" src="" alt="Preview" class="w-100 h-100 object-fit-cover" style="display: none;">
+                            <div id="previewPlaceholder" class="text-center text-muted p-4">
+                                <div class="rounded-circle bg-white shadow-xs d-inline-flex align-items-center justify-content-center mb-2" style="width: 56px; height: 56px;">
+                                    <i id="previewCategoryIcon" class="fas fa-box fa-2x text-danger"></i>
+                                </div>
+                                <div class="small fw-semibold" id="previewCategoryName">Category Placeholder</div>
+                                <div style="font-size: 0.7rem;" class="text-muted">Upload an image to see live photo preview</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Lost Badge -->
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-2 py-1 shadow-sm fw-bold" style="font-size: 0.72rem;">
+                            <i class="fas fa-exclamation-circle me-1"></i> LOST
+                        </span>
+                    </div>
+
+                    <div class="card-body p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title fw-bold text-truncate mb-0" id="previewTitle" style="font-size: 1rem;">
+                                Your Item Title Here
+                            </h5>
+                        </div>
+
+                        <p class="card-text text-muted small mb-3 text-truncate-2" id="previewDesc" style="font-size: 0.78rem; min-height: 38px; line-height: 1.4;">
+                            Detailed description of your lost belonging will be displayed here in the catalog.
+                        </p>
+
+                        <div class="p-2 rounded-2 bg-light border small text-muted" style="font-size: 0.72rem;">
+                            <div class="d-flex align-items-center gap-1 mb-1">
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                <span class="text-truncate" id="previewLocation">Campus Zone</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="fas fa-calendar-alt text-secondary me-1"></i>
+                                <span id="previewDate"><%= new Date().toLocaleDateString() %></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Intelligence Prompt Box -->
+                <div class="p-3 rounded-4 bg-primary bg-opacity-10 border border-primary border-opacity-25">
+                    <div class="d-flex gap-2">
+                        <i class="fas fa-microchip text-primary mt-1"></i>
+                        <div>
+                            <div class="fw-bold text-primary small mb-1">Gemini AI Auto-Match Scanning</div>
+                            <div class="text-muted" style="font-size: 0.72rem; line-height: 1.4;">
+                                As soon as you click submit, the system automatically runs deep visual and attribute cross-matching against current found belongings in campus custody.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,25 +198,104 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Location dropdown: show custom input when "Other" is selected
+    // Location selector
     const locationSelect = document.getElementById('locationSelect');
     const locationCustom = document.getElementById('locationCustom');
-    
-    if (locationSelect && locationCustom) {
-        locationSelect.addEventListener('change', function() {
-            if (this.value === '__other__') {
-                locationCustom.style.display = 'block';
-                locationCustom.required = true;
-                locationCustom.focus();
+    const previewLocation = document.getElementById('previewLocation');
+
+    function updateLocationPreview() {
+        if (locationSelect.value === '__other__') {
+            locationCustom.style.display = 'block';
+            locationCustom.required = true;
+            previewLocation.textContent = locationCustom.value.trim() || 'Custom Campus Zone';
+        } else {
+            locationCustom.style.display = 'none';
+            locationCustom.required = false;
+            locationCustom.value = '';
+            previewLocation.textContent = locationSelect.value || 'Campus Zone';
+        }
+    }
+
+    if (locationSelect) {
+        locationSelect.addEventListener('change', updateLocationPreview);
+        if (locationCustom) {
+            locationCustom.addEventListener('input', function() {
+                previewLocation.textContent = this.value.trim() || 'Custom Campus Zone';
+            });
+        }
+    }
+
+    // Title preview
+    const inputItemName = document.getElementById('inputItemName');
+    const previewTitle = document.getElementById('previewTitle');
+    if (inputItemName && previewTitle) {
+        inputItemName.addEventListener('input', function() {
+            previewTitle.textContent = this.value.trim() || 'Your Item Title Here';
+        });
+    }
+
+    // Category preview
+    const inputCategory = document.getElementById('inputCategory');
+    const previewCategoryIcon = document.getElementById('previewCategoryIcon');
+    const previewCategoryName = document.getElementById('previewCategoryName');
+    if (inputCategory) {
+        inputCategory.addEventListener('change', function() {
+            const selected = this.options[this.selectedIndex];
+            if (this.value) {
+                const icon = selected.getAttribute('data-icon') || 'fa-box';
+                const name = selected.getAttribute('data-name') || selected.text;
+                previewCategoryIcon.className = 'fas ' + icon + ' fa-2x text-danger';
+                previewCategoryName.textContent = name;
             } else {
-                locationCustom.style.display = 'none';
-                locationCustom.required = false;
-                locationCustom.value = '';
+                previewCategoryIcon.className = 'fas fa-box fa-2x text-danger';
+                previewCategoryName.textContent = 'Category Placeholder';
             }
         });
-        
-        // On submit: let location=__other__ and locationCustom=text pass through naturally
-        // The controller checks for __other__ and reads locationCustom separately
+    }
+
+    // Description preview
+    const inputDescription = document.getElementById('inputDescription');
+    const previewDesc = document.getElementById('previewDesc');
+    if (inputDescription && previewDesc) {
+        inputDescription.addEventListener('input', function() {
+            previewDesc.textContent = this.value.trim() || 'Detailed description of your lost belonging will be displayed here in the catalog.';
+        });
+    }
+
+    // Date preview
+    const inputDate = document.getElementById('inputDate');
+    const previewDate = document.getElementById('previewDate');
+    if (inputDate && previewDate) {
+        inputDate.addEventListener('change', function() {
+            if (this.value) {
+                const d = new Date(this.value);
+                previewDate.textContent = d.toLocaleDateString();
+            }
+        });
+    }
+
+    // Image preview
+    const inputImage = document.getElementById('inputImage');
+    const previewImage = document.getElementById('previewImage');
+    const previewPlaceholder = document.getElementById('previewPlaceholder');
+    if (inputImage && previewImage && previewPlaceholder) {
+        inputImage.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    previewImage.src = evt.target.result;
+                    previewImage.style.display = 'block';
+                    previewPlaceholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImage.src = '';
+                previewImage.style.display = 'none';
+                previewPlaceholder.style.display = 'block';
+            }
+        });
     }
 });
 </script>
+

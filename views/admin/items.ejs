@@ -30,18 +30,18 @@
                 <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Status</label>
                 <select class="form-select cyber-select py-1 px-2" name="status" style="font-size: 0.76rem;">
                     <option value="">All Statuses</option>
-                    <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>⏳ Pending Review</option>
-                    <option value="approved" <%= query.status === 'approved' ? 'selected' : '' %>>✓ Approved</option>
-                    <option value="claimed" <%= query.status === 'claimed' ? 'selected' : '' %>>🤝 Claimed / Reunited</option>
-                    <option value="rejected" <%= query.status === 'rejected' ? 'selected' : '' %>>✗ Rejected</option>
+                    <option value="pending" <%= query.status === 'pending' ? 'selected' : '' %>>Pending Review</option>
+                    <option value="approved" <%= query.status === 'approved' ? 'selected' : '' %>>Approved</option>
+                    <option value="claimed" <%= query.status === 'claimed' ? 'selected' : '' %>>Claimed / Reunited</option>
+                    <option value="rejected" <%= query.status === 'rejected' ? 'selected' : '' %>>Rejected</option>
                 </select>
             </div>
             <div class="col-6 col-md-2">
                 <label class="form-label small text-muted mb-1" style="font-size: 0.72rem;">Item Type</label>
                 <select class="form-select cyber-select py-1 px-2" name="type" style="font-size: 0.76rem;">
                     <option value="">All Types</option>
-                    <option value="lost" <%= query.type === 'lost' ? 'selected' : '' %>>🔴 Lost</option>
-                    <option value="found" <%= query.type === 'found' ? 'selected' : '' %>>🟢 Found</option>
+                    <option value="lost" <%= query.type === 'lost' ? 'selected' : '' %>>Lost</option>
+                    <option value="found" <%= query.type === 'found' ? 'selected' : '' %>>Found</option>
                 </select>
             </div>
             <div class="col-8 col-md-3">
