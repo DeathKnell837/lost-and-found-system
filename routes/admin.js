@@ -34,6 +34,8 @@ router.get('/', (req, res) => res.redirect('/admin/dashboard'));
 
 // Items management
 router.get('/items', adminController.getItems);
+router.get('/seed-mockups', adminController.seedMockups);
+router.post('/seed-mockups', adminController.seedMockups);
 router.get('/items/pending', adminController.getPendingItems);
 router.get('/items/:id/edit', adminController.getEditItem);
 router.post('/items/:id', upload.single('image'), adminController.updateItem);

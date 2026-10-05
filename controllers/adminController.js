@@ -1249,3 +1249,17 @@ exports.exportStatisticsCSV = async (req, res) => {
         res.redirect('/admin/statistics');
     }
 };
+
+// Seed mockups endpoint
+exports.seedMockups = async (req, res) => {
+    try {
+        const { seedDatabase } = require('../seeds/seed');
+        await seedDatabase({ disconnect: false });
+        req.flash('success', 'Database successfully populated with 50 campus items, 15 AI match pairs, and 42 mockup images!');
+    } catch (error) {
+        console.error('Seed mockups error:', error);
+        req.flash('error', 'Error populating mockup data: ' + error.message);
+    }
+    res.redirect('/admin/items');
+};
+

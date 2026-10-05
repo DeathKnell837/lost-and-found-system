@@ -80,8 +80,21 @@ if (process.env.NODE_ENV === 'production') {
 // DATABASE CONNECTION
 // ============================================================
 // Connect to MongoDB Atlas (cloud database)
-// This is non-blocking so the server can start even if DB is slow
-connectDB().catch(err => console.error('DB connect failed:', err.message));
+connectDB().then(async () => {
+    try {
+        const Item = require('./models/Item');
+        const count = await Item.countDocuments();
+        console.log(`Database item verification: ${count} items detected.`);
+        if (count < 15 || process.env.AUTO_SEED === 'true') {
+            console.log(`Database contains only ${count} items. Auto-seeding 50 campus items, 15 AI match pairs & 42 mockups...`);
+            const { seedDatabase } = require('./seeds/seed');
+            await seedDatabase({ disconnect: false });
+            console.log('Automated database seeding completed successfully.');
+        }
+    } catch (seedErr) {
+        console.warn('Auto-seed check note:', seedErr.message);
+    }
+}).catch(err => console.error('DB connect failed:', err.message));
 
 // ============================================================
 // VIEW ENGINE SETUP

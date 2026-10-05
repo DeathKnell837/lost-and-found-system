@@ -81,11 +81,14 @@ const defaultLocations = [
 ];
 
 // Seed function
-async function seedDatabase() {
+async function seedDatabase(options = {}) {
+    const shouldDisconnect = options.disconnect !== false;
     try {
-        console.log('Connecting to MongoDB...');
-        await mongoose.connect(process.env.MONGODB_URI);
-        console.log('Connected to MongoDB:', mongoose.connection.name);
+        if (mongoose.connection.readyState !== 1) {
+            console.log('Connecting to MongoDB...');
+            await mongoose.connect(process.env.MONGODB_URI);
+            console.log('Connected to MongoDB:', mongoose.connection.name);
+        }
 
         // Ensure upload directory exists and mockup images are synced
         const uploadsDir = path.join(__dirname, '../public/uploads');
@@ -1492,14 +1495,22 @@ async function seedDatabase() {
         console.log(`  - Rejected: ${await Item.countDocuments({ status: 'rejected' })}`);
         console.log('======================================================\n');
 
+        return { success: true, count: totalItemCount };
     } catch (error) {
         console.error('Error seeding database:', error);
+        throw error;
     } finally {
-        await mongoose.disconnect();
-        console.log('Disconnected from MongoDB');
-        process.exit(0);
+        if (shouldDisconnect) {
+            await mongoose.disconnect();
+            console.log('Disconnected from MongoDB');
+            process.exit(0);
+        }
     }
 }
 
-// Run seeder
-seedDatabase();
+// Run seeder if executed directly
+if (require.main === module) {
+    seedDatabase();
+}
+
+module.exports = { seedDatabase };
