@@ -149,10 +149,11 @@ try {
     if (fs.existsSync(mockupsDir)) {
         const mockupFiles = fs.readdirSync(mockupsDir);
         for (const file of mockupFiles) {
+            const src = path.join(mockupsDir, file);
             const dest = path.join(uploadsDir, file);
-            if (!fs.existsSync(dest)) {
-                fs.copyFileSync(path.join(mockupsDir, file), dest);
-            }
+            try {
+                fs.copyFileSync(src, dest);
+            } catch (copyErr) {}
         }
     }
 } catch (assetSyncErr) {
