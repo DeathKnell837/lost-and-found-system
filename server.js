@@ -160,6 +160,15 @@ try {
     console.warn('Mockup asset sync warning:', assetSyncErr.message);
 }
 
+// Serve uploads with no-cache so updated photos are immediately loaded by browsers
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
+    maxAge: 0,
+    etag: true,
+    setHeaders: (res) => {
+        res.setHeader('Cache-Control', 'no-cache, must-revalidate, max-age=0');
+    }
+}));
+
 // Serve files from /public folder (CSS, JS, images)
 app.use(express.static(path.join(__dirname, 'public'), {
     maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,  // Cache for 1 day in production

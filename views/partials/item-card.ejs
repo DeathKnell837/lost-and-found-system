@@ -1,7 +1,7 @@
 <div class="card item-card h-100 shadow-sm">
     <div class="position-relative">
         <% if (item.imagePath) { %>
-            <img src="<%= item.imagePath %>" class="card-img-top item-image" alt="<%= item.itemName %>" loading="lazy">
+            <img src="<%= item.imagePath.includes('?') ? item.imagePath : item.imagePath + '?v=2026' %>" class="card-img-top item-image" alt="<%= item.itemName %>" loading="lazy">
         <% } else { %>
             <div class="item-image-placeholder <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
                 <div class="placeholder-pattern"></div>

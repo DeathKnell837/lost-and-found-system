@@ -20,8 +20,8 @@
                 <!-- Image with Interactive Zoom Lightbox Trigger -->
                 <% if (item.imagePath) { %>
                     <div class="position-relative item-detail-img-container overflow-hidden">
-                        <img src="<%= item.imagePath %>" class="card-img-top item-detail-image zoomable-image" id="mainItemImage" alt="<%= item.itemName %>" onclick="openImageLightbox('<%= item.imagePath %>', '<%= item.itemName %>')" style="cursor: zoom-in;">
-                        <button type="button" class="btn btn-dark btn-sm position-absolute bottom-0 end-0 m-3 shadow rounded-pill px-3 py-1 bg-opacity-75 backdrop-blur zoom-badge-btn" onclick="openImageLightbox('<%= item.imagePath %>', '<%= item.itemName %>')">
+                        <img src="<%= item.imagePath.includes('?') ? item.imagePath : item.imagePath + '?v=2026' %>" class="card-img-top item-detail-image zoomable-image" id="mainItemImage" alt="<%= item.itemName %>" onclick="openImageLightbox('<%= item.imagePath.includes('?') ? item.imagePath : item.imagePath + '?v=2026' %>', '<%= item.itemName %>')" style="cursor: zoom-in;">
+                        <button type="button" class="btn btn-dark btn-sm position-absolute bottom-0 end-0 m-3 shadow rounded-pill px-3 py-1 bg-opacity-75 backdrop-blur zoom-badge-btn" onclick="openImageLightbox('<%= item.imagePath.includes('?') ? item.imagePath : item.imagePath + '?v=2026' %>', '<%= item.itemName %>')">
                             <i class="fas fa-search-plus me-1"></i> Inspect &amp; Zoom
                         </button>
                     </div>
