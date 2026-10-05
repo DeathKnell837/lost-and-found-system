@@ -1,3 +1,4 @@
+const path = require('path');
 const { User, Item, Category, Location } = require('../models');
 const { cloudinary } = require('../config/cloudinary');
 const emailService = require('../services/emailService');
@@ -251,14 +252,14 @@ exports.updateItem = async (req, res) => {
         // Handle new image upload
         if (req.file) {
             // Delete old image from Cloudinary if exists
-            if (item.imagePath) {
+            if (item.imagePath && item.imagePath.includes('cloudinary')) {
                 // Extract public_id from Cloudinary URL
                 const urlParts = item.imagePath.split('/');
                 const publicIdWithExt = urlParts.slice(-2).join('/'); // folder/filename
                 const publicId = publicIdWithExt.replace(/\.[^/.]+$/, ''); // remove extension
                 cloudinary.uploader.destroy(publicId).catch(err => console.log('Error deleting old image:', err));
             }
-            item.imagePath = req.file.path;
+            item.imagePath = (req.file.path && req.file.path.startsWith('http')) ? req.file.path : `/uploads/${req.file.filename || path.basename(req.file.path)}`;
         }
 
         await item.save();

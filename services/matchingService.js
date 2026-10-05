@@ -226,6 +226,25 @@ const findMatchesForLostItem = async (lostItem, minScore = 50) => {
                 console.error('CLIP similarity fallback:', err.message);
             }
 
+            // Fallback to Gemini Vision if CLIP embeddings were not computed
+            if (clipSimilarity === 0 && (lostItem.imagePath || candidate.item.imagePath)) {
+                try {
+                    const geminiService = require('./geminiService');
+                    const comp = await geminiService.compareImages(
+                        lostItem.imagePath,
+                        candidate.item.imagePath,
+                        `${lostItem.itemName}: ${lostItem.description}`,
+                        `${candidate.item.itemName}: ${candidate.item.description}`
+                    );
+                    if (comp && comp.similarityScore) {
+                        aiScore = comp.similarityScore;
+                        reasoning = comp.reasoning;
+                    }
+                } catch (gemErr) {
+                    console.error('Gemini vision fallback error:', gemErr.message);
+                }
+            }
+
             // For high-confidence matches (>70%), get text-only Gemini reasoning
             if (clipSimilarity > 0.70) {
                 try {
@@ -321,6 +340,25 @@ const findMatchesForFoundItem = async (foundItem, minScore = 50) => {
                 }
             } catch (err) {
                 console.error('CLIP similarity fallback:', err.message);
+            }
+
+            // Fallback to Gemini Vision if CLIP embeddings were not computed
+            if (clipSimilarity === 0 && (foundItem.imagePath || candidate.item.imagePath)) {
+                try {
+                    const geminiService = require('./geminiService');
+                    const comp = await geminiService.compareImages(
+                        foundItem.imagePath,
+                        candidate.item.imagePath,
+                        `${foundItem.itemName}: ${foundItem.description}`,
+                        `${candidate.item.itemName}: ${candidate.item.description}`
+                    );
+                    if (comp && comp.similarityScore) {
+                        aiScore = comp.similarityScore;
+                        reasoning = comp.reasoning;
+                    }
+                } catch (gemErr) {
+                    console.error('Gemini vision fallback error:', gemErr.message);
+                }
             }
 
             // For high-confidence matches (>70%), get text-only Gemini reasoning
@@ -486,10 +524,26 @@ const runBatchMatching = async () => {
     }
 };
 
+/**
+ * Find matches for any item (lost or found)
+ * @param {Object} item - Item to find matches for
+ * @param {number} minScore - Minimum match score threshold
+ * @returns {Array} - Array of matches
+ */
+const findMatchesForItem = async (item, minScore = 50) => {
+    if (!item) return [];
+    if (item.type === 'lost') {
+        return findMatchesForLostItem(item, minScore);
+    } else {
+        return findMatchesForFoundItem(item, minScore);
+    }
+};
+
 module.exports = {
     calculateMatchScore,
     findMatchesForLostItem,
     findMatchesForFoundItem,
+    findMatchesForItem,
     processMatchesAndNotify,
     getItemMatches,
     runBatchMatching

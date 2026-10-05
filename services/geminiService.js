@@ -1,6 +1,8 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const https = require('https');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 // Initialize Gemini API Client
 const apiKey = (process.env.GEMINI_API_KEY || '').trim();
@@ -12,16 +14,65 @@ if (apiKey) {
     console.warn('GEMINI_API_KEY is not set in environment variables.');
 }
 
-// Lightweight 100% Free-Tier Models (Zero Cost, Low-Token Consumption)
-const CHAT_MODELS = ['gemini-2.5-flash-lite', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
-const VISION_MODELS = ['gemini-2.5-flash-lite', 'gemini-1.5-flash', 'gemini-2.0-flash-lite'];
+// Lightweight Production Gemini 2.5 Models
+const CHAT_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest'];
+const VISION_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite', 'gemini-flash-latest'];
 
 /**
- * Helper to download image from URL into inline Data Part for Gemini
+ * Robust JSON parser for Gemini responses
+ */
+const extractJson = (text) => {
+    if (!text || typeof text !== 'string') return null;
+    const trimmed = text.trim();
+    try {
+        return JSON.parse(trimmed);
+    } catch (_) {}
+    const cleaned = trimmed.replace(/^```(?:json)?\s*/gi, '').replace(/\s*```$/g, '').trim();
+    try {
+        return JSON.parse(cleaned);
+    } catch (_) {}
+    const firstBrace = trimmed.indexOf('{');
+    const lastBrace = trimmed.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+        try {
+            return JSON.parse(trimmed.substring(firstBrace, lastBrace + 1));
+        } catch (_) {}
+    }
+    return null;
+};
+
+/**
+ * Helper to download image from URL or read local file into inline Data Part for Gemini
  */
 const fetchImagePart = async (url) => {
     return new Promise((resolve, reject) => {
         if (!url || typeof url !== 'string') return resolve(null);
+
+        // Check if local file path (e.g. /uploads/... or absolute)
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            try {
+                const cleanPath = url.replace(/^[/\\]+/, '');
+                let localPath = path.join(__dirname, '../public', cleanPath);
+                if (!fs.existsSync(localPath) && fs.existsSync(url)) {
+                    localPath = url;
+                }
+                if (fs.existsSync(localPath)) {
+                    const buffer = fs.readFileSync(localPath);
+                    const ext = path.extname(localPath).toLowerCase();
+                    const mimeType = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
+                    return resolve({
+                        inlineData: {
+                            data: buffer.toString('base64'),
+                            mimeType
+                        }
+                    });
+                }
+            } catch (err) {
+                console.warn('Failed to read local image for Gemini:', err.message);
+                return resolve(null);
+            }
+            return resolve(null);
+        }
         
         const client = url.startsWith('https') ? https : http;
         client.get(url, (res) => {
@@ -60,7 +111,11 @@ const compareImages = async (url1, url2, desc1 = '', desc2 = '') => {
         try {
             const model = genAI.getGenerativeModel({ 
                 model: modelName,
-                generationConfig: { maxOutputTokens: 200, temperature: 0.2 }
+                generationConfig: { 
+                    maxOutputTokens: 1500, 
+                    temperature: 0.2,
+                    responseMimeType: 'application/json'
+                }
             });
 
             const parts = [];
@@ -84,18 +139,23 @@ Item 2: "${desc2}"
                 parts.push(imgPart2);
             }
 
-            prompt += `\nReturn JSON: {"similarityScore": <0-100>, "reasoning": "<1 sentence reasoning>"}`;
+            prompt += `\nReturn JSON: {"similarityScore": <integer 0-100>, "reasoning": "<1-2 sentences reasoning>"}`;
             parts.push(prompt);
 
             const result = await model.generateContent(parts);
-            const responseText = result.response.text().trim();
-            const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
-            const jsonResult = JSON.parse(cleanedJsonText);
+            const responseText = result.response.text();
+            const jsonResult = extractJson(responseText);
 
-            return {
-                similarityScore: Math.min(100, Math.max(0, parseInt(jsonResult.similarityScore) || 50)),
-                reasoning: jsonResult.reasoning || 'Visual comparison completed.'
-            };
+            if (jsonResult) {
+                let score = parseInt(jsonResult.similarityScore);
+                if (isNaN(score) && typeof jsonResult.similarityScore === 'number') {
+                    score = Math.round(jsonResult.similarityScore <= 1 ? jsonResult.similarityScore * 100 : jsonResult.similarityScore);
+                }
+                return {
+                    similarityScore: Math.min(100, Math.max(0, isNaN(score) ? 50 : score)),
+                    reasoning: jsonResult.reasoning || 'Visual comparison completed.'
+                };
+            }
         } catch (error) {
             console.warn(`Gemini model ${modelName} error in compareImages:`, error.message);
         }
@@ -292,25 +352,30 @@ Return ONLY a valid JSON object matching this schema:
         try {
             const model = genAI.getGenerativeModel({ 
                 model: modelName,
-                generationConfig: { maxOutputTokens: 350, temperature: 0.3 }
+                generationConfig: { 
+                    maxOutputTokens: 1500, 
+                    temperature: 0.2,
+                    responseMimeType: 'application/json'
+                }
             });
             const result = await model.generateContent(systemPrompt);
-            const responseText = result.response.text().trim();
-            const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
-            const jsonResult = JSON.parse(cleanedJsonText);
+            const responseText = result.response.text();
+            const jsonResult = extractJson(responseText);
 
-            return {
-                isSearch: jsonResult.isSearch === true,
-                extracted: {
-                    itemName: jsonResult.itemName || '',
-                    category: jsonResult.category || '',
-                    color: jsonResult.color || '',
-                    brand: jsonResult.brand || '',
-                    location: jsonResult.location || '',
-                    keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
-                },
-                conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I assist you with campus lost and found items today?"
-            };
+            if (jsonResult) {
+                return {
+                    isSearch: jsonResult.isSearch === true,
+                    extracted: {
+                        itemName: jsonResult.itemName || '',
+                        category: jsonResult.category || '',
+                        color: jsonResult.color || '',
+                        brand: jsonResult.brand || '',
+                        location: jsonResult.location || '',
+                        keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
+                    },
+                    conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I assist you with campus lost and found items today?"
+                };
+            }
         } catch (error) {
             console.warn(`Gemini chat model ${modelName} error:`, error.message);
         }
@@ -344,7 +409,7 @@ Identify what physical item or document is shown.
 Return ONLY a valid JSON object:
 {
   "itemName": "<concise specific name of the item/document, e.g. Computer Science Class Schedule, Infinix Hot40i Phone, Blue Backpack, Student ID Card>",
-  "category": "<Electronics & Devices, Books & Documents, Personal Items, Keys, Clothing, Accessories, Other>",
+  "category": "<Electronics & Devices, Books & Documents, Personal Items, Keys, Clothing & Accessories, Other>",
   "color": "<primary color>",
   "brand": "<brand or institution name if visible>",
   "detectedText": "<key visible text/title/headers if any>",
@@ -356,32 +421,37 @@ Return ONLY a valid JSON object:
         try {
             const model = genAI.getGenerativeModel({ 
                 model: modelName,
-                generationConfig: { maxOutputTokens: 300, temperature: 0.2 }
+                generationConfig: { 
+                    maxOutputTokens: 1500, 
+                    temperature: 0.2,
+                    responseMimeType: 'application/json'
+                }
             });
             const result = await model.generateContent([imagePart, prompt]);
-            const responseText = result.response.text().trim();
-            const cleanedJsonText = responseText.replace(/^```json\s*/gi, '').replace(/^```\s*/gi, '').replace(/\s*```$/g, '').trim();
-            const jsonResult = JSON.parse(cleanedJsonText);
+            const responseText = result.response.text();
+            const jsonResult = extractJson(responseText);
 
-            const itemName = jsonResult.itemName || 'Uploaded Item';
-            const keywords = Array.isArray(jsonResult.keywords) ? jsonResult.keywords : [itemName];
-            if (jsonResult.detectedText) {
-                const words = jsonResult.detectedText.split(/\s+/).filter(w => w.length > 2);
-                keywords.push(...words.slice(0, 5));
+            if (jsonResult) {
+                const itemName = jsonResult.itemName || 'Uploaded Item';
+                const keywords = Array.isArray(jsonResult.keywords) ? jsonResult.keywords : [itemName];
+                if (jsonResult.detectedText) {
+                    const words = jsonResult.detectedText.split(/\s+/).filter(w => w.length > 2);
+                    keywords.push(...words.slice(0, 5));
+                }
+
+                return {
+                    extracted: {
+                        itemName,
+                        category: jsonResult.category || 'Personal Items',
+                        color: jsonResult.color || '',
+                        brand: jsonResult.brand || '',
+                        description: jsonResult.description || '',
+                        detectedText: jsonResult.detectedText || '',
+                        keywords
+                    },
+                    conversationalResponse: `I analyzed your photo: It looks like **${itemName}** (${jsonResult.description || ''}).`
+                };
             }
-
-            return {
-                extracted: {
-                    itemName,
-                    category: jsonResult.category || 'Personal Items',
-                    color: jsonResult.color || '',
-                    brand: jsonResult.brand || '',
-                    description: jsonResult.description || '',
-                    detectedText: jsonResult.detectedText || '',
-                    keywords
-                },
-                conversationalResponse: `I analyzed your photo: It looks like **${itemName}** (${jsonResult.description || ''}).`
-            };
         } catch (error) {
             console.warn(`Gemini vision model ${modelName} error in analyzeUploadedImage:`, error.message);
         }

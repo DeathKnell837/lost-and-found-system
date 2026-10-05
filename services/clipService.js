@@ -1,5 +1,7 @@
 const https = require('https');
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * ============================================================
@@ -36,13 +38,31 @@ const setCachedEmbedding = (url, embedding) => {
 };
 
 /**
- * Download image from URL into a raw Buffer with 10s timeout
- * @param {string} url - Image URL (Cloudinary or any HTTP/HTTPS)
+ * Download image from URL into a raw Buffer with 10s timeout, or read local file
+ * @param {string} url - Image URL (Cloudinary or any HTTP/HTTPS) or local file path
  * @returns {Promise<Buffer|null>}
  */
 const downloadImage = (url) => {
     return new Promise((resolve) => {
         if (!url || typeof url !== 'string') return resolve(null);
+
+        // Check if local file path (e.g. /uploads/... or absolute)
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            try {
+                const cleanPath = url.replace(/^[/\\]+/, '');
+                let localPath = path.join(__dirname, '../public', cleanPath);
+                if (!fs.existsSync(localPath) && fs.existsSync(url)) {
+                    localPath = url;
+                }
+                if (fs.existsSync(localPath)) {
+                    return resolve(fs.readFileSync(localPath));
+                }
+            } catch (err) {
+                console.warn('Failed to read local image for CLIP:', err.message);
+                return resolve(null);
+            }
+            return resolve(null);
+        }
 
         const client = url.startsWith('https') ? https : http;
         const req = client.get(url, (res) => {

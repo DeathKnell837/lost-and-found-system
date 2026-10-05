@@ -28,6 +28,7 @@
 
 // Import required models from the database
 const { Item, Category, Location } = require('../models');
+const path = require('path');
 
 // Import Cloudinary for image upload handling
 const { cloudinary } = require('../config/cloudinary');
@@ -351,7 +352,7 @@ exports.reportLostItem = async (req, res) => {
             type: 'lost',
             status: 'pending',
             reportedBy: req.session.user ? req.session.user.id : null,
-            imagePath: req.file ? req.file.path : null
+            imagePath: req.file ? (req.file.path && req.file.path.startsWith('http') ? req.file.path : `/uploads/${req.file.filename || path.basename(req.file.path)}`) : null
         });
 
         await item.save();
@@ -439,7 +440,7 @@ exports.reportFoundItem = async (req, res) => {
             type: 'found',
             status: 'pending',
             reportedBy: req.session.user ? req.session.user.id : null,
-            imagePath: req.file ? req.file.path : null
+            imagePath: req.file ? (req.file.path && req.file.path.startsWith('http') ? req.file.path : `/uploads/${req.file.filename || path.basename(req.file.path)}`) : null
         });
 
         await item.save();

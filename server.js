@@ -125,8 +125,27 @@ app.use((req, res, next) => {
 });
 
 // ============================================================
-// STATIC FILES
+// STATIC FILES & MOCKUP ASSETS SYNC
 // ============================================================
+// Ensure public/uploads exists and contains seed mockup assets
+try {
+    const fs = require('fs');
+    const uploadsDir = path.join(__dirname, 'public/uploads');
+    const mockupsDir = path.join(__dirname, 'public/images/mockups');
+    if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+    if (fs.existsSync(mockupsDir)) {
+        const mockupFiles = fs.readdirSync(mockupsDir);
+        for (const file of mockupFiles) {
+            const dest = path.join(uploadsDir, file);
+            if (!fs.existsSync(dest)) {
+                fs.copyFileSync(path.join(mockupsDir, file), dest);
+            }
+        }
+    }
+} catch (assetSyncErr) {
+    console.warn('Mockup asset sync warning:', assetSyncErr.message);
+}
+
 // Serve files from /public folder (CSS, JS, images)
 app.use(express.static(path.join(__dirname, 'public'), {
     maxAge: process.env.NODE_ENV === 'production' ? '1d' : 0,  // Cache for 1 day in production
