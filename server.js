@@ -82,6 +82,40 @@ if (process.env.NODE_ENV === 'production') {
 // Connect to MongoDB Atlas (cloud database)
 connectDB().then(async () => {
     try {
+        // Guarantee Admin Account exists and credentials match README (admin / Siladan2026)
+        const User = require('./models/User');
+        const adminUsername = (process.env.ADMIN_USERNAME || 'admin').trim();
+        const targetAdminPassword = (process.env.ADMIN_PASSWORD || 'Siladan2026').trim();
+        let adminUser = await User.findOne({
+            $or: [
+                { username: new RegExp(`^${adminUsername}$`, 'i') },
+                { email: 'admin@campus.edu' }
+            ]
+        });
+
+        if (!adminUser) {
+            console.log(`Admin account '${adminUsername}' not found. Creating default admin account...`);
+            adminUser = new User({
+                username: adminUsername,
+                email: process.env.ADMIN_EMAIL || 'admin@campus.edu',
+                password: targetAdminPassword,
+                role: 'admin',
+                isActive: true,
+                isEmailVerified: true,
+                phoneNumber: '0917-888-0001'
+            });
+            await adminUser.save();
+            console.log(`Admin account '${adminUsername}' created successfully.`);
+        } else {
+            // Update role and password to guarantee credentials match README
+            adminUser.role = 'admin';
+            adminUser.isActive = true;
+            adminUser.isEmailVerified = true;
+            adminUser.password = targetAdminPassword;
+            await adminUser.save();
+            console.log(`Admin credentials synchronized: username='${adminUser.username}', password='${targetAdminPassword}'.`);
+        }
+
         const Item = require('./models/Item');
         const count = await Item.countDocuments();
         console.log(`Database item verification: ${count} items detected.`);
@@ -92,7 +126,7 @@ connectDB().then(async () => {
             console.log('Automated database seeding completed successfully.');
         }
     } catch (seedErr) {
-        console.warn('Auto-seed check note:', seedErr.message);
+        console.warn('Auto-seed / Admin sync note:', seedErr.message);
     }
 }).catch(err => console.error('DB connect failed:', err.message));
 

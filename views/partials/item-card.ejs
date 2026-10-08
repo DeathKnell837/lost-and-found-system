@@ -1,7 +1,10 @@
-<div class="card item-card h-100 shadow-sm">
-    <div class="position-relative">
+<div class="card item-card h-100 shadow-sm border-0">
+    <div class="card-img-container position-relative">
         <% if (item.imagePath) { %>
-            <img src="<%= item.imagePath.includes('?') ? item.imagePath : item.imagePath + '?v=2026' %>" class="card-img-top item-image" alt="<%= item.itemName %>" loading="lazy">
+            <img src="<%= item.imagePath.includes('?') ? item.imagePath : item.imagePath + '?v=2026' %>" 
+                 class="card-img-top item-image" 
+                 alt="<%= item.itemName %>" 
+                 loading="lazy">
         <% } else { %>
             <div class="item-image-placeholder <%= item.type === 'lost' ? 'placeholder-lost' : 'placeholder-found' %>">
                 <div class="placeholder-pattern"></div>
@@ -11,24 +14,43 @@
                 <span class="placeholder-label"><%= (item.category && item.category.name) ? item.category.name : 'Item' %></span>
             </div>
         <% } %>
-        <span class="badge bg-<%= item.type === 'lost' ? 'danger' : 'success' %> position-absolute" style="top: 8px; left: 8px;">
-            <%= item.type.charAt(0).toUpperCase() + item.type.slice(1) %>
+
+        <span class="badge item-status-pill <%= item.type === 'lost' ? 'status-pill-lost' : 'status-pill-found' %>">
+            <i class="fas <%= item.type === 'lost' ? 'fa-exclamation-circle' : 'fa-check-circle' %> me-1"></i>
+            <%= item.type.toUpperCase() %>
         </span>
+
+        <% if (item.category && item.category.name) { %>
+            <span class="badge item-category-pill" title="<%= item.category.name %>">
+                <i class="fas <%= (item.category && item.category.icon) ? item.category.icon : 'fa-tag' %> me-1"></i>
+                <span><%= item.category.name %></span>
+            </span>
+        <% } %>
     </div>
-    <div class="card-body">
-        <h6 class="card-title mb-1" title="<%= item.itemName %>"><%= item.itemName %></h6>
-        <p class="card-text text-muted small mb-1">
-            <i class="fas fa-map-marker-alt me-1"></i><%= item.location %>
+
+    <div class="card-body d-flex flex-column p-3">
+        <h6 class="card-title fw-bold mb-2" title="<%= item.itemName %>">
+            <%= item.itemName %>
+        </h6>
+
+        <div class="item-location-chip mb-2">
+            <i class="fas fa-location-dot text-primary me-1 flex-shrink-0"></i>
+            <span class="text-truncate" title="<%= item.location %>"><%= item.location %></span>
+        </div>
+
+        <p class="item-description text-muted small mb-0 flex-grow-1" title="<%= item.description %>">
+            <%= item.description %>
         </p>
-        <p class="item-description mb-0"><%= item.description.substring(0, 80) %><%= item.description.length > 80 ? '...' : '' %></p>
     </div>
-    <div class="card-footer bg-transparent border-top d-flex justify-content-between align-items-center">
-        <small class="text-muted">
-            <i class="fas fa-calendar me-1"></i>
+
+    <div class="card-footer bg-transparent border-top d-flex justify-content-between align-items-center px-3 py-2">
+        <small class="text-muted d-flex align-items-center">
+            <i class="far fa-calendar-alt me-1 text-muted"></i>
             <%= new Date(item.dateLostFound).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %>
         </small>
-        <a href="/items/<%= item._id %>" class="btn btn-sm btn-outline-primary text-nowrap">
-            View <i class="fas fa-arrow-right ms-1"></i>
+        <a href="/items/<%= item._id %>" class="btn btn-sm btn-outline-primary item-card-btn text-nowrap">
+            <span>Details</span>
+            <i class="fas fa-arrow-right ms-1"></i>
         </a>
     </div>
 </div>

@@ -505,8 +505,25 @@
 
     /* === POSTER PRINT STYLES === */
     @media print {
+        @page {
+            size: auto;
+            margin: 10mm;
+        }
 
-        /* Hide everything on the page */
+        /* Force page background to pure white and default text to dark */
+        html, body {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Hide everything on the page except the poster */
+        body.printing-poster > *:not(.poster-container) {
+            display: none !important;
+        }
+
         body.printing-poster * {
             visibility: hidden !important;
         }
@@ -519,224 +536,275 @@
 
         body.printing-poster .poster-container {
             display: block !important;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 999999;
-            background: white;
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
         }
 
         .poster-page {
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 10px 20px;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #000;
-            background: #fff;
+            width: 100% !important;
+            max-width: 800px !important;
+            margin: 0 auto !important;
+            padding: 10px 20px !important;
+            font-family: 'Segoe UI', Arial, Helvetica, sans-serif !important;
+            color: #0f172a !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
         }
 
-        /* Header */
+        /* Universal text contrast enforcement across poster container */
+        body.printing-poster .poster-page,
+        body.printing-poster .poster-page p,
+        body.printing-poster .poster-page span,
+        body.printing-poster .poster-page div,
+        body.printing-poster .poster-page strong,
+        body.printing-poster .poster-page small,
+        body.printing-poster .poster-page i {
+            color: #1e293b !important;
+            text-shadow: none !important;
+            -webkit-text-fill-color: initial !important;
+        }
+
+        /* Header Banner */
         .poster-header {
-            text-align: center;
-            padding: 15px 10px;
-            border-radius: 12px;
-            margin-bottom: 10px;
+            text-align: center !important;
+            padding: 18px 12px !important;
+            border-radius: 12px !important;
+            margin-bottom: 12px !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
 
         .poster-header-lost {
             background: #dc3545 !important;
-            color: white !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            background-color: #dc3545 !important;
+            color: #ffffff !important;
         }
 
         .poster-header-found {
             background: #198754 !important;
-            color: white !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            background-color: #198754 !important;
+            color: #ffffff !important;
+        }
+
+        .poster-header h1,
+        .poster-header p,
+        .poster-header i,
+        .poster-header .poster-title,
+        .poster-header .poster-subtitle {
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            text-shadow: none !important;
         }
 
         .poster-header-icon {
-            font-size: 36px;
-            margin-bottom: 5px;
+            font-size: 38px !important;
+            margin-bottom: 5px !important;
         }
 
         .poster-title {
             font-size: 52px !important;
             font-weight: 900 !important;
-            letter-spacing: 8px;
-            margin: 0;
-            text-transform: uppercase;
+            letter-spacing: 8px !important;
+            margin: 0 !important;
+            text-transform: uppercase !important;
         }
 
         .poster-subtitle {
-            font-size: 16px;
-            margin: 5px 0 0;
-            font-style: italic;
-            opacity: 0.9;
+            font-size: 16px !important;
+            margin: 5px 0 0 !important;
+            font-style: italic !important;
+            opacity: 1 !important;
         }
 
-        /* Image */
+        /* Image Section */
         .poster-image-section {
-            text-align: center;
-            margin: 10px 0;
+            text-align: center !important;
+            margin: 12px 0 !important;
         }
 
         .poster-image {
-            max-width: 100%;
-            max-height: 250px;
-            object-fit: contain;
-            border: 3px solid #333;
-            border-radius: 8px;
+            max-width: 100% !important;
+            max-height: 250px !important;
+            object-fit: contain !important;
+            border: 3px solid #0f172a !important;
+            border-radius: 8px !important;
         }
 
         .poster-no-image {
-            border: 3px dashed #999;
-            border-radius: 8px;
-            padding: 30px;
-            text-align: center;
-            color: #666;
+            border: 3px dashed #64748b !important;
+            border-radius: 8px !important;
+            padding: 30px !important;
+            text-align: center !important;
+            color: #475569 !important;
+            background: #f8fafc !important;
         }
 
-        .poster-no-image-icon {
-            font-size: 50px;
-            display: block;
-            margin-bottom: 8px;
+        .poster-no-image i,
+        .poster-no-image p {
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
         }
 
         /* Details */
         .poster-details {
-            text-align: center;
-            margin: 8px 0;
+            text-align: center !important;
+            margin: 12px 0 !important;
         }
 
         .poster-item-name {
-            font-size: 28px !important;
+            font-size: 30px !important;
             font-weight: 800 !important;
-            margin: 0 0 5px;
-            color: #000;
+            margin: 0 0 6px !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            font-family: 'Segoe UI', Arial, sans-serif !important;
         }
 
-        .poster-category {
-            font-size: 15px;
-            color: #555;
-            margin: 0 0 8px;
+        .poster-category,
+        .poster-category i {
+            font-size: 15px !important;
+            font-weight: 600 !important;
+            color: #2563eb !important;
+            -webkit-text-fill-color: #2563eb !important;
+            margin: 0 0 8px !important;
         }
 
         .poster-description {
-            font-size: 14px;
-            line-height: 1.5;
-            color: #333;
-            margin: 0 0 10px;
-            padding: 0 20px;
+            font-size: 14px !important;
+            line-height: 1.6 !important;
+            color: #1e293b !important;
+            -webkit-text-fill-color: #1e293b !important;
+            margin: 0 0 12px !important;
+            padding: 0 25px !important;
         }
 
         .poster-info-row {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 5px;
+            display: flex !important;
+            justify-content: center !important;
+            gap: 30px !important;
+            margin-top: 6px !important;
         }
 
-        .poster-info-item {
-            font-size: 13px;
-            color: #333;
+        .poster-info-item,
+        .poster-info-item strong {
+            font-size: 14px !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
         }
 
         .poster-info-item i {
-            color: #555;
-            margin-right: 4px;
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
+            margin-right: 5px !important;
         }
 
-        /* Contact */
+        /* Contact Box */
         .poster-contact {
-            background: #f8f9fa !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-            border: 2px solid #333;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-            margin: 10px 0;
+            background: #f8fafc !important;
+            background-color: #f8fafc !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            border: 2px solid #0f172a !important;
+            border-radius: 8px !important;
+            padding: 14px !important;
+            text-align: center !important;
+            margin: 14px 0 !important;
         }
 
         .poster-contact h3 {
             font-size: 18px !important;
-            margin: 0 0 8px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            margin: 0 0 8px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 2px !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            font-family: 'Segoe UI', Arial, sans-serif !important;
         }
 
-        .poster-contact p {
-            font-size: 15px;
-            margin: 4px 0;
-            color: #000;
+        .poster-contact p,
+        .poster-contact span {
+            font-size: 15px !important;
+            margin: 4px 0 !important;
+            color: #0f172a !important;
+            -webkit-text-fill-color: #0f172a !important;
+            font-weight: 600 !important;
         }
 
         .poster-contact i {
-            width: 20px;
-            text-align: center;
-            margin-right: 6px;
+            width: 20px !important;
+            text-align: center !important;
+            margin-right: 6px !important;
+            color: #3b82f6 !important;
+            -webkit-text-fill-color: #3b82f6 !important;
         }
 
         /* URL */
-        .poster-url {
-            text-align: center;
-            margin: 6px 0;
-            font-size: 10px;
-            color: #777;
-            word-break: break-all;
+        .poster-url,
+        .poster-url small {
+            text-align: center !important;
+            margin: 8px 0 !important;
+            font-size: 11px !important;
+            color: #475569 !important;
+            -webkit-text-fill-color: #475569 !important;
+            word-break: break-all !important;
+            display: block !important;
         }
 
-        /* Tear-off strips */
+        /* Tear-off Strips */
         .poster-tearoffs {
-            display: flex;
-            border-top: 2px dashed #000;
-            margin-top: 8px;
-            padding-top: 2px;
+            display: flex !important;
+            border-top: 2px dashed #000000 !important;
+            margin-top: 10px !important;
+            padding-top: 4px !important;
         }
 
         .poster-tearoff-strip {
-            flex: 1;
-            border-right: 1px dashed #999;
-            padding: 4px 2px;
-            text-align: center;
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            font-size: 9px;
-            min-height: 80px;
+            flex: 1 !important;
+            border-right: 1px dashed #64748b !important;
+            padding: 6px 2px !important;
+            text-align: center !important;
+            writing-mode: vertical-rl !important;
+            text-orientation: mixed !important;
+            transform: rotate(180deg) !important;
+            font-size: 9px !important;
+            min-height: 85px !important;
         }
 
         .poster-tearoff-strip:last-child {
-            border-right: none;
+            border-right: none !important;
         }
 
         .tearoff-text {
-            display: block;
-            font-weight: bold;
-            font-size: 9px;
-            color: #000;
+            display: block !important;
+            font-weight: 800 !important;
+            font-size: 9px !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
 
         .tearoff-label {
-            display: block;
-            font-size: 7px;
-            color: #666;
-            margin-top: 4px;
+            display: block !important;
+            font-size: 8px !important;
+            font-weight: 600 !important;
+            color: #334155 !important;
+            -webkit-text-fill-color: #334155 !important;
+            margin-top: 4px !important;
         }
 
         /* Footer */
-        .poster-footer {
-            text-align: center;
-            font-size: 10px;
-            color: #999;
-            margin-top: 5px;
+        .poster-footer,
+        .poster-footer p {
+            text-align: center !important;
+            font-size: 10px !important;
+            color: #64748b !important;
+            -webkit-text-fill-color: #64748b !important;
+            margin-top: 8px !important;
         }
     }
 </style>

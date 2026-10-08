@@ -130,7 +130,7 @@ async function seedDatabase(options = {}) {
             {
                 username: process.env.ADMIN_USERNAME || 'admin',
                 email: process.env.ADMIN_EMAIL || 'admin@campus.edu',
-                password: process.env.ADMIN_PASSWORD || 'admin123',
+                password: process.env.ADMIN_PASSWORD || 'Siladan2026',
                 role: 'admin',
                 isActive: true,
                 isEmailVerified: true,
