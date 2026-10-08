@@ -183,6 +183,10 @@ const findMatchesForLostItem = async (lostItem, minScore = 50) => {
 
         for (const foundItem of foundItems) {
             const result = calculateMatchScore(lostItem, foundItem);
+            // Require at least some item content overlap (category, name, description, or keywords)
+            const hasContentOverlap = (result.breakdown.category > 0 || result.breakdown.name > 0 || result.breakdown.description > 0 || result.breakdown.keywords > 0);
+            if (!hasContentOverlap) continue;
+
             if (result.total >= threshold) {
                 initialCandidates.push({
                     item: foundItem,
@@ -299,6 +303,10 @@ const findMatchesForFoundItem = async (foundItem, minScore = 50) => {
 
         for (const lostItem of lostItems) {
             const result = calculateMatchScore(lostItem, foundItem);
+            // Require at least some item content overlap (category, name, description, or keywords)
+            const hasContentOverlap = (result.breakdown.category > 0 || result.breakdown.name > 0 || result.breakdown.description > 0 || result.breakdown.keywords > 0);
+            if (!hasContentOverlap) continue;
+
             if (result.total >= threshold) {
                 initialCandidates.push({
                     item: lostItem,

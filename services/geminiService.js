@@ -238,35 +238,106 @@ const generateIntelligentAIResponse = (userMessage) => {
         };
     }
 
-    // Physical item search detection
-    const isItemSearch = /lost|found|nawala|nakita|wallet|key|phone|cellphone|iphone|android|samsung|infinix|oppo|vivo|realme|bag|backpack|airpod|earbud|earphone|headphone|laptop|umbrella|jacket|coat|glasses|watch|id|card|badge|doc|paper|schedule|table|book|tumbler|bottle|charger|calculator/i.test(text);
+    // Stop words filter for NLP fallback
+    const NLP_STOP_WORDS = new Set([
+        'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
+        'is', 'am', 'are', 'was', 'were', 'be', 'have', 'has', 'had', 'do', 'does', 'did', 'can',
+        'could', 'would', 'should', 'i', 'my', 'me', 'you', 'your', 'it', 'its', 'this', 'that',
+        'what', 'where', 'when', 'who', 'how', 'anyone', 'someone', 'somebody', 'anybody',
+        'find', 'found', 'lost', 'item', 'items', 'please', 'help', 'search', 'looking',
+        'ang', 'mga', 'ng', 'sa', 'ko', 'mo', 'ba', 'po', 'may', 'meron', 'nawala', 'nakita', 'hanap'
+    ]);
+
+    // Physical item detection with exact category mapping
+    let itemName = '';
+    let category = '';
+
+    if (/umbrella|payong/i.test(text)) {
+        itemName = 'Umbrella';
+        category = 'Personal Items';
+    } else if (/wallet|pitaka|purse|pouch/i.test(text)) {
+        itemName = 'Wallet';
+        category = 'Wallets & Cards';
+    } else if (/student\s*id|id\s*card|\bid\b|badge/i.test(text)) {
+        itemName = 'Student ID Card';
+        category = 'Wallets & Cards';
+    } else if (/key|keys|susi/i.test(text)) {
+        itemName = 'Keys';
+        category = 'Keys';
+    } else if (/calculator|calcu/i.test(text)) {
+        itemName = 'Calculator';
+        category = 'Stationery';
+    } else if (/tumbler|water\s*bottle|flask|aquaflask|hydro\s*flask|tubig/i.test(text)) {
+        itemName = 'Tumbler';
+        category = 'Personal Items';
+    } else if (/iphone|android|samsung|infinix|oppo|vivo|realme|phone|cellphone|selpon/i.test(text)) {
+        const brandMatch = text.match(/\b(iphone|samsung|infinix|oppo|vivo|realme|apple)\b/i);
+        itemName = brandMatch ? `${brandMatch[1].charAt(0).toUpperCase() + brandMatch[1].slice(1)} Phone` : 'Phone';
+        category = 'Electronics';
+    } else if (/airpod|earbud|earphone|headphone/i.test(text)) {
+        itemName = 'Earphones / Earbuds';
+        category = 'Electronics';
+    } else if (/laptop|macbook|dell|lenovo|asus|hp/i.test(text)) {
+        itemName = 'Laptop';
+        category = 'Electronics';
+    } else if (/charger|adapter|cord/i.test(text)) {
+        itemName = 'Charger';
+        category = 'Electronics';
+    } else if (/backpack|bag/i.test(text)) {
+        itemName = 'Backpack';
+        category = 'Clothing & Accessories';
+    } else if (/jacket|hoodie|coat|dyaket|sweater/i.test(text)) {
+        itemName = 'Jacket';
+        category = 'Clothing & Accessories';
+    } else if (/glasses|eyeglasses|sunglasses|salamin/i.test(text)) {
+        itemName = 'Eyeglasses';
+        category = 'Personal Items';
+    } else if (/watch|smartwatch|relo/i.test(text)) {
+        itemName = 'Watch';
+        category = 'Clothing & Accessories';
+    } else if (/book|notebook|binder|module|libro|kwaderno/i.test(text)) {
+        itemName = 'Book / Notebook';
+        category = 'Books & Documents';
+    }
+
+    const isLocationOrGeneralSearch = /lost|found|nawala|nakita|search|look|check/i.test(text) && !itemName;
+    const isItemSearch = Boolean(itemName) || isLocationOrGeneralSearch;
 
     if (isItemSearch) {
-        let category = '';
-        if (/wallet|bag|backpack|pouch|purse|id|card|badge/i.test(text)) category = 'Personal Items';
-        else if (/key/i.test(text)) category = 'Personal Items';
-        else if (/phone|cellphone|iphone|android|samsung|infinix|oppo|vivo|realme|airpod|earbud|earphone|headphone|laptop|charger|calculator/i.test(text)) category = 'Electronics & Devices';
-        else if (/doc|paper|schedule|table|book|notebook|binder/i.test(text)) category = 'Books & Documents';
-        else if (/jacket|coat|hoodie|shirt|cap|hat|umbrella|glasses|watch/i.test(text)) category = 'Clothing & Accessories';
-
         let color = '';
         const colorMatch = text.match(/\b(black|white|blue|red|green|yellow|pink|purple|orange|brown|gray|grey|silver|gold)\b/i);
-        if (colorMatch) color = colorMatch[1];
+        if (colorMatch) color = colorMatch[1].toLowerCase();
+
+        let brand = '';
+        const brandMatch = text.match(/\b(apple|samsung|infinix|oppo|vivo|realme|casio|aquaflask|hydro\s*flask|jansport|nike|adidas)\b/i);
+        if (brandMatch) brand = brandMatch[1];
 
         let location = '';
         const locMatch = text.match(/\b(library|canteen|gym|gymnasium|court|lab|laboratory|admin|primera|mongeau|eugene|clinic|registrar|cashier|quadrangle)\b/i);
         if (locMatch) location = locMatch[1];
 
+        const rawTokens = text.replace(/[^a-z0-9\s]/g, ' ').split(/\s+/);
+        const keywords = rawTokens.filter(w => w.length > 2 && !NLP_STOP_WORDS.has(w));
+        if (itemName && !keywords.includes(itemName.toLowerCase())) {
+            keywords.unshift(itemName.toLowerCase());
+        }
+
+        const queryType = /found|nakita|surrender|turn\s*in/i.test(text) ? 'found' : 'lost';
+
         return {
             isSearch: true,
             extracted: {
+                itemName,
                 category,
                 color,
-                brand: '',
+                brand,
                 location,
-                keywords: text.split(/\s+/).filter(w => w.length > 2)
+                keywords,
+                queryType
             },
-            conversationalResponse: `I'm scanning our NDMC campus database for items matching "${raw}".`
+            conversationalResponse: itemName
+                ? `I'm scanning our NDMC campus database for any recorded **${itemName}**${location ? ` near the ${location}` : ''}.`
+                : `I'm checking our campus database for recently reported items${location ? ` in the ${location}` : ''}.`
         };
     }
 
@@ -305,17 +376,23 @@ SYSTEM & CAMPUS KNOWLEDGE BASE
 • Developer / Proponent: Rogie Patrocinio Bacanto (BSCS-4) for Software Engineering 2 (SE2) under Mr. Allan Aragon.
 • Campus Security & Admin Office: Ground Floor, Main Admin Building (Mon-Fri 8:00 AM - 6:00 PM, Phone: 0956-932-7442, Email: rogiebacanto2002@gmail.com).
 • Campus Locations: Library, Primera Hall, Bishop Mongeau Bldg., College Canteen, Gymnasium, Covered Court, Science Labs, Admin Building, St. Eugene Hall, Computer Labs, Registrar Office, Quadrangle, Cashier, Clinic.
-• Core System Features:
-  1. "Report Lost Item" (Red button): File a lost item report with details, campus location, and photo.
-  2. "Report Found Item" (Green button): Log a found item turned over on campus.
-  3. "Claim Item": Browse found items, click 'Claim This Item', submit proof of ownership (student ID, serial number, photo, or private identifying feature like wallpaper or keychain). Security verifies proof before release.
-  4. "AI Photo Search": Users can click the camera icon in chat to upload an item photo for instant visual AI scanning.
-  5. "Gemini AI Visual Matching": Uses Gemini 2.5 Flash-Lite Multimodal Vision + dual-tier scoring to automatically match lost reports with found reports.
+• System Categories:
+  1. "Electronics" (Phones, laptops, chargers, earbuds, calculators)
+  2. "Books & Documents" (Textbooks, notebooks, binders, official papers)
+  3. "Clothing & Accessories" (Jackets, hoodies, bags, jewelry, watches)
+  4. "Keys" (Motorcycle keys, padlock keys, car keys, key fobs)
+  5. "Wallets & Cards" (Wallets, student IDs, ATM cards, RFID badges)
+  6. "Sports Equipment" (Balls, rackets, gym gear)
+  7. "Personal Items" (Glasses, sunglasses, umbrellas, tumblers, water bottles)
+  8. "Musical Instruments" (Guitars, accessories)
+  9. "Stationery" (Calculators, pens, rulers, drafting tools)
+  10. "Other" (Miscellaneous items)
 • Important Rules:
-  - NEVER break character. You are the campus retrieval assistant, NOT an external software developer. Do not pitch or suggest software features to the user.
-  - ALWAYS maintain multi-turn memory. If the user mentions their name, an item they lost earlier, or refers to "it" / "that item", recall the exact context.
-  - NEVER output raw code, markdown code blocks, scripts, or JSON to the user.
-  - Respond in clear, polite, natural human English (or Tagalog/Taglish if the user asks in Filipino).
+  - NEVER break character. You are the campus retrieval assistant, NOT an external software developer.
+  - ALWAYS maintain multi-turn memory. If the user mentions their name or an item they lost earlier, recall the exact context.
+  - NEVER invent or promise that an item has been found before database verification.
+  - NEVER output raw code, markdown code blocks, or scripts.
+  - Respond in clear, polite English (or Tagalog/Taglish if asked in Filipino).
 
 ================================================================================
 CURRENT TURN
@@ -324,17 +401,18 @@ ${historyContext}Current User Message: "${textTrimmed}"
 
 Instructions:
 1. Intent Classification:
-   - Set "isSearch" to true ONLY IF the user is actively searching for, describing, or asking to check database records for a specific physical lost/found item (e.g., "I lost my black wallet", "did anyone find keys?", "searching for iphone in library").
+   - Set "isSearch" to true ONLY IF the user is actively searching for, describing, or asking to check database records for a physical lost/found item (e.g., "I lost my umbrella", "did anyone find keys?", "searching for iphone in library", "what was found in canteen?").
    - Set "isSearch" to false for greetings, conversational follow-ups, questions about the school/system/proponent, claiming steps, office hours, or general chat.
-2. Feature Extraction (if searching for a physical item):
-   - "itemName": specific item name (e.g., "Black Leather Wallet", "Infinix Phone", "Keys")
-   - "category": ("Electronics & Devices", "Personal Items", "Books & Documents", "Clothing & Accessories", "Keys", "Other")
-   - "color": extracted color
-   - "brand": brand if mentioned
-   - "location": campus location if mentioned
-   - "keywords": array of 2-5 relevant search keywords
+2. Feature Extraction (if searching for a physical item or checking campus items):
+   - "itemName": specific concise name of the physical item sought (e.g., "Umbrella", "Wallet", "Keys", "Scientific Calculator", "iPhone", "Tumbler", "Student ID Card"). If user speaks Filipino/Taglish (e.g. "payong", "pitaka", "susi", "salamin", "calcu"), translate to English ("Umbrella", "Wallet", "Keys", "Eyeglasses", "Calculator"). Leave empty ONLY if user is asking a general location query without a specific item.
+   - "category": Match the most suitable category from the System Categories above.
+   - "color": specific color if mentioned
+   - "brand": brand if mentioned (e.g., "Apple", "Casio", "AquaFlask", "Jansport")
+   - "location": campus location if mentioned (e.g., "Library", "College Canteen", "Gym")
+   - "keywords": array of 2-5 relevant, non-filler search keywords (e.g., ["umbrella", "folding", "black"]). NEVER include filler words like "lost", "found", "did", "anyone", "item".
+   - "queryType": "lost" (user lost something), "found" (user found something), or "all"
 3. Conversational Response:
-   - Provide a natural, friendly, knowledgeable response in "conversationalResponse" (1-3 sentences).
+   - Provide a natural, friendly, helpful response in "conversationalResponse" (1-2 sentences). Acknowledge the specific item they mentioned.
 
 Return ONLY a valid JSON object matching this schema:
 {
@@ -345,6 +423,7 @@ Return ONLY a valid JSON object matching this schema:
   "brand": "<brand or empty>",
   "location": "<location or empty>",
   "keywords": ["<k1>", "<k2>"],
+  "queryType": "lost/found/all",
   "conversationalResponse": "<your direct conversational response>"
 }`;
 
@@ -371,7 +450,8 @@ Return ONLY a valid JSON object matching this schema:
                         color: jsonResult.color || '',
                         brand: jsonResult.brand || '',
                         location: jsonResult.location || '',
-                        keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : []
+                        keywords: Array.isArray(jsonResult.keywords) ? jsonResult.keywords : [],
+                        queryType: jsonResult.queryType || 'lost'
                     },
                     conversationalResponse: jsonResult.conversationalResponse || "Hello! How can I assist you with campus lost and found items today?"
                 };

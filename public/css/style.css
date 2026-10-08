@@ -2105,9 +2105,62 @@ body.dark-mode .breadcrumb-item + .breadcrumb-item::before {
     color: var(--text-muted);
 }
 
-/* Dark Mode - Fix text-dark class */
-body.dark-mode .text-dark {
+/* Dark Mode - Buttons, Badges and Text Contrast */
+body.dark-mode .btn-warning.text-dark,
+body.dark-mode .btn-warning.text-black,
+body.dark-mode .btn-warning,
+body.dark-mode .btn-info.text-dark,
+body.dark-mode .btn-info.text-black,
+body.dark-mode .btn-info,
+body.dark-mode .badge.bg-warning.text-dark,
+body.dark-mode .badge.bg-warning.text-black,
+body.dark-mode .badge.bg-warning,
+body.dark-mode .badge.bg-info.text-dark,
+body.dark-mode .badge.bg-info.text-black,
+body.dark-mode .badge.bg-light.text-dark {
+    color: #0f172a !important;
+}
+
+body.dark-mode .btn-outline-dark {
+    color: #f1f5f9 !important;
+    border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+body.dark-mode .btn-outline-dark:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+/* Dark Mode - Invert dark text classes when not inside warning/info buttons or badges */
+body.dark-mode .text-dark:not(.btn):not(.badge),
+body.dark-mode .text-black:not(.btn):not(.badge),
+body.dark-mode .text-body:not(.btn):not(.badge) {
     color: var(--text-primary) !important;
+}
+
+body.dark-mode .text-muted {
+    color: #94a3b8 !important;
+}
+
+body.dark-mode .text-secondary {
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .card-title,
+body.dark-mode .card-header,
+body.dark-mode .card-header h4,
+body.dark-mode .card-header h5,
+body.dark-mode .card-header h6,
+body.dark-mode .card-body h5 {
+    color: #ffffff !important;
+}
+
+body.dark-mode .stat-card .stat-number {
+    color: #ffffff !important;
+}
+
+body.dark-mode .stat-card .stat-label {
+    color: #94a3b8 !important;
 }
 
 /* Dark Mode - Item Details Page */
@@ -3657,4 +3710,31 @@ body.dark-mode .claim-stepper::before {
 .hover-elevate:hover {
     transform: translateY(-3px);
     box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.12) !important;
+}
+
+
+/* ================================
+   Global Clean White Print Reset
+   ================================ */
+@media print {
+    html, body, html.dark-mode, body.dark-mode {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        background-image: none !important;
+        color: #0f172a !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    body::before, body::after, html::before, html::after {
+        display: none !important;
+        content: none !important;
+    }
+
+    .navbar, footer, .ai-assistant-widget, #aiAssistantBtn, #aiAssistantChatWindow, 
+    .modal, .alert, .breadcrumb, .btn-float {
+        display: none !important;
+    }
 }

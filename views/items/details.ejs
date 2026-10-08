@@ -389,11 +389,34 @@
 
     // === PRINT POSTER ===
     function printPoster() {
+        var poster = document.getElementById('posterPrintArea');
+        if (!poster) return;
+
+        // Move poster directly to body so it is not hidden with main content
+        var originalParent = poster.parentNode;
+        var nextSibling = poster.nextSibling;
+        document.body.appendChild(poster);
         document.body.classList.add('printing-poster');
-        window.print();
-        setTimeout(function () {
+
+        var isCleanedUp = false;
+        var cleanup = function () {
+            if (isCleanedUp) return;
+            isCleanedUp = true;
             document.body.classList.remove('printing-poster');
-        }, 1000);
+            if (nextSibling && originalParent && originalParent.contains(nextSibling)) {
+                originalParent.insertBefore(poster, nextSibling);
+            } else if (originalParent) {
+                originalParent.appendChild(poster);
+            }
+            window.removeEventListener('afterprint', cleanup);
+        };
+
+        window.addEventListener('afterprint', cleanup);
+
+        setTimeout(function () {
+            window.print();
+            setTimeout(cleanup, 2000);
+        }, 150);
     }
 </script>
 
@@ -510,39 +533,51 @@
             margin: 10mm;
         }
 
-        /* Force page background to pure white and default text to dark */
-        html, body {
+        /* Force page background to pure white and remove dark mode pseudo elements */
+        html, body, html.dark-mode, body.dark-mode {
             background: #ffffff !important;
             background-color: #ffffff !important;
+            background-image: none !important;
             color: #0f172a !important;
+            margin: 0 !important;
+            padding: 0 !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
 
-        /* Hide everything on the page except the poster */
-        body.printing-poster > *:not(.poster-container) {
+        body::before, body::after, html::before, html::after {
+            display: none !important;
+            content: none !important;
+        }
+
+        /* Hide all page components */
+        header, nav, footer, .navbar, .main-content > *:not(#posterPrintArea):not(.poster-container),
+        .ai-assistant-widget, #aiAssistantBtn, #aiAssistantChatWindow, .modal, .btn, .breadcrumb,
+        body.printing-poster > *:not(#posterPrintArea):not(.poster-container) {
             display: none !important;
         }
 
-        body.printing-poster * {
-            visibility: hidden !important;
-        }
-
         /* Show only the poster */
-        body.printing-poster .poster-container,
-        body.printing-poster .poster-container * {
-            visibility: visible !important;
-        }
-
+        .poster-container,
+        #posterPrintArea,
         body.printing-poster .poster-container {
             display: block !important;
+            visibility: visible !important;
             position: static !important;
             width: 100% !important;
+            max-width: 100% !important;
             height: auto !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
             padding: 0 !important;
             background: #ffffff !important;
             background-color: #ffffff !important;
+            background-image: none !important;
+        }
+
+        .poster-container *,
+        #posterPrintArea *,
+        body.printing-poster .poster-container * {
+            visibility: visible !important;
         }
 
         .poster-page {
