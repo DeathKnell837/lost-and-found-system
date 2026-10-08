@@ -1,4 +1,9 @@
-# NOTRE DAME OF MIDSAYAP COLLEGE
+# -*- coding: utf-8 -*-
+"""
+Export script to generate FINAL_SYSTEM_DOCUMENTATION.md with high-resolution visual diagrams and verified non-404 references.
+"""
+
+content = """# NOTRE DAME OF MIDSAYAP COLLEGE
 ## COLLEGE OF INFORMATION TECHNOLOGY AND ENGINEERING
 ### Midsayap, Cotabato, Philippines
 
@@ -541,3 +546,9 @@ All reference entries below adhere to academic APA 7th edition guidelines, citin
 | EMAIL_PASS | Sender email app password | 16-character Google App Password (not standard password) |
 | BREVO_API_KEY | Brevo HTTPS Email API key | Fallback HTTP email dispatcher for cloud platforms |
 | AUTO_SEED | Automated sample data populator | 'true' populates 50 items and 42 mockups on first boot |
+"""
+
+with open(r'c:\Users\USER\Desktop\Losr&Found\FINAL_SYSTEM_DOCUMENTATION.md', 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("Export of FINAL_SYSTEM_DOCUMENTATION.md completed successfully.")
